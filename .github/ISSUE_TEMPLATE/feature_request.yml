@@ -1,0 +1,54 @@
+name: Feature Request
+description: Suggest an idea
+labels: ['enhancement']
+title: 'Feature: '
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to fill out this feature report!
+  - type: dropdown
+    id: package
+    attributes:
+      label: "Target Package"
+      description: "Which package is this feature request related to?"
+      options:
+        - "astro-loader-tweets"
+        - "astro-loader-gh-releases"
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for request
+      description: Please explain why this feature is important or how it will improve your experience.
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Feature description
+      description: Describe the feature in detail. If you plan to submit a PR, mention it here. Thanks!
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Suggested solution
+      description: How can I implement this feature? Reference projects are welcome, but no problem if there’s no solution for now.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Any other context about the feature request here.
+    validations:
+      required: false
+  - type: checkboxes
+    id: validations
+    attributes:
+      label: Before Submitting
+      options:
+        - label: Check that there isn't [already an issue](https://github.com/lin-stephanie/astro-loaders/issues) that request the same feature.
+          required: true
+

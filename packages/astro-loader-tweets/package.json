@@ -1,0 +1,37 @@
+{
+  "name": "@ste7lin/astro-loader-tweets",
+  "private": false,
+  "version": "0.0.0",
+  "description": "",
+  "author": "Stephanie Lin <norwaywoods047@gmail.com>",
+  "license": "MIT",
+  "keywords": ["withastro", "astro-loader"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
+    "directory": "packages/astro-loader-tweets"
+  },
+  "homepage": "https://github.com/in-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/README.md",
+  "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
+  "type": "module",
+  "files": ["dist"],
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {},
+  "devDependencies": {},
+  "dependencies": {},
+  "peerDependencies": {
+    "astro": "^4.14.0 || ^5.0.0-beta.0"
+  },
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
+  "packageManager": "pnpm@9.12.3"
+}

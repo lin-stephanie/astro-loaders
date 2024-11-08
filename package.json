@@ -1,0 +1,29 @@
+{
+  "name": "root",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Monorepo for managing Astro loader packages, including @ste7lin/astro-loaders-tweets, @ste7lin/astro-loaders-releases, and @ste7lin/astro-loaders-prs.",
+  "author": "Stephanie Lin <norwaywoods047@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "repository": "github:lin-stephanie/astro-loaders",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "test": "pnpm test --filter @ste7lin/*",
+    "build": "pnpm test --filter @ste7lin/*",
+    "build:docs": "astro build --root docs",
+    "check": "pnpm check --filter @ste7lin/*",
+    "format": "biome format",
+    "format:write": "biome format --write",
+    "format:imports": "biome check --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true --write",
+    "lint": "biome lint",
+    "lint:fix": "biome lint --write"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4"
+  },
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
+  "packageManager": "pnpm@9.12.3"
+}

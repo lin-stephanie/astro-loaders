@@ -1,0 +1,55 @@
+name: Bug Report
+description: File a bug report
+labels: ['bug']
+title: 'Bug: '
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to fill out this bug report!
+  - type: dropdown
+    id: package
+    attributes:
+      label: "Target Package"
+      description: "Which package is this bug related to?"
+      options:
+        - "astro-loader-tweets"
+        - "astro-loader-gh-releases"
+    validations:
+      required: true
+  - type: textarea
+    id: bug
+    attributes:
+      label: Bug description
+      description: What's happening and when does it happen?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The more detail you provide, the easier it will be to narrow down and fix the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen?
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant errors (if available)
+      description: Please copy and paste any relevant log output.
+    validations:
+      required: false
+  - type: checkboxes
+    id: validations
+    attributes:
+      label: Before Submitting
+      options:
+        - label: Verify that you are on the latest version.
+          required: true
+        - label: Check that there isn't [already an issue](https://github.com/lin-stephanie/astro-loaders/issues) that reports the same bug.
+          required: true
