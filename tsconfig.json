@@ -6,6 +6,7 @@
 
     /* Modules */
     "module": "nodenext",
+    "resolveJsonModule": true,
     // "moduleResolution": "nodenext",            // matches if module is node16 or nodenext
     // "types": ["node"],
 

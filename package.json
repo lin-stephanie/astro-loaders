@@ -10,9 +10,9 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "test": "pnpm test --filter @ste7lin/*",
-    "build": "pnpm test --filter @ste7lin/*",
-    "build:docs": "astro build --root docs",
     "check": "pnpm check --filter @ste7lin/*",
+    "build": "pnpm build --filter @ste7lin/*",
+    "build:docs": "astro build --root docs",
     "format": "biome format",
     "format:write": "biome format --write",
     "format:imports": "biome check --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true --write",
