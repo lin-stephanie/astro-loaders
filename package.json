@@ -20,7 +20,8 @@
     "lint:fix": "biome lint --write"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4"
+    "@biomejs/biome": "1.9.4",
+    "astro": "^4.16.12"
   },
   "engines": {
     "node": "^18.0.0 || >=20.0.0"
