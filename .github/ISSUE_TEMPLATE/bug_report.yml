@@ -13,7 +13,8 @@ body:
       description: "Which package is this bug related to?"
       options:
         - "astro-loader-tweets"
-        - "astro-loader-gh-releases"
+        - "astro-loader-github-prs"
+        - "astro-loader-github-releases"
     validations:
       required: true
   - type: textarea

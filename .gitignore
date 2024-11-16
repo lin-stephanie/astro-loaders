@@ -27,5 +27,5 @@ dist/
 # astro files
 .astro
 
-# artifacts
-.local
+# archived files
+archive/

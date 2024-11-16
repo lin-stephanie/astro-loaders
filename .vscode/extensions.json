@@ -4,6 +4,9 @@
     "EditorConfig.EditorConfig",
 
     // https://marketplace.visualstudio.com/items?itemName=biomejs.biome
-    "biomejs.biome"
+    "biomejs.biome",
+
+    // https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql-syntax
+    "GraphQL.vscode-graphql-syntax"
   ]
 }

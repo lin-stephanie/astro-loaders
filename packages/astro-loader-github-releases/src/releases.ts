@@ -64,6 +64,7 @@ async function fetchReleasesByUserCommit(
         if (lastPushTime && lastPushTime === item.created_at) break fetching
         if (!latestPushTime) latestPushTime = item.created_at as string
 
+        // // https://docs.github.com/en/rest/using-the-rest-api/github-event-types?apiVersion=2022-11-28#event-payload-object-for-pushevent
         // @ts-expect-error
         const commits = item.payload.commits as Commit[]
         for (const commit of commits) {

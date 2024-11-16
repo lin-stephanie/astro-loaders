@@ -27,6 +27,5 @@
 
     /* Completeness */
     "skipDefaultLibCheck": false
-  },
-  "include": ["src"]
+  }
 }
