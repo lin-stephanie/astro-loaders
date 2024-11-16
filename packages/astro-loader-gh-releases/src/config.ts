@@ -14,7 +14,8 @@ export const userCommitDefaultConfig = {
 }
 
 export const repoListtDefaultConfig = {
-  sinceDate: 'all-time',
+  sinceDate: null,
+  entryReturnType: 'byRepository' as const,
 }
 
 export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
@@ -24,6 +25,9 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
       /**
        * Fetch release data based on commit messages in push events from a specific GitHub user.
        * (Uses the GitHub API endpoint: {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user `GET /users/<username>/events/public`})
+       *
+       * @remark Only release data from the past 90 days can be retrieved in this mode.
+       * {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#about-github-events Learn more.}
        */
       fetchMode: z.literal('userCommit'),
 
@@ -45,6 +49,8 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
 
         /**
          * Regular expression for matching version numbers in commit messages.
+         *
+         * @remark The first capturing group in the regex will be used for the `releaseVersion` field.
          *
          * @default 'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s|$)'
          */
@@ -80,7 +86,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
         /**
          * Specifies the repositories from which to fetch release data, each formatted as "owner/repo".
          */
-        repositories: z
+        repos: z
           .array(
             z.string().regex(/^[^\/]+\/[^\/]+$/, {
               message: 'Repository name must follow the "owner/repo" format',
@@ -96,25 +102,40 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
          * @remark If not specified, fetch all.
          */
         sinceDate: z
-          .union([z.coerce.date(), z.literal(repoListtDefaultConfig.sinceDate)])
+          .union([z.coerce.date(), z.null()])
           .default(repoListtDefaultConfig.sinceDate),
+
+        /**
+         * Determines whether entries are returned per repository or per individual release item.
+         * - 'byRepository': Return entries per repository.
+         * - 'byRelease': Return entries per individual release item.
+         *
+         * @remark This option influences the Zod Schema of the loaded entries and how the data is processed afterward.
+         *
+         * @default 'byRepository'
+         */
+        entryReturnType: z
+          .union([z.literal('byRepository'), z.literal('byRelease')])
+          .default(repoListtDefaultConfig.entryReturnType),
       }),
     }),
   ]
 )
 
-export const UserCommitConfigSchema =
-  GithubReleasesLoaderConfigSchema.options[0]
-export type UserCommitInputConfig = z.input<typeof UserCommitConfigSchema>
-export type UserCommitOutputConfig = z.output<typeof UserCommitConfigSchema>
-
-export const RepoListConfigSchema = GithubReleasesLoaderConfigSchema.options[1]
-export type RepoListInputConfig = z.input<typeof RepoListConfigSchema>
-export type RepoListOutputConfig = z.output<typeof RepoListConfigSchema>
-
+/* Github Releases Loader Config */
 export type GithubReleasesLoaderUserConfig = z.input<
   typeof GithubReleasesLoaderConfigSchema
 >
-export type GithubReleasesLoaderConfig = z.output<
-  typeof GithubReleasesLoaderConfigSchema
->
+// export type GithubReleasesLoaderConfig = z.output<
+//   typeof GithubReleasesLoaderConfigSchema
+// >
+
+/* User Commit Config */
+const UserCommitConfigSchema = GithubReleasesLoaderConfigSchema.options[0]
+// export type UserCommitInputConfig = z.input<typeof UserCommitConfigSchema>
+export type UserCommitOutputConfig = z.output<typeof UserCommitConfigSchema>
+
+/* Repo List Config */
+const RepoListConfigSchema = GithubReleasesLoaderConfigSchema.options[1]
+// export type RepoListInputConfig = z.input<typeof RepoListConfigSchema>
+export type RepoListOutputConfig = z.output<typeof RepoListConfigSchema>

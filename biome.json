@@ -13,7 +13,10 @@
     "attributePosition": "auto",
     "bracketSpacing": true
   },
-  "linter": { "enabled": true, "rules": { "recommended": true } },
+  "linter": {
+    "enabled": true,
+    "rules": { "recommended": true, "suspicious": { "noExplicitAny": "off" } }
+  },
   "organizeImports": { "enabled": true },
   "javascript": {
     "formatter": {

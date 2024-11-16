@@ -1,44 +1,52 @@
 import { Octokit } from 'octokit'
-import type { LoaderContext } from 'astro/loaders'
-import type { UserCommitReleaseItem, Commit } from './schema.js'
-import type { UserCommitOutputConfig } from './config.js'
 
-interface FetchReleasesByUserCommit {
-  status: 200 | 304
-  releases: UserCommitReleaseItem[]
-}
+import { readFileSync } from 'node:fs'
+
+import type { LoaderContext } from 'astro/loaders'
+import type {
+  ReleaseByIdFromUser,
+  ReleaseByIdFromRepos,
+  ReleaseByRepoFromRepos,
+  Commit,
+} from './schema.js'
+import type { UserCommitOutputConfig, RepoListOutputConfig } from './config.js'
+import type {
+  GetReleasesQuery,
+  GetReleasesQueryVariables,
+} from './graphql/types.js'
 
 const PER_PAGE = 100
-const PAGE = 3
+const MAX_PAGE = 3
 
 async function fetchReleasesByUserCommit(
   config: UserCommitOutputConfig['modeConfig'],
   meta: LoaderContext['meta'],
   logger: LoaderContext['logger']
-): Promise<FetchReleasesByUserCommit> {
-  let latestPushTime = ''
-  const releases: UserCommitReleaseItem[] = []
+): Promise<{
+  status: 200 | 304
+  releases: ReleaseByIdFromUser[]
+}> {
   const { username, keyword, versionRegex, branches, prependV } = config
 
+  const releases: ReleaseByIdFromUser[] = []
   const etag = meta.get('etag')
   const lastPushTime = meta.get('lastPushTime')
-  // const lastPushTime = +new Date(meta.get('lastPushTime') || 0)
-
   const octokit = new Octokit(/* { auth: import.meta.env.GITHUB_TOKEN } */)
-
   const headers = {
     'X-GitHub-Api-Version': '2022-11-28',
     accept: 'application/vnd.github+json',
     ...(etag ? { 'If-None-Match': etag } : {}),
   }
 
-  fetching: for (let page = 1; page <= 3; page++) {
+  let latestPushTime = ''
+
+  fetching: for (let page = 1; page <= MAX_PAGE; page++) {
     try {
       const res = await octokit.request('GET /users/{username}/events/public', {
         headers,
         username,
         per_page: PER_PAGE,
-        page: PAGE,
+        page,
       })
 
       if (res.status === (304 as number)) return { status: 304, releases }
@@ -48,7 +56,6 @@ async function fetchReleasesByUserCommit(
         .filter((item) => item.type === 'PushEvent' && item.public)
 
         // filter out activities from other forks by checking the ref when syncing PRs
-        // biome-ignore lint/suspicious/noExplicitAny: fix the missing ref field in the type definition at push event.
         .filter((item) => branches.includes((item.payload as any)?.ref))
 
         .filter((item) => item.created_at != null)
@@ -61,14 +68,16 @@ async function fetchReleasesByUserCommit(
         const commits = item.payload.commits as Commit[]
         for (const commit of commits) {
           const message = (commit?.message || '').split('\n')[0]
-          const version = message.match(new RegExp(versionRegex))?.[1] || ''
+          const versionNum = message.match(new RegExp(versionRegex))?.[1] || ''
+          const version = prependV ? `v${versionNum}` : versionNum
 
-          if (message.includes(keyword) && version) {
+          if (message.includes(keyword) && versionNum) {
             releases.push({
               id: item.id,
               repoName: item.repo.name,
               repoUrl: `https://github.com/${item.repo.name}`,
-              releaseVersion: prependV ? `v${version}` : version,
+              releaseVersion: version,
+              releaseUrl: `https://github.com/${item.repo.name}/releases/tag/${version}`,
               commitMessage: message,
               commitSha: commit?.sha || '',
               commitUrl: `https://github.com/${item.repo.name}/commit/${commit?.sha}`,
@@ -77,7 +86,7 @@ async function fetchReleasesByUserCommit(
               isOrg: item.org !== undefined,
               OrgLogin: item.org?.login,
               OrgAvatarUrl: item.org?.avatar_url,
-              created_at: item.created_at as string,
+              createdAt: item.created_at as string,
             })
           }
         }
@@ -94,4 +103,97 @@ async function fetchReleasesByUserCommit(
   return { status: 200, releases }
 }
 
-export { fetchReleasesByUserCommit }
+async function fetchReleasesByRepoList(
+  config: RepoListOutputConfig['modeConfig'],
+  logger: LoaderContext['logger']
+): Promise<ReleaseByIdFromRepos[] | ReleaseByRepoFromRepos[]> {
+  const { repos, sinceDate, entryReturnType } = config
+
+  const releasesById: ReleaseByIdFromRepos[] = []
+  const releasesByRepo: ReleaseByRepoFromRepos[] = []
+  const filterDate = sinceDate === null ? sinceDate : +new Date(sinceDate)
+  const getReleasesQuery = readFileSync('./src/queries.graphql', 'utf8')
+  const octokit = new Octokit(/* { auth: import.meta.env.GITHUB_TOKEN } */)
+
+  try {
+    for (const repo of repos) {
+      const [owner, repoName] = repo.split('/')
+      const releasesPreRepo: ReleaseByIdFromRepos[] = []
+
+      let hasNextPage = true
+      let cursor: string | null = null
+
+      while (hasNextPage) {
+        const variables: GetReleasesQueryVariables = {
+          owner,
+          repo: repoName,
+          first: PER_PAGE,
+          cursor,
+        }
+
+        const res = await octokit.graphql<GetReleasesQuery>(
+          getReleasesQuery,
+          variables
+        )
+
+        const releasesPerPage =
+          res.repository?.releases.nodes
+            ?.filter((node) => node !== null)
+            .map((node) => {
+              return {
+                id: node.id,
+                repoName: node.repository.nameWithOwner,
+                repoUrl: node.repository.url,
+                releaseVersion: node.tagName,
+                releaseUrl: node.url,
+                releaseTitle: node.name || '',
+                releaseDesc: node.description || '',
+                releaseDescHtml: node.descriptionHTML,
+                publishedAt: node.publishedAt,
+              }
+            }) || []
+
+        let filteredReleasesPerPage: ReleaseByIdFromRepos[] = []
+        let stopFetching = false
+
+        if (filterDate !== null) {
+          filteredReleasesPerPage = releasesPerPage.filter((release) => {
+            return +new Date(release.publishedAt) >= filterDate
+          })
+
+          if (
+            +new Date(releasesPerPage[releasesPerPage.length - 1].publishedAt) <
+            filterDate
+          ) {
+            stopFetching = true
+          }
+        }
+
+        if (entryReturnType === 'byRelease')
+          releasesById.push(...filteredReleasesPerPage)
+        if (entryReturnType === 'byRepository')
+          releasesPreRepo.push(...filteredReleasesPerPage)
+
+        hasNextPage =
+          (res.repository?.releases.pageInfo.hasNextPage && !stopFetching) ||
+          false
+        cursor = res.repository?.releases.pageInfo.endCursor || null
+      }
+
+      if (entryReturnType === 'byRepository') {
+        releasesByRepo.push({
+          repo: repo,
+          repoReleases: releasesPreRepo,
+        })
+      }
+    }
+  } catch (error) {
+    logger.error(
+      `Failed to load release data in 'repoList' mode. ${(error as Error).message}`
+    )
+  }
+
+  return entryReturnType === 'byRelease' ? releasesById : releasesByRepo
+}
+
+export { fetchReleasesByUserCommit, fetchReleasesByRepoList }

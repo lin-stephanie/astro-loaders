@@ -1,10 +1,15 @@
 import { AstroError } from 'astro/errors'
+
+import { getEntrySchema } from './schema.js'
 import {
   GithubReleasesLoaderConfigSchema,
   userCommitDefaultConfig,
+  repoListtDefaultConfig,
 } from './config.js'
-import { UserCommitReleaseItemSchema } from './schema.js'
-import { fetchReleasesByUserCommit } from './releases.js'
+import {
+  fetchReleasesByUserCommit,
+  fetchReleasesByRepoList,
+} from './releases.js'
 import pkg from '../package.json'
 
 import type { Loader } from 'astro/loaders'
@@ -13,9 +18,7 @@ import type { GithubReleasesLoaderUserConfig } from './config.js'
 function githubReleasesLoader(
   userConfig: GithubReleasesLoaderUserConfig
 ): Loader {
-  // check and retrieve user configuration
   const parsedConfig = GithubReleasesLoaderConfigSchema.safeParse(userConfig)
-
   if (!parsedConfig.success) {
     throw new AstroError(
       `The configuration provided in '${pkg.name}' is invalid. Refer to the following error report
@@ -23,23 +26,21 @@ function githubReleasesLoader(
       `${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}`
     )
   }
-
   const parsedUserConfig = parsedConfig.data
 
   return {
     name: pkg.name,
-    schema: UserCommitReleaseItemSchema,
-    async load({ meta, store, logger, parseData, generateDigest }) {
+    schema: getEntrySchema(parsedUserConfig),
+    async load({ meta, store, logger, parseData /* , generateDigest */ }) {
       if (parsedUserConfig.fetchMode === 'userCommit') {
         logger.info(
-          `Loading release data for user @${parsedUserConfig.modeConfig.username} in 'userCommit' mode.`
+          `Loading GitHub releases for user @${parsedUserConfig.modeConfig.username} using the 'userCommit' mode.`
         )
 
         const modeConfig = {
           ...userCommitDefaultConfig,
           ...parsedUserConfig.modeConfig,
         }
-
         const { status, releases } = await fetchReleasesByUserCommit(
           modeConfig,
           meta,
@@ -50,15 +51,38 @@ function githubReleasesLoader(
 
         if (status === 200) {
           logger.info('Successfully loaded the latest release data.')
-
-          // store.clear()
-
           for (const item of releases) {
             const parsedItem = await parseData({ id: item.id, data: item })
             store.set({ id: item.id, data: parsedItem })
           }
         }
+
+        logger.info('Successfully saved the loaded release data to the store.')
       } else if (parsedUserConfig.fetchMode === 'repoList') {
+        logger.info(
+          `Loading release data for ${parsedUserConfig.modeConfig.repos.join(', ')} using the 'repoList' mode.`
+        )
+
+        const modeConfig = {
+          ...repoListtDefaultConfig,
+          ...parsedUserConfig.modeConfig,
+        }
+        const releases = await fetchReleasesByRepoList(modeConfig, logger)
+
+        logger.info('Successfully loaded the latest release data.')
+
+        store.clear()
+        for (const item of releases) {
+          if ('id' in item && modeConfig.entryReturnType === 'byRelease') {
+            const parsedItem = await parseData({ id: item.id, data: item })
+            store.set({ id: item.id, data: parsedItem })
+          } else if ('repo' in item) {
+            const parsedItem = await parseData({ id: item.repo, data: item })
+            store.set({ id: item.repo, data: parsedItem })
+          }
+        }
+
+        logger.info('Successfully saved the loaded release data to the store.')
       } else
         throw new AstroError(
           `The configuration provided in '${pkg.name}' is invalid.`,
