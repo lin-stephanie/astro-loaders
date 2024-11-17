@@ -24,7 +24,9 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "generate": "graphql-codegen --config codegen.ts"
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "generate": "graphql-codegen --config codegen.config.ts"
   },
   "dependencies": {
     "octokit": "^4.0.2"
