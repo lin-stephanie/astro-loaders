@@ -1,16 +1,16 @@
 import { AstroError } from 'astro/errors'
 
-import { getEntrySchema } from './schema.js'
+import pkg from '../package.json'
 import {
   GithubReleasesLoaderConfigSchema,
-  userCommitDefaultConfig,
   repoListtDefaultConfig,
+  userCommitDefaultConfig,
 } from './config.js'
 import {
-  fetchReleasesByUserCommit,
   fetchReleasesByRepoList,
+  fetchReleasesByUserCommit,
 } from './releases.js'
-import pkg from '../package.json'
+import { getEntrySchema } from './schema.js'
 
 import type { Loader } from 'astro/loaders'
 import type { GithubReleasesLoaderUserConfig } from './config.js'
@@ -43,11 +43,10 @@ function githubReleasesLoader(
         }
         const { status, releases } = await fetchReleasesByUserCommit(
           modeConfig,
-          meta,
-          logger
+          meta
         )
 
-        if (status === 304) logger.info('Release data not modified, skipping')
+        if (status === 304) logger.info('No new release data since last fetch.')
 
         if (status === 200) {
           logger.info('Successfully loaded the latest release data.')
@@ -67,7 +66,7 @@ function githubReleasesLoader(
           ...repoListtDefaultConfig,
           ...parsedUserConfig.modeConfig,
         }
-        const releases = await fetchReleasesByRepoList(modeConfig, logger)
+        const releases = await fetchReleasesByRepoList(modeConfig)
 
         logger.info('Successfully loaded the latest release data.')
 

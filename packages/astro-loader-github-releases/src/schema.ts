@@ -27,8 +27,8 @@ export const ReleaseByIdFromUserSchema = z.object({
   actorLogin: z.string(),
   actorAvatarUrl: z.string(),
   isOrg: z.boolean(),
-  OrgLogin: z.string().optional(),
-  OrgAvatarUrl: z.string().optional(),
+  orgLogin: z.string().optional(),
+  orgAvatarUrl: z.string().optional(),
   createdAt: z.string(),
 })
 export type ReleaseByIdFromUser = z.infer<typeof ReleaseByIdFromUserSchema>

@@ -1,4 +1,9 @@
-query GetReleases($owner: String!, $repo: String!, $first: Int!, $cursor: String) {
+query GetReleases(
+  $owner: String!
+  $repo: String!
+  $first: Int!
+  $cursor: String
+) {
   repository(owner: $owner, name: $repo) {
     releases(first: $first, after: $cursor) {
       nodes {

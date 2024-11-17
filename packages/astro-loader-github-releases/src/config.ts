@@ -11,6 +11,7 @@ export const userCommitDefaultConfig = {
     'refs/heads/release',
     'refs/heads/dev',
   ],
+  prependV: false,
 }
 
 export const repoListtDefaultConfig = {
@@ -68,7 +69,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
         /**
          * Whether to prepend "v" to the `releaseVersion` field value.
          */
-        prependV: z.boolean().default(true),
+        prependV: z.boolean().default(userCommitDefaultConfig.prependV),
       }),
     }),
 
@@ -122,20 +123,12 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
   ]
 )
 
-/* Github Releases Loader Config */
 export type GithubReleasesLoaderUserConfig = z.input<
   typeof GithubReleasesLoaderConfigSchema
 >
-// export type GithubReleasesLoaderConfig = z.output<
-//   typeof GithubReleasesLoaderConfigSchema
-// >
 
-/* User Commit Config */
 const UserCommitConfigSchema = GithubReleasesLoaderConfigSchema.options[0]
-// export type UserCommitInputConfig = z.input<typeof UserCommitConfigSchema>
 export type UserCommitOutputConfig = z.output<typeof UserCommitConfigSchema>
 
-/* Repo List Config */
 const RepoListConfigSchema = GithubReleasesLoaderConfigSchema.options[1]
-// export type RepoListInputConfig = z.input<typeof RepoListConfigSchema>
 export type RepoListOutputConfig = z.output<typeof RepoListConfigSchema>

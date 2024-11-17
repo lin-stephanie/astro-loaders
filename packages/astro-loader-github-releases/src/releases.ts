@@ -1,27 +1,27 @@
+import { AstroError } from 'astro/errors'
 import { Octokit } from 'octokit'
 
 import { readFileSync } from 'node:fs'
 
 import type { LoaderContext } from 'astro/loaders'
-import type {
-  ReleaseByIdFromUser,
-  ReleaseByIdFromRepos,
-  ReleaseByRepoFromRepos,
-  Commit,
-} from './schema.js'
-import type { UserCommitOutputConfig, RepoListOutputConfig } from './config.js'
+import type { RepoListOutputConfig, UserCommitOutputConfig } from './config.js'
 import type {
   GetReleasesQuery,
   GetReleasesQueryVariables,
 } from './graphql/types.js'
+import type {
+  Commit,
+  ReleaseByIdFromRepos,
+  ReleaseByIdFromUser,
+  ReleaseByRepoFromRepos,
+} from './schema.js'
 
 const PER_PAGE = 100
 const MAX_PAGE = 3
 
 async function fetchReleasesByUserCommit(
   config: UserCommitOutputConfig['modeConfig'],
-  meta: LoaderContext['meta'],
-  logger: LoaderContext['logger']
+  meta: LoaderContext['meta']
 ): Promise<{
   status: 200 | 304
   releases: ReleaseByIdFromUser[]
@@ -54,23 +54,23 @@ async function fetchReleasesByUserCommit(
       const filteredData = res.data
         // only care about push events for releases
         .filter((item) => item.type === 'PushEvent' && item.public)
-
         // filter out activities from other forks by checking the ref when syncing PRs
         .filter((item) => branches.includes((item.payload as any)?.ref))
-
-        .filter((item) => item.created_at != null)
+        .filter((item) => item.created_at !== null)
 
       for (const item of filteredData) {
         if (lastPushTime && lastPushTime === item.created_at) break fetching
         if (!latestPushTime) latestPushTime = item.created_at as string
 
-        // // https://docs.github.com/en/rest/using-the-rest-api/github-event-types?apiVersion=2022-11-28#event-payload-object-for-pushevent
+        // https://docs.github.com/en/rest/using-the-rest-api/github-event-types?apiVersion=2022-11-28#event-payload-object-for-pushevent
         // @ts-expect-error
         const commits = item.payload.commits as Commit[]
         for (const commit of commits) {
           const message = (commit?.message || '').split('\n')[0]
           const versionNum = message.match(new RegExp(versionRegex))?.[1] || ''
           const version = prependV ? `v${versionNum}` : versionNum
+          const orgLogin = item.org?.login
+          const orgAvatarUrl = item.org?.avatar_url
 
           if (message.includes(keyword) && versionNum) {
             releases.push({
@@ -85,16 +85,18 @@ async function fetchReleasesByUserCommit(
               actorLogin: item.actor.login,
               actorAvatarUrl: item.actor.avatar_url,
               isOrg: item.org !== undefined,
-              OrgLogin: item.org?.login,
-              OrgAvatarUrl: item.org?.avatar_url,
+              ...(orgLogin && { orgLogin }),
+              ...(orgAvatarUrl && { orgAvatarUrl }),
               createdAt: item.created_at as string,
             })
           }
         }
       }
+
+      if (res.data.length < PER_PAGE) break
     } catch (error) {
-      logger.error(
-        `Failed to load release data in 'userCommit' mode. ${(error as Error).message}`
+      throw new AstroError(
+        `Failed to load release data in 'userCommit' mode: ${(error as Error).message}`
       )
     }
   }
@@ -105,15 +107,17 @@ async function fetchReleasesByUserCommit(
 }
 
 async function fetchReleasesByRepoList(
-  config: RepoListOutputConfig['modeConfig'],
-  logger: LoaderContext['logger']
+  config: RepoListOutputConfig['modeConfig']
 ): Promise<ReleaseByIdFromRepos[] | ReleaseByRepoFromRepos[]> {
   const { repos, sinceDate, entryReturnType } = config
 
   const releasesById: ReleaseByIdFromRepos[] = []
   const releasesByRepo: ReleaseByRepoFromRepos[] = []
   const filterDate = sinceDate === null ? sinceDate : +new Date(sinceDate)
-  const getReleasesQuery = readFileSync('./src/queries.graphql', 'utf8')
+  const getReleasesQuery = readFileSync(
+    new URL('./graphql/query.graphql', import.meta.url),
+    'utf8'
+  )
   const octokit = new Octokit(/* { auth: import.meta.env.GITHUB_TOKEN } */)
 
   try {
@@ -189,8 +193,8 @@ async function fetchReleasesByRepoList(
       }
     }
   } catch (error) {
-    logger.error(
-      `Failed to load release data in 'repoList' mode. ${(error as Error).message}`
+    throw new AstroError(
+      `Failed to load release data in 'repoList' mode: ${(error as Error).message}`
     )
   }
 
