@@ -24,8 +24,10 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "build": "tsup src/index.ts --format esm --dts --clean --minify --treeshake",
+    "check": "publint && attw $(pnpm pack) --ignore-rules=cjs-resolves-to-esm",
+    "test": "vitest && vitest run --coverage",
     "generate": "graphql-codegen --config codegen.config.ts"
   },
   "dependencies": {

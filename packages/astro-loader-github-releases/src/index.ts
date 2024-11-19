@@ -32,7 +32,7 @@ function githubReleasesLoader(
     name: pkg.name,
     schema: getEntrySchema(parsedUserConfig),
     async load({ meta, store, logger, parseData /* , generateDigest */ }) {
-      if (parsedUserConfig.fetchMode === 'userCommit') {
+      if (parsedUserConfig.loadMode === 'userCommit') {
         logger.info(
           `Loading GitHub releases for user @${parsedUserConfig.modeConfig.username} using the 'userCommit' mode.`
         )
@@ -57,7 +57,7 @@ function githubReleasesLoader(
         }
 
         logger.info('Successfully saved the loaded release data to the store.')
-      } else if (parsedUserConfig.fetchMode === 'repoList') {
+      } else if (parsedUserConfig.loadMode === 'repoList') {
         logger.info(
           `Loading release data for ${parsedUserConfig.modeConfig.repos.join(', ')} using the 'repoList' mode.`
         )
@@ -85,11 +85,11 @@ function githubReleasesLoader(
       } else
         throw new AstroError(
           `The configuration provided in '${pkg.name}' is invalid.`,
-          "`fetchMode` can only be 'userCommit' or 'repoList'."
+          "`loadMode` can only be 'userCommit' or 'repoList'."
         )
     },
   }
 }
 
-export default githubReleasesLoader
+export { githubReleasesLoader }
 export type { GithubReleasesLoaderUserConfig } from './config.js'

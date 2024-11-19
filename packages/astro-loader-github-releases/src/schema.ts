@@ -62,7 +62,7 @@ export type ReleaseByRepoFromRepos = z.infer<
  */
 export function getEntrySchema(userConfig: GithubReleasesLoaderUserConfig) {
   const schema =
-    userConfig.fetchMode === 'userCommit'
+    userConfig.loadMode === 'userCommit'
       ? ReleaseByIdFromUserSchema
       : userConfig.modeConfig.entryReturnType === 'byRelease'
         ? ReleaseByIdFromReposSchema

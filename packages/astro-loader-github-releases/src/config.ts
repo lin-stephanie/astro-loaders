@@ -20,20 +20,19 @@ export const repoListtDefaultConfig = {
 }
 
 export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
-  'fetchMode',
+  'loadMode',
   [
     z.object({
       /**
-       * Fetch release data based on commit messages in push events from a specific GitHub user.
-       * (Uses the GitHub API endpoint: {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user `GET /users/<username>/events/public`})
+       * Loads release data from commit messages in push events for a specific GitHub user via the GitHub REST API endpoint: {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user `GET /users/<username>/events/public`}.
        *
        * @remark Only release data from the past 90 days can be retrieved in this mode.
        * {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#about-github-events Learn more.}
        */
-      fetchMode: z.literal('userCommit'),
+      loadMode: z.literal('userCommit'),
 
       /**
-       * Configuration options specific to the selected `mode`.
+       * Configuration options specific to the selected `loadMode`.
        */
       modeConfig: z.object({
         /**
@@ -75,17 +74,16 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
 
     z.object({
       /**
-       * Fetch release data from specified 'owner/repo' combinations.
-       * (Uses the GitHub API endpoint: {@link https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#list-releases `GET /repos/<owner>/<repo>/releases`})
+       * Loads release data from a specified list of repositories using the GitHub GraphQL API for querying.
        */
-      fetchMode: z.literal('repoList'),
+      loadMode: z.literal('repoList'),
 
       /**
-       * Configuration options specific to the selected `mode`.
+       * Configuration options specific to the selected `loadMode`.
        */
       modeConfig: z.object({
         /**
-         * Specifies the repositories from which to fetch release data, each formatted as "owner/repo".
+         * The repositories from which to load release data, each formatted as "owner/repo".
          */
         repos: z
           .array(
@@ -98,9 +96,9 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
           }),
 
         /**
-         * Specifies the date from which to start fetching release data.
+         * The date from which to start loading release data.
          *
-         * @remark If not specified, fetch all.
+         * @remark If not specified, load all.
          */
         sinceDate: z
           .union([z.coerce.date(), z.null()])

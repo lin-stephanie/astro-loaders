@@ -27,5 +27,8 @@ dist/
 # astro files
 .astro
 
+# compressed output
+*.tgz
+
 # archived files
 archive/
