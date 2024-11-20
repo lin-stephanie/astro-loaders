@@ -18,7 +18,7 @@
     "format:imports": "biome check --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true --write",
     "lint": "biome lint",
     "lint:fix": "biome lint --write",
-    "change": "changeset add --open"
+    "change": "changeset add"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.0",

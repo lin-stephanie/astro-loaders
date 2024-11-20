@@ -22,8 +22,9 @@ jobs:
         id: check_release
         run: |
           LATEST_COMMIT="${{ github.event.head_commit.message }}"
-          echo "Latest commit message: $LATEST_COMMIT"
-          if echo "$LATEST_COMMIT" | grep -w "release" > /dev/null; then
+          SAFE_COMMIT=$(echo "$LATEST_COMMIT" | sed 's/`/\\`/g')
+          echo "Latest commit message: $SAFE_COMMIT"
+          if echo "$SAFE_COMMIT" | grep -w "release" > /dev/null; then
             echo "release_found=true" >> $GITHUB_OUTPUT
           else
             echo "release_found=false" >> $GITHUB_OUTPUT
