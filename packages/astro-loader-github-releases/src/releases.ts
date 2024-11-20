@@ -67,18 +67,18 @@ async function fetchReleasesByUserCommit(
         const commits = item.payload.commits as Commit[]
         for (const commit of commits) {
           const message = (commit?.message || '').split('\n')[0]
-          const versionNum = message.match(new RegExp(versionRegex))?.[1] || ''
-          const version = prependV ? `v${versionNum}` : versionNum
+          const version = message.match(new RegExp(versionRegex))?.[1] || ''
+          const tag = prependV ? `v${version}` : version
           const orgLogin = item.org?.login
           const orgAvatarUrl = item.org?.avatar_url
 
-          if (message.includes(keyword) && versionNum) {
+          if (message.includes(keyword) && version) {
             releases.push({
               id: item.id,
               repoName: item.repo.name,
               repoUrl: `https://github.com/${item.repo.name}`,
               releaseVersion: version,
-              releaseUrl: `https://github.com/${item.repo.name}/releases/tag/${version}`,
+              releaseUrl: `https://github.com/${item.repo.name}/releases/tag/${tag}`,
               commitMessage: message,
               commitSha: commit?.sha || '',
               commitUrl: `https://github.com/${item.repo.name}/commit/${commit?.sha}`,

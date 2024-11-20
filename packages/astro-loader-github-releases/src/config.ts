@@ -66,7 +66,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
         branches: z.array(z.string()).default(userCommitDefaultConfig.branches),
 
         /**
-         * Whether to prepend "v" to the `releaseVersion` field value.
+         * Whether a prefix 'v' in the tag name affects the accurate generation of `releaseUrl`.
          */
         prependV: z.boolean().default(userCommitDefaultConfig.prependV),
       }),
