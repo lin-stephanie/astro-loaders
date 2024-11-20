@@ -1,5 +1,5 @@
 {
-  "name": "@ste7lin/astro-loader-github-releases",
+  "name": "astro-loader-github-releases",
   "version": "0.0.0",
   "description": "Aatro loader for loading GitHub release data from a given user or multiple repositories.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
@@ -25,10 +25,11 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "tsup src/index.ts --format esm --dts --watch",
-    "build": "tsup src/index.ts --format esm --dts --clean --minify --treeshake",
+    "build": "tsup src/index.ts --format esm --dts --clean --treeshake",
     "check": "publint && attw $(pnpm pack) --ignore-rules=cjs-resolves-to-esm",
     "test": "vitest && vitest run --coverage",
-    "generate": "graphql-codegen --config codegen.config.ts"
+    "generate": "graphql-codegen --config codegen.config.ts",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "octokit": "^4.0.2"
@@ -36,5 +37,8 @@
   "devDependencies": {},
   "peerDependencies": {
     "astro": "^4.14.0 || ^5.0.0-beta.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }

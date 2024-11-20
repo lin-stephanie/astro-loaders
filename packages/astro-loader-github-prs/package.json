@@ -1,5 +1,5 @@
 {
-  "name": "@ste7lin/astro-loader-github-prs",
+  "name": "astro-loader-github-prs",
   "private": false,
   "version": "0.0.0",
   "description": "",

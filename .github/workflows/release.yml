@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  check_commit:
+    runs-on: ubuntu-latest
+    outputs:
+      release_found: ${{ steps.check_release.outputs.release_found }}
+    steps:
+      - name: Check for 'release' in latest commit message
+        id: check_release
+        run: |
+          LATEST_COMMIT="${{ github.event.head_commit.message }}"
+          echo "Latest commit message: $LATEST_COMMIT"
+          if echo "$LATEST_COMMIT" | grep -w "release" > /dev/null; then
+            echo "release_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "release_found=false" >> $GITHUB_OUTPUT
+          fi
+
+  release_or_publish:
+    needs: check_commit
+    if: needs.check_commit.outputs.release_found == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Packages
+        run: pnpm build
+
+      - name: Create release pr or publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset version
+          publish: pnpm changeset publish
+          commit: "ci: release"
+          title: "ci: release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  skip_release:
+    needs: check_commit
+    if: needs.check_commit.outputs.release_found != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: No release trigger
+        run: echo "No 'release' found in latest commit message, skipping release workflow."
+
