@@ -18,6 +18,13 @@ jobs:
       - uses: amannn/action-semantic-pull-request@v5
         with:
           types: |
+            fix
+            feat
+            chore
+            docs
+            ci
+            test
+            revert
             fix(prs)
             fix(releases)
             fix(tweets)
@@ -30,6 +37,9 @@ jobs:
             docs(prs)
             docs(releases)
             docs(tweets)
+            ci(prs)
+            ci(releases)
+            ci(tweets)
             test(prs)
             test(releases)
             test(tweets)
@@ -58,6 +68,7 @@ jobs:
             - `feat`: New features.
             - `chore`: Maintenance tasks.
             - `docs`: Documentation updates.
+            - `ci`: CI related changes.
             - `test`: Adding or updating tests.
             - `revert`: Reverting changes.
 

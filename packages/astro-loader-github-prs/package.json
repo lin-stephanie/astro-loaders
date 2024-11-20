@@ -1,6 +1,6 @@
 {
   "name": "astro-loader-github-prs",
-  "private": false,
+  "private": true,
   "version": "0.0.0",
   "description": "",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",

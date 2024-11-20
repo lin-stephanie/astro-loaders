@@ -3,7 +3,7 @@
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
     "ignoreUnknown": true,
-    "ignore": ["schema.docs.graphql", ".tsup/**"]
+    "ignore": ["schema.docs.graphql", ".tsup/**", "package.json"]
   },
   "formatter": {
     "enabled": true,
