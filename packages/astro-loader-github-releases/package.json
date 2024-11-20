@@ -1,10 +1,16 @@
 {
   "name": "astro-loader-github-releases",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Aatro loader for loading GitHub release data from a given user or multiple repositories.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
-  "keywords": ["withastro", "astro-loader", "github", "release", "releases"],
+  "keywords": [
+    "withastro",
+    "astro-loader",
+    "github",
+    "release",
+    "releases"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
@@ -13,7 +19,9 @@
   "homepage": "https://github.com/in-stephanie/astro-loaders/blob/main/packages/astro-loader-github-releases/README.md",
   "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.js",
   "exports": {
