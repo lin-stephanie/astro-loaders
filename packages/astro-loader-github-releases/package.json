@@ -16,7 +16,7 @@
     "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
     "directory": "packages/astro-loader-github-releases"
   },
-  "homepage": "https://github.com/in-stephanie/astro-loaders/blob/main/packages/astro-loader-github-releases/README.md",
+  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-releases/README.md",
   "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
   "type": "module",
   "files": [

@@ -21,8 +21,7 @@ function githubReleasesLoader(
   const parsedConfig = GithubReleasesLoaderConfigSchema.safeParse(userConfig)
   if (!parsedConfig.success) {
     throw new AstroError(
-      `The configuration provided in '${pkg.name}' is invalid. Refer to the following error report
-        or access configuration details for this loader here: ${pkg.homepage}#Options.`,
+      `The configuration provided in '${pkg.name}' is invalid. Refer to the following error report or access configuration details for this loader here: ${pkg.homepage}#configuration.`,
       `${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}`
     )
   }

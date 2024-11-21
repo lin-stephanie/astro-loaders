@@ -19,7 +19,11 @@ node_modules/
 
 # environment vars
 .env
+.env.local
+.env.dev
 .env.production
+.env.dev.local
+.env.production.local
 
 # build output
 dist/
