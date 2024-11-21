@@ -6,6 +6,12 @@
 
 This package provides a GitHub releases loader for Astro. The loader supports two configurable modes, allowing you to load public release data either from a user's commit history or from a specified list of repositories. 
 
+## Installation
+
+```sh
+npm install -D astro-loader-github-releases
+```
+
 ## Usage
 
 To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0-beta.0`. For `^4.14.0`, enable the [experimental content layer](https://docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
