@@ -12,14 +12,13 @@ To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0-beta.0`. For `^
 
 ```ts
 export default defineConfig({
-  // ...
   experimental: {
     contentLayer: true,
   },
 });
 ```
 
-In the `src/content/config.ts` file, import and configure the GitHub releases loader to define a new content collection:
+In `src/content/config.ts`, import and configure the GitHub releases loader to define a new content collection:
 
 ```ts
 import { defineCollection } from "astro:content";
@@ -39,7 +38,7 @@ export const collections = { githubReleases };
 
 ```astro
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 
 const releases = await getCollection("githubReleases");
 ---
@@ -77,13 +76,14 @@ In `userCommit` mode, the loader fetches release data from commit messages in pu
 | `branches`          | `string[]`(default: `['refs/heads/main', 'refs/heads/master', 'refs/heads/latest', 'refs/heads/stable', 'refs/heads/release', 'refs/heads/dev']`) | The branches to monitor for push events. Filters out activities from other forks based on these refs.                                                   |
 | `prependV`          | `boolean` (default: `true`)                                                                                                                       | Whether to prepend "v" to the `releaseVersion` field value.                                                                                             |
 
-In `repoList` mode, the loader fetches release data from a specified list of repositories using the GitHub GraphQL API for querying. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
+In `repoList` mode, the loader fetches release data from specified repositories via the GitHub GraphQL API, requiring a GitHub PAT with `repo` scope for authentication. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
 
 | Option (* required) | Type (defaults)                                              | Description                                                                                                                                                                                                                                                                                       |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `repos`*            | `string[]`                                                   | The repositories from which to load release data, each formatted as `'owner/repo'`.                                                                                                                                                                                                               |
 | `sinceDate`         | `Date \| null` (defaults: `null`)                            | The date from which to start loading release data. If not specified, load all. See supported formats [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/parse#examples). For example:<br>`"2024-11-01T00:00:00.000Z"`<br>`"2024-11-01"`<br>`"01/11/24"` |
 | `entryReturnType`   | `'byRelease' \| 'byRepository'` (defaults: `'byRepository'`) | Determines whether entries are returned per repository or per individual release item. This option influences the Zod Schema of the loaded entries.                                                                                                                                               |
+| `githubToken`       | `string` (defaults: `'import.meta.env.GITHUB_TOKEN'`)        | A GitHub PAT with at least `repo` scope permissions. Defaults to the `GITHUB_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables).                                                                                                                    |
 
 **Note**: `userCommit` mode updates entries incrementally, while `repoList` mode reloads all entries on each rebuild.
 
@@ -127,16 +127,12 @@ const ReleaseByIdFromReposSchema = z.object({
   releaseDescHtml: z.string(),
   publishedAt: z.string(),
 })
-export type ReleaseByIdFromRepos = z.infer<typeof ReleaseByIdFromReposSchema>
 
 // entryReturnType: 'byRepository'
 const ReleaseByRepoFromReposSchema = z.object({
   repo: z.string(),
   repoReleases: z.array(ReleaseByIdFromReposSchema),
 })
-export type ReleaseByRepoFromRepos = z.infer<
-  typeof ReleaseByRepoFromReposSchema
->
 ```
 
 Astro automatically applies this schema to generate TypeScript interfaces, providing full support for autocompletion and type-checking when querying the collection.

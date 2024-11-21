@@ -1,10 +1,10 @@
 # Astro Loaders
 
-This is a monorepo for hosting [Astro loaders](https://5-0-0-beta.docs.astro.build/en/reference/content-loader-reference/#what-is-a-loader) built on top of the [Astro Content Layer API](https://astro.build/blog/astro-4140/#experimental-content-layer-api). These loaders allow you to fetch data from multiple sources as content collections.
+This monorepo hosts [Astro loaders](https://5-0-0-beta.docs.astro.build/en/reference/content-loader-reference/#what-is-a-loader) built using the [Astro Content Loader API](https://5-0-0-beta.docs.astro.build/en/reference/content-loader-reference/), enabling data fetching from various sources as content collections.
 
 ## Packages
 
-This repository currently includes the following Astro loaders. See each package's README for details: 
+Currently available loaders (see individual READMEs for details):
 
 - [astro-loader-github-releases](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-releases): Loads GitHub release data for user-related or specific repositories.
 - [astro-loader-github-prs](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-prs): WIP...
@@ -12,12 +12,12 @@ This repository currently includes the following Astro loaders. See each package
 
 ## Resources
 
-Explore these resources to learn more about Astro loaders:
+Learn more about Astro loaders:
 
-- [Docs - Content Collections: Defining the collection `loader`](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#defining-the-collection-loader)
-- [Docs - Astro Content Loader API](https://5-0-0-beta.docs.astro.build/en/reference/content-loader-reference/)
+- [Blog - Experimental: Content Layer API](https://astro.build/blog/astro-4140/#experimental-content-layer-api)
 - [Blog - Content Layer: A Deep Dive](https://astro.build/blog/content-layer-deep-dive/)
 - [Blog - Community Loaders for Astro Content Layer](https://astro.build/blog/community-loaders/)
+- [Docs - Content Collections: Defining the collection `loader`](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#defining-the-collection-loader)
 
 ## Credits
 
