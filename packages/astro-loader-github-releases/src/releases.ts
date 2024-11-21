@@ -109,7 +109,7 @@ async function fetchReleasesByUserCommit(
 async function fetchReleasesByRepoList(
   config: RepoListOutputConfig['modeConfig']
 ): Promise<ReleaseByIdFromRepos[] | ReleaseByRepoFromRepos[]> {
-  const { repos, sinceDate, entryReturnType } = config
+  const { repos, sinceDate, entryReturnType, githubToken } = config
 
   const releasesById: ReleaseByIdFromRepos[] = []
   const releasesByRepo: ReleaseByRepoFromRepos[] = []
@@ -118,7 +118,9 @@ async function fetchReleasesByRepoList(
     new URL('./graphql/query.graphql', import.meta.url),
     'utf8'
   )
-  const octokit = new Octokit(/* { auth: import.meta.env.GITHUB_TOKEN } */)
+  const octokit = new Octokit({
+    auth: githubToken || import.meta.env.GITHUB_TOKEN,
+  })
 
   try {
     for (const repo of repos) {
@@ -158,11 +160,9 @@ async function fetchReleasesByRepoList(
               }
             }) || []
 
-        let filteredReleasesPerPage: ReleaseByIdFromRepos[] = []
         let stopFetching = false
-
         if (filterDate !== null) {
-          filteredReleasesPerPage = releasesPerPage.filter((release) => {
+          releasesPerPage.filter((release) => {
             return +new Date(release.publishedAt) >= filterDate
           })
 
@@ -175,9 +175,9 @@ async function fetchReleasesByRepoList(
         }
 
         if (entryReturnType === 'byRelease')
-          releasesById.push(...filteredReleasesPerPage)
+          releasesById.push(...releasesPerPage)
         if (entryReturnType === 'byRepository')
-          releasesPreRepo.push(...filteredReleasesPerPage)
+          releasesPreRepo.push(...releasesPerPage)
 
         hasNextPage =
           (res.repository?.releases.pageInfo.hasNextPage && !stopFetching) ||

@@ -116,6 +116,19 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
         entryReturnType: z
           .union([z.literal('byRepository'), z.literal('byRelease')])
           .default(repoListtDefaultConfig.entryReturnType),
+
+        /**
+         * In this mode, you must create a GitHub PAT with at least `repo` scope permissions
+         * to authenticate requests to the GraphQL API.
+         *
+         * @remark This is optional; by default, it reads from the `GITHUB_TOKEN` environment variable.
+         * You may also configure it directly here (not recommended; if you do, ensure it is not exposed in public code repositories).
+         *
+         * @see
+         * - {@link https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic How to create a GitHub PAT (classic).}
+         * - {@link https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables How to store GitHub PAT in Astro project environment variables.}
+         */
+        githubToken: z.string().optional(),
       }),
     }),
   ]
