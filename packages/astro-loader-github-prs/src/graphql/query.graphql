@@ -1,0 +1,41 @@
+query GetPrs($search: String!, $first: Int!, $cursor: String) {
+  search(query: $search, type: ISSUE, first: $first, after: $cursor) {
+    nodes {
+      ... on PullRequest {
+        id
+        url
+        title
+        titleHTML
+        number
+        state
+        isDraft
+        body
+        bodyHTML
+        bodyText
+        author {
+          login
+          url
+          avatarUrl
+        }
+        repository {
+          name
+          nameWithOwner
+          url
+          stargazerCount
+          isInOrganization
+          owner {
+            login
+            url
+            avatarUrl
+          }
+        }
+        createdAt
+        mergedAt
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}

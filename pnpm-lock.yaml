@@ -59,6 +59,9 @@ importers:
       astro:
         specifier: ^4.14.0 || ^5.0.0-beta.0
         version: 4.16.13(@types/node@22.9.1)(rollup@4.27.3)(typescript@5.6.3)
+      octokit:
+        specifier: ^4.0.2
+        version: 4.0.2
 
   packages/astro-loader-github-releases:
     dependencies:

@@ -18,7 +18,11 @@
   },
   "linter": {
     "enabled": true,
-    "rules": { "recommended": true, "suspicious": { "noExplicitAny": "off" } }
+    "rules": {
+      "recommended": true,
+      "suspicious": { "noExplicitAny": "off" },
+      "complexity": { "noBannedTypes": "off" }
+    }
   },
   "organizeImports": { "enabled": true },
   "javascript": {

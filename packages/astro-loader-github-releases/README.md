@@ -54,7 +54,7 @@ const releases = await getCollection("githubReleases");
     releases.map((release) => (
       <li>
         {/* Entry structure varies by `loadMode`. See below. */}
-        <a href={release.data.releaseUrl}>{release.data.repoName} - {release.data.releaseVersion}</a>
+        <a href={release.data.url}>{release.data.repoName} - {release.data.tagName}</a>
       </li>
     ))
   }

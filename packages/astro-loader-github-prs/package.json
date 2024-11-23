@@ -1,11 +1,17 @@
 {
   "name": "astro-loader-github-prs",
-  "private": true,
   "version": "0.0.0",
-  "description": "",
+  "description": "Aatro loader for loading GitHub pull reuqests from a given GitHub search string.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
-  "keywords": ["withastro", "astro-loader"],
+  "keywords": [
+    "withastro",
+    "astro-loader",
+    "github",
+    "search",
+    "prs",
+    "pr"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
@@ -14,7 +20,9 @@
   "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-prs/README.md",
   "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.js",
   "exports": {
@@ -24,10 +32,21 @@
     }
   },
   "types": "./dist/index.d.ts",
-  "scripts": {},
-  "devDependencies": {},
-  "dependencies": {},
+  "scripts": {
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "build": "tsup src/index.ts --format esm --dts --clean --treeshake",
+    "postbuild": "copyfiles -u 1 src/**/*.graphql dist",
+    "check": "publint && attw $(pnpm pack) --ignore-rules=cjs-resolves-to-esm",
+    "generate": "graphql-codegen --config codegen.config.ts",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "octokit": "^4.0.2"
+  },
   "peerDependencies": {
     "astro": "^4.14.0 || ^5.0.0-beta.0"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }
