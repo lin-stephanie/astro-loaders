@@ -2,7 +2,7 @@ import { z } from 'astro/zod'
 
 export const userCommitDefaultConfig = {
   keyword: 'release',
-  versionRegex: 'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s|$)',
+  tagNameRegex: 'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s|$)',
   branches: [
     'refs/heads/main',
     'refs/heads/master',
@@ -11,7 +11,6 @@ export const userCommitDefaultConfig = {
     'refs/heads/release',
     'refs/heads/dev',
   ],
-  prependV: false,
 }
 
 export const repoListtDefaultConfig = {
@@ -49,27 +48,21 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
         keyword: z.string().default(userCommitDefaultConfig.keyword),
 
         /**
-         * Regular expression for matching version numbers in commit messages.
-         *
-         * @remarks The first capturing group in the regex will be used for the `releaseVersion` field.
+         * Regular expression for matching tag name in commit messages.
+         * The first capturing group in the regex will be used as `versionNum` field.
          *
          * @default 'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s|$)'
          */
-        versionRegex: z
+        tagNameRegex: z
           .string()
           .regex(/.*/)
-          .default(userCommitDefaultConfig.versionRegex),
+          .default(userCommitDefaultConfig.tagNameRegex),
 
         /**
          * The branches to monitor for push events.
          * Filters out activities from other forks based on these refs.
          */
         branches: z.array(z.string()).default(userCommitDefaultConfig.branches),
-
-        /**
-         * Whether a prefix 'v' in the tag name affects the accurate generation of `releaseUrl`.
-         */
-        prependV: z.boolean().default(userCommitDefaultConfig.prependV),
       }),
     }),
 

@@ -15,12 +15,13 @@ const CommitSchema = z.object({
 })
 export type Commit = z.infer<typeof CommitSchema>
 
-export const ReleaseByIdFromUserSchema = z.object({
+const ReleaseByIdFromUserSchema = z.object({
   id: z.string(),
+  url: z.string(),
+  versionNum: z.string(),
+  tagName: z.string(),
   repoName: z.string(),
   repoUrl: z.string(),
-  releaseVersion: z.string(),
-  releaseUrl: z.string(),
   commitMessage: z.string(),
   commitSha: z.string(),
   commitUrl: z.string(),
@@ -37,13 +38,16 @@ export type ReleaseByIdFromUser = z.infer<typeof ReleaseByIdFromUserSchema>
 // entryReturnType: 'byRelease'
 const ReleaseByIdFromReposSchema = z.object({
   id: z.string(),
+  url: z.string(),
+  name: z.string(),
+  tagName: z.string(),
+  description: z.string(),
+  descriptionHTML: z.string(),
   repoName: z.string(),
+  repoNameWithOwner: z.string(),
   repoUrl: z.string(),
-  releaseVersion: z.string(),
-  releaseUrl: z.string(),
-  releaseTitle: z.string(),
-  releaseDesc: z.string(),
-  releaseDescHtml: z.string(),
+  repoStargazerCount: z.number(),
+  repoIsInOrganization: z.boolean(),
   publishedAt: z.string(),
 })
 export type ReleaseByIdFromRepos = z.infer<typeof ReleaseByIdFromReposSchema>

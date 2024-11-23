@@ -7920,13 +7920,19 @@ export type GetReleasesQuery = {
     releases: {
       nodes?: Array<{
         id: string
-        tagName: string
         url: any
         name?: string | null
+        tagName: string
         description?: string | null
         descriptionHTML?: any | null
         publishedAt?: any | null
-        repository: { nameWithOwner: string; url: any }
+        repository: {
+          name: string
+          nameWithOwner: string
+          url: any
+          stargazerCount: number
+          isInOrganization: boolean
+        }
       } | null> | null
       pageInfo: { hasNextPage: boolean; endCursor?: string | null }
     }

@@ -38,7 +38,7 @@ function githubReleasesLoader(
     async load({ meta, store, logger, parseData /* , generateDigest */ }) {
       if (parsedUserConfig.loadMode === 'userCommit') {
         logger.info(
-          `Loading GitHub releases for user @${parsedUserConfig.modeConfig.username} using the 'userCommit' mode.`
+          `Loading GitHub release data for user @${parsedUserConfig.modeConfig.username} using the 'userCommit' mode.`
         )
 
         const modeConfig = {
@@ -61,7 +61,7 @@ function githubReleasesLoader(
         }
       } else if (parsedUserConfig.loadMode === 'repoList') {
         logger.info(
-          `Loading release data for ${parsedUserConfig.modeConfig.repos.join(', ')} using the 'repoList' mode.`
+          `Loading GitHub release data for ${parsedUserConfig.modeConfig.repos.join(', ')} using the 'repoList' mode.`
         )
 
         const modeConfig = {

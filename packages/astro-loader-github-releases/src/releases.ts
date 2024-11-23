@@ -26,7 +26,7 @@ async function fetchReleasesByUserCommit(
   status: 200 | 304
   releases: ReleaseByIdFromUser[]
 }> {
-  const { username, keyword, versionRegex, branches, prependV } = config
+  const { username, keyword, tagNameRegex, branches } = config
 
   const releases: ReleaseByIdFromUser[] = []
   const etag = meta.get('etag')
@@ -68,18 +68,19 @@ async function fetchReleasesByUserCommit(
         const commits = item.payload.commits as Commit[]
         for (const commit of commits) {
           const message = (commit?.message || '').split('\n')[0]
-          const version = message.match(new RegExp(versionRegex))?.[1] || ''
-          const tag = prependV ? `v${version}` : version
+          const tagName = message.match(new RegExp(tagNameRegex))?.[0] || ''
+          const versionNum = message.match(new RegExp(tagNameRegex))?.[1] || ''
           const orgLogin = item.org?.login
           const orgAvatarUrl = item.org?.avatar_url
 
-          if (message.includes(keyword) && version) {
+          if (message.includes(keyword) && versionNum) {
             releases.push({
               id: item.id,
+              url: `https://github.com/${item.repo.name}/releases/tag/${tagName}`,
+              tagName: tagName,
+              versionNum: versionNum,
               repoName: item.repo.name,
               repoUrl: `https://github.com/${item.repo.name}`,
-              releaseVersion: version,
-              releaseUrl: `https://github.com/${item.repo.name}/releases/tag/${tag}`,
               commitMessage: message,
               commitSha: commit?.sha || '',
               commitUrl: `https://github.com/${item.repo.name}/commit/${commit?.sha}`,
@@ -154,14 +155,17 @@ async function fetchReleasesByRepoList(
             .map((node) => {
               return {
                 id: node.id,
-                repoName: node.repository.nameWithOwner,
-                repoUrl: node.repository.url,
-                releaseVersion: node.tagName,
-                releaseUrl: node.url,
-                releaseTitle: node.name || '',
-                releaseDesc: node.description || '',
-                releaseDescHtml: node.descriptionHTML,
-                publishedAt: node.publishedAt,
+                url: node.url || '',
+                name: node.name || '',
+                tagName: node.tagName,
+                description: node.description || '',
+                descriptionHTML: node.descriptionHTML || '',
+                repoName: node.repository.name,
+                repoNameWithOwner: node.repository.nameWithOwner,
+                repoUrl: node.repository.url || '',
+                repoStargazerCount: node.repository.stargazerCount,
+                repoIsInOrganization: node.repository.isInOrganization,
+                publishedAt: node.publishedAt || '',
               }
             }) || []
 

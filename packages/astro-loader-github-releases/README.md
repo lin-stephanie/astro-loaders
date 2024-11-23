@@ -74,13 +74,12 @@ The `githubReleasesLoader` function takes an object with the following options:
 
 In `userCommit` mode, the loader uses the GitHub REST API ([`GET /users/{username}/events/public`](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user)) to fetch up to 300 events from the past 90 days. Data may have a latency of 30 seconds to 6 hours and is not real-time. This mode is useful for users who want to show their recent release activities. The `modeConfig` options includes:
 
-| Option (* required) | Type (defaults)                                                                                                                               | Description                                                                                                                                             |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `username`*         | `string`                                                                                                                                          | The unique username used to identify a specific GitHub account.                                                                                         |
-| `keyword`           | `string`（defaults: `'release'`）                                                                                                                   | The keyword to filter push events' commit messages for releases.                                                                                        |
-| `versionRegex`      | `string`（defaults: `'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s\|$)'`)                                                                             | Regular expression for matching version numbers in commit messages. The first capturing group in the regex will be used for the `releaseVersion` field. |
-| `branches`          | `string[]`(default: `['refs/heads/main', 'refs/heads/master', 'refs/heads/latest', 'refs/heads/stable', 'refs/heads/release', 'refs/heads/dev']`) | The branches to monitor for push events. Filters out activities from other forks based on these refs.                                                   |
-| `prependV`          | `boolean` (default: `true`)                                                                                                                       | Whether to prepend "v" to the `releaseVersion` field value.                                                                                             |
+| Option (* required) | Type (defaults)                                                                                                                                   | Description                                                                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `username`*         | `string`                                                                                                                                          | The unique username used to identify a specific GitHub account.                                                                         |
+| `keyword`           | `string`（defaults: `'release'`）                                                                                                                   | The keyword to filter push events' commit messages for releases.                                                                        |
+| `versionRegex`      | `string`（defaults: `'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s\|$)'`)                                                                             | Regular expression for matching tag name in commit messages. The first capturing group in the regex will be used as `versionNum` field. |
+| `branches`          | `string[]`(default: `['refs/heads/main', 'refs/heads/master', 'refs/heads/latest', 'refs/heads/stable', 'refs/heads/release', 'refs/heads/dev']`) | The branches to monitor for push events. Filters out activities from other forks based on these refs.                                   |
 
 In `repoList` mode, the loader fetches release data from specified repositories via the GitHub GraphQL API, requiring a GitHub PAT with `repo` scope for authentication. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
 
@@ -99,10 +98,11 @@ In `userCommit` mode, the Zod schema for the loaded collection entries is define
 /* User Commit Mode */
 const ReleaseByIdFromUserSchema = z.object({
   id: z.string(),
+  url: z.string(),
+  versionNum: z.string(),
+  tagName: z.string(),
   repoName: z.string(),
   repoUrl: z.string(),
-  releaseVersion: z.string(),
-  releaseUrl: z.string(),
   commitMessage: z.string(),
   commitSha: z.string(),
   commitUrl: z.string(),
@@ -122,13 +122,16 @@ In `repoList` mode, the Zod schema for the loaded collection entries is defined 
 // entryReturnType: 'byRelease'
 const ReleaseByIdFromReposSchema = z.object({
   id: z.string(),
+  url: z.string(),
+  name: z.string(),
+  tagName: z.string(),
+  description: z.string(),
+  descriptionHTML: z.string(),
   repoName: z.string(),
+  repoNameWithOwner: z.string(),
   repoUrl: z.string(),
-  releaseVersion: z.string(),
-  releaseUrl: z.string(),
-  releaseTitle: z.string(),
-  releaseDesc: z.string(),
-  releaseDescHtml: z.string(),
+  repoStargazerCount: z.number(),
+  repoIsInOrganization: z.boolean(),
   publishedAt: z.string(),
 })
 
