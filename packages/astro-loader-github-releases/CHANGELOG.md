@@ -8,7 +8,7 @@
 
 ### Patch Changes
 
-- save `etag` to meta & properly handle 304 response status ([`9a23da5`](https://github.com/lin-stephanie/astro-loaders/commit/9a23da5989f5f495de2dfbce1064024ed2af9d9e))
+- Save `etag` to meta & properly handle 304 response status ([`9a23da5`](https://github.com/lin-stephanie/astro-loaders/commit/9a23da5989f5f495de2dfbce1064024ed2af9d9e))
 
 ## 1.1.0
 
