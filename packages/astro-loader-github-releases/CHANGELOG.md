@@ -1,5 +1,15 @@
 # astro-loader-github-releases
 
+## 1.2.0
+
+### Minor Changes
+
+- Adjust 'userCommit' mode configuration options & add new entry fields with aligned naming to match the fields in the response JSON data ([`35312c1`](https://github.com/lin-stephanie/astro-loaders/commit/35312c165ef95391c865e5bfcd5b8790c8d20683))
+
+### Patch Changes
+
+- save `etag` to meta & properly handle 304 response status ([`9a23da5`](https://github.com/lin-stephanie/astro-loaders/commit/9a23da5989f5f495de2dfbce1064024ed2af9d9e))
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "astro-loader-github-prs",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Aatro loader for loading GitHub pull reuqests from a given GitHub search string.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
