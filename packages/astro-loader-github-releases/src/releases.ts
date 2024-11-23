@@ -1,5 +1,5 @@
 import { AstroError } from 'astro/errors'
-import { Octokit } from 'octokit'
+import { Octokit, RequestError } from 'octokit'
 
 import { readFileSync } from 'node:fs'
 
@@ -49,7 +49,8 @@ async function fetchReleasesByUserCommit(
         page,
       })
 
-      if (res.status === (304 as number)) return { status: 304, releases }
+      if (page === 1 && res.headers.etag && etag !== res.headers.etag)
+        meta.set('etag', res.headers.etag)
 
       const filteredData = res.data
         // only care about push events for releases
@@ -95,6 +96,10 @@ async function fetchReleasesByUserCommit(
 
       if (res.data.length < PER_PAGE) break
     } catch (error) {
+      if (error instanceof RequestError && error.status === 304) {
+        return { status: 304, releases }
+      }
+
       throw new AstroError(
         `Failed to load release data in 'userCommit' mode: ${(error as Error).message}`
       )

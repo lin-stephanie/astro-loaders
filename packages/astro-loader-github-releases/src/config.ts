@@ -24,9 +24,10 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
   [
     z.object({
       /**
-       * Loads release data from commit messages in push events for a specific GitHub user via the GitHub REST API endpoint: {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user `GET /users/<username>/events/public`}.
+       * Loads release data from commit messages in push events for a specific GitHub user
+       * via the GitHub REST API endpoint: {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user `GET /users/<username>/events/public`}.
        *
-       * @remark Only release data from the past 90 days can be retrieved in this mode.
+       * @remarks Only release data from the past 90 days can be retrieved in this mode.
        * {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#about-github-events Learn more.}
        */
       loadMode: z.literal('userCommit'),
@@ -50,7 +51,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
         /**
          * Regular expression for matching version numbers in commit messages.
          *
-         * @remark The first capturing group in the regex will be used for the `releaseVersion` field.
+         * @remarks The first capturing group in the regex will be used for the `releaseVersion` field.
          *
          * @default 'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s|$)'
          */
@@ -96,9 +97,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
           }),
 
         /**
-         * The date from which to start loading release data.
-         *
-         * @remark If not specified, load all.
+         * The date from which to start loading release data. If not specified, load all.
          */
         sinceDate: z
           .union([z.coerce.date(), z.null()])
@@ -109,7 +108,8 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
          * - 'byRepository': Return entries per repository.
          * - 'byRelease': Return entries per individual release item.
          *
-         * @remark This option influences the Zod Schema of the loaded entries and how the data is processed afterward.
+         * @remarks This option influences the Zod Schema of the loaded entries and how the data
+         * is processed afterward.
          *
          * @default 'byRepository'
          */
@@ -121,8 +121,9 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
          * In this mode, you must create a GitHub PAT with at least `repo` scope permissions
          * to authenticate requests to the GraphQL API.
          *
-         * @remark This is optional; by default, it reads from the `GITHUB_TOKEN` environment variable.
-         * You may also configure it directly here (not recommended; if you do, ensure it is not exposed in public code repositories).
+         * @remarks This is optional; by default, it reads from the `GITHUB_TOKEN` environment variable.
+         * You may also configure it directly here (not recommended; if you do, ensure it is not exposed
+         * in public code repositories).
          *
          * @see
          * - {@link https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic How to create a GitHub PAT (classic).}

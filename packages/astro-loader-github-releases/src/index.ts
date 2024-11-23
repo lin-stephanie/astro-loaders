@@ -15,6 +15,11 @@ import { getEntrySchema } from './schema.js'
 import type { Loader } from 'astro/loaders'
 import type { GithubReleasesLoaderUserConfig } from './config.js'
 
+/**
+ * Aatro loader for loading GitHub release data from a given user or multiple repositories.
+ *
+ * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-releases
+ */
 function githubReleasesLoader(
   userConfig: GithubReleasesLoaderUserConfig
 ): Loader {
@@ -48,14 +53,12 @@ function githubReleasesLoader(
         if (status === 304) logger.info('No new release data since last fetch.')
 
         if (status === 200) {
-          logger.info('Successfully loaded the latest release data.')
           for (const item of releases) {
             const parsedItem = await parseData({ id: item.id, data: item })
             store.set({ id: item.id, data: parsedItem })
           }
+          logger.info('Successfully loaded the latest release data.')
         }
-
-        logger.info('Successfully saved the loaded release data to the store.')
       } else if (parsedUserConfig.loadMode === 'repoList') {
         logger.info(
           `Loading release data for ${parsedUserConfig.modeConfig.repos.join(', ')} using the 'repoList' mode.`
@@ -67,8 +70,6 @@ function githubReleasesLoader(
         }
         const releases = await fetchReleasesByRepoList(modeConfig)
 
-        logger.info('Successfully loaded the latest release data.')
-
         store.clear()
         for (const item of releases) {
           if ('id' in item && modeConfig.entryReturnType === 'byRelease') {
@@ -79,8 +80,7 @@ function githubReleasesLoader(
             store.set({ id: item.repo, data: parsedItem })
           }
         }
-
-        logger.info('Successfully saved the loaded release data to the store.')
+        logger.info('Successfully loaded the latest release data.')
       } else
         throw new AstroError(
           `The configuration provided in '${pkg.name}' is invalid.`,
