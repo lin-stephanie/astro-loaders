@@ -72,16 +72,16 @@ The `githubReleasesLoader` function takes an object with the following options:
 | `loadMode`*         | `'userCommit' \| 'repoList'` | Specifies the method to fetch GitHub release data (corresponding to different [entries Zod Schema](#schema)). |
 | `modeConfig`*       | `Record<string, any>`        | Configures options for the selected `loadMode`.                                                               |
 
-In `userCommit` mode, the loader uses the GitHub REST API ([`GET /users/{username}/events/public`](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user)) to fetch up to 300 events from the past 90 days. Data may have a latency of 30 seconds to 6 hours and is not real-time. This mode is useful for users who want to show their recent release activities. The `modeConfig` options includes:
+**In `userCommit` mode**, the loader uses the GitHub REST API ([`GET /users/{username}/events/public`](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user)) to fetch up to 300 events from the past 90 days. Data may have a latency of 30 seconds to 6 hours and is not real-time. This mode is useful for users who want to show their recent release activities. The `modeConfig` options includes:
 
 | Option (* required) | Type (defaults)                                                                                                                                   | Description                                                                                                                             |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `username`*         | `string`                                                                                                                                          | The unique username used to identify a specific GitHub account.                                                                         |
 | `keyword`           | `string`（defaults: `'release'`）                                                                                                                   | The keyword to filter push events' commit messages for releases.                                                                        |
-| `versionRegex`      | `string`（defaults: `'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s\|$)'`)                                                                             | Regular expression for matching tag name in commit messages. The first capturing group in the regex will be used as `versionNum` field. |
+| `tagNameRegex`      | `string`（defaults: `'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s\|$)'`)                                                                             | Regular expression for matching tag name in commit messages. The first capturing group in the regex will be used as `versionNum` field. |
 | `branches`          | `string[]`(default: `['refs/heads/main', 'refs/heads/master', 'refs/heads/latest', 'refs/heads/stable', 'refs/heads/release', 'refs/heads/dev']`) | The branches to monitor for push events. Filters out activities from other forks based on these refs.                                   |
 
-In `repoList` mode, the loader fetches release data from specified repositories via the GitHub GraphQL API, requiring a GitHub PAT with `repo` scope for authentication. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
+**In `repoList` mode**, the loader fetches release data from specified repositories via the GitHub GraphQL API, requiring a GitHub PAT with `repo` scope for authentication. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
 
 | Option (* required) | Type (defaults)                                              | Description                                                                                                                                                                                                                                                                                       |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -92,10 +92,9 @@ In `repoList` mode, the loader fetches release data from specified repositories 
 
 ## Schema
 
-In `userCommit` mode, the Zod schema for the loaded collection entries is defined as follows:
+**In `userCommit` mode**, the Zod schema for the loaded collection entries is defined as follows:
 
 ```ts
-/* User Commit Mode */
 const ReleaseByIdFromUserSchema = z.object({
   id: z.string(),
   url: z.string(),
@@ -115,10 +114,9 @@ const ReleaseByIdFromUserSchema = z.object({
 })
 ```
 
-In `repoList` mode, the Zod schema for the loaded collection entries is defined as follows:
+**In `repoList` mode**, the Zod schema for the loaded collection entries is defined as follows:
 
 ```ts
-/* Repo List Mode */
 // entryReturnType: 'byRelease'
 const ReleaseByIdFromReposSchema = z.object({
   id: z.string(),
@@ -144,7 +142,7 @@ const ReleaseByRepoFromReposSchema = z.object({
 
 Astro automatically applies this schema to generate TypeScript interfaces, providing full support for autocompletion and type-checking when querying the collection.
 
-If you need to [customize the collection schema](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure it remains compatible with the built-in Zod schema to avoid errors. For additional fields you'd like to fetch, feel free to [open an issue](https://github.com/lin-stephanie/astro-loaders/issues).
+If you need to [customize the collection schema](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure it remains compatible with the built-in Zod schema of the loader to avoid errors. For additional fields you'd like to fetch, feel free to [open an issue](https://github.com/lin-stephanie/astro-loaders/issues).
 
 
 [version-badge]: https://img.shields.io/npm/v/astro-loader-github-releases?label=release&style=flat&colorA=080f12&colorB=ef7575
