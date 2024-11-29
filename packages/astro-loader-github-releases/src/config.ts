@@ -14,7 +14,6 @@ export const userCommitDefaultConfig = {
 }
 
 export const repoListtDefaultConfig = {
-  sinceDate: null,
   entryReturnType: 'byRepository' as const,
 }
 
@@ -93,8 +92,14 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
          * The date from which to start loading release data. If not specified, load all.
          */
         sinceDate: z
-          .union([z.coerce.date(), z.null()])
-          .default(repoListtDefaultConfig.sinceDate),
+          .union([
+            z.coerce.date(),
+            z.string().refine((val) => !Number.isNaN(Date.parse(val)), {
+              message:
+                'Invalid date string. See supported formats: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format',
+            }),
+          ])
+          .optional(),
 
         /**
          * Determines whether entries are returned per repository or per individual release item.
@@ -111,7 +116,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
           .default(repoListtDefaultConfig.entryReturnType),
 
         /**
-         * In this mode, you must create a GitHub PAT with at least `repo` scope permissions
+         * In this mode, you need to create a GitHub PAT with at least `repo` scope permissions
          * to authenticate requests to the GraphQL API.
          *
          * @remarks This is optional; by default, it reads from the `GITHUB_TOKEN` environment variable.

@@ -119,7 +119,7 @@ async function fetchReleasesByRepoList(
 
   const releasesById: ReleaseByIdFromRepos[] = []
   const releasesByRepo: ReleaseByRepoFromRepos[] = []
-  const filterDate = sinceDate === null ? sinceDate : +new Date(sinceDate)
+  const filterDate = sinceDate === undefined ? null : +new Date(sinceDate)
   const getReleasesQuery = readFileSync(
     new URL('./graphql/query.graphql', import.meta.url),
     'utf8'
