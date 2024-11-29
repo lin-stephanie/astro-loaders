@@ -1,7 +1,7 @@
 import { z } from 'astro/zod'
 import type { GithubReleasesLoaderUserConfig } from './config.js'
 
-/* User Commit Mode */
+/* userCommit */
 const CommitAuthorSchema = z.object({
   name: z.string(),
   email: z.string(),
@@ -34,7 +34,7 @@ const ReleaseByIdFromUserSchema = z.object({
 })
 export type ReleaseByIdFromUser = z.infer<typeof ReleaseByIdFromUserSchema>
 
-/* Repo List Mode */
+/* repoList */
 // entryReturnType: 'byRelease'
 const ReleaseByIdFromReposSchema = z.object({
   id: z.string(),

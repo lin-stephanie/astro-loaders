@@ -38,7 +38,7 @@ function githubReleasesLoader(
     async load({ meta, store, logger, parseData /* , generateDigest */ }) {
       if (parsedUserConfig.loadMode === 'userCommit') {
         logger.info(
-          `Loading GitHub release data for user @${parsedUserConfig.modeConfig.username} using the 'userCommit' mode.`
+          `Loading GitHub releases for the user @${parsedUserConfig.modeConfig.username} in 'userCommit' mode.`
         )
 
         const modeConfig = {
@@ -57,11 +57,12 @@ function githubReleasesLoader(
             const parsedItem = await parseData({ id: item.id, data: item })
             store.set({ id: item.id, data: parsedItem })
           }
-          logger.info('Successfully loaded the latest release data.')
+          logger.info('Successfully loaded the GitHub releases.')
         }
       } else if (parsedUserConfig.loadMode === 'repoList') {
+        const repoNum = parsedUserConfig.modeConfig.repos.length
         logger.info(
-          `Loading GitHub release data for ${parsedUserConfig.modeConfig.repos.join(', ')} using the 'repoList' mode.`
+          `Loading GitHub releases for ${repoNum} ${repoNum > 1 ? 'repositories' : 'repository'} in 'repoList' mode.`
         )
 
         const modeConfig = {
@@ -80,7 +81,7 @@ function githubReleasesLoader(
             store.set({ id: item.repo, data: parsedItem })
           }
         }
-        logger.info('Successfully loaded the latest release data.')
+        logger.info('Successfully loaded the GitHub releases.')
       } else
         throw new AstroError(
           `The configuration provided in '${pkg.name}' is invalid.`,
