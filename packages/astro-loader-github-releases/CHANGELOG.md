@@ -1,5 +1,11 @@
 # astro-loader-github-releases
 
+## 1.2.1
+
+### Patch Changes
+
+- Resolve error ('Type 'string' is not assignable to type 'Date'') when setting `sinceDate` field due to type mismatch in Zod type inference ([`0a0dede`](https://github.com/lin-stephanie/astro-loaders/commit/0a0dede095dab52612a92cf14f00a81d796e2570))
+
 ## 1.2.0
 
 ### Minor Changes
