@@ -1,5 +1,11 @@
 # astro-loader-github-releases
 
+## 1.2.2
+
+### Patch Changes
+
+- Fix the ineffective `sinceDate` configuration in 'repoList' mode ([`bd4ea47`](https://github.com/lin-stephanie/astro-loaders/commit/bd4ea47fbff892a3c017999775fd52cd6dd45568))
+
 ## 1.2.1
 
 ### Patch Changes

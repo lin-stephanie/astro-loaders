@@ -1,6 +1,6 @@
 {
   "name": "astro-loader-github-releases",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Aatro loader for loading GitHub release data from a given user or multiple repositories.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
