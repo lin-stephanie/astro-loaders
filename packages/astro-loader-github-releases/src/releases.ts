@@ -119,7 +119,7 @@ async function fetchReleasesByRepoList(
 
   const releasesById: ReleaseByIdFromRepos[] = []
   const releasesByRepo: ReleaseByRepoFromRepos[] = []
-  const filterDate = sinceDate === undefined ? null : +new Date(sinceDate)
+  const filterDate = sinceDate === undefined ? null : +sinceDate
   const getReleasesQuery = readFileSync(
     new URL('./graphql/query.graphql', import.meta.url),
     'utf8'
@@ -149,39 +149,36 @@ async function fetchReleasesByRepoList(
           variables
         )
 
-        const releasesPerPage =
-          res.repository?.releases.nodes
-            ?.filter((node) => node !== null)
-            .map((node) => {
-              return {
-                id: node.id,
-                url: node.url || '',
-                name: node.name || '',
-                tagName: node.tagName,
-                description: node.description || '',
-                descriptionHTML: node.descriptionHTML || '',
-                repoName: node.repository.name,
-                repoNameWithOwner: node.repository.nameWithOwner,
-                repoUrl: node.repository.url || '',
-                repoStargazerCount: node.repository.stargazerCount,
-                repoIsInOrganization: node.repository.isInOrganization,
-                publishedAt: node.publishedAt || '',
-              }
-            }) || []
-
-        let stopFetching = false
-        if (filterDate !== null) {
-          releasesPerPage.filter((release) => {
-            return +new Date(release.publishedAt) >= filterDate
+        const nodes = res.repository?.releases.nodes || []
+        const releasesPerPage = nodes
+          .filter((node) => node !== null)
+          .filter(
+            (node) =>
+              filterDate === null || +new Date(node.publishedAt) >= filterDate
+          )
+          .map((node) => {
+            return {
+              id: node.id,
+              url: node.url || '',
+              name: node.name || '',
+              tagName: node.tagName,
+              description: node.description || '',
+              descriptionHTML: node.descriptionHTML || '',
+              repoName: node.repository.name,
+              repoNameWithOwner: node.repository.nameWithOwner,
+              repoUrl: node.repository.url || '',
+              repoStargazerCount: node.repository.stargazerCount,
+              repoIsInOrganization: node.repository.isInOrganization,
+              publishedAt: node.publishedAt || '',
+            }
           })
 
-          if (
-            +new Date(releasesPerPage[releasesPerPage.length - 1].publishedAt) <
-            filterDate
-          ) {
-            stopFetching = true
-          }
-        }
+        let stopFetching = false
+        if (
+          filterDate !== null &&
+          +new Date(nodes[nodes.length - 1]?.publishedAt) < filterDate
+        )
+          stopFetching = true
 
         if (entryReturnType === 'byRelease')
           releasesById.push(...releasesPerPage)

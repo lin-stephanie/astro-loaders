@@ -13,7 +13,7 @@ export const userCommitDefaultConfig = {
   ],
 }
 
-export const repoListtDefaultConfig = {
+export const repoListDefaultConfig = {
   entryReturnType: 'byRepository' as const,
 }
 
@@ -113,7 +113,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
          */
         entryReturnType: z
           .union([z.literal('byRepository'), z.literal('byRelease')])
-          .default(repoListtDefaultConfig.entryReturnType),
+          .default(repoListDefaultConfig.entryReturnType),
 
         /**
          * In this mode, you need to create a GitHub PAT with at least `repo` scope permissions

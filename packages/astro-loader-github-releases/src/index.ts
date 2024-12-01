@@ -3,7 +3,7 @@ import { AstroError } from 'astro/errors'
 import pkg from '../package.json'
 import {
   GithubReleasesLoaderConfigSchema,
-  repoListtDefaultConfig,
+  repoListDefaultConfig,
   userCommitDefaultConfig,
 } from './config.js'
 import {
@@ -66,7 +66,7 @@ function githubReleasesLoader(
         )
 
         const modeConfig = {
-          ...repoListtDefaultConfig,
+          ...repoListDefaultConfig,
           ...parsedUserConfig.modeConfig,
         }
         const releases = await fetchReleasesByRepoList(modeConfig)
