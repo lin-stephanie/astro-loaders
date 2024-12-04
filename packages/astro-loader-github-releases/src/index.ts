@@ -26,8 +26,7 @@ function githubReleasesLoader(
   const parsedConfig = GithubReleasesLoaderConfigSchema.safeParse(userConfig)
   if (!parsedConfig.success) {
     throw new AstroError(
-      `The configuration provided in '${pkg.name}' is invalid. Refer to the following error report or access configuration details for this loader here: ${pkg.homepage}#configuration.`,
-      `${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}`
+      `${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}. \nCheck out the configuration for this loader: ${pkg.homepage}#configuration.`
     )
   }
   const parsedUserConfig = parsedConfig.data
@@ -38,7 +37,7 @@ function githubReleasesLoader(
     async load({ meta, store, logger, parseData /* , generateDigest */ }) {
       if (parsedUserConfig.loadMode === 'userCommit') {
         logger.info(
-          `Loading GitHub releases for the user @${parsedUserConfig.modeConfig.username} in 'userCommit' mode.`
+          `Loading GitHub releases for the user @${parsedUserConfig.modeConfig.username}`
         )
 
         const modeConfig = {
@@ -50,19 +49,21 @@ function githubReleasesLoader(
           meta
         )
 
-        if (status === 304) logger.info('No new release data since last fetch.')
+        if (status === 304) logger.info('No new release data since last fetch')
 
         if (status === 200) {
           for (const item of releases) {
             const parsedItem = await parseData({ id: item.id, data: item })
             store.set({ id: item.id, data: parsedItem })
           }
-          logger.info('Successfully loaded the GitHub releases.')
+          logger.info('Successfully loaded GitHub releases')
         }
-      } else if (parsedUserConfig.loadMode === 'repoList') {
+      }
+
+      if (parsedUserConfig.loadMode === 'repoList') {
         const repoNum = parsedUserConfig.modeConfig.repos.length
         logger.info(
-          `Loading GitHub releases for ${repoNum} ${repoNum > 1 ? 'repositories' : 'repository'} in 'repoList' mode.`
+          `Loading GitHub releases for ${repoNum} ${repoNum > 1 ? 'repositories' : 'repository'}`
         )
 
         const modeConfig = {
@@ -81,12 +82,8 @@ function githubReleasesLoader(
             store.set({ id: item.repo, data: parsedItem })
           }
         }
-        logger.info('Successfully loaded the GitHub releases.')
-      } else
-        throw new AstroError(
-          `The configuration provided in '${pkg.name}' is invalid.`,
-          "`loadMode` can only be 'userCommit' or 'repoList'."
-        )
+        logger.info('Successfully loaded GitHub releases.')
+      }
     },
   }
 }

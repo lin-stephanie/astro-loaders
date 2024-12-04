@@ -102,7 +102,7 @@ async function fetchReleasesByUserCommit(
       }
 
       throw new AstroError(
-        `Failed to load release data in 'userCommit' mode: ${(error as Error).message}`
+        `Failed to load GitHub releases: ${(error as Error).message}`
       )
     }
   }
@@ -119,11 +119,22 @@ async function fetchReleasesByRepoList(
 
   const releasesById: ReleaseByIdFromRepos[] = []
   const releasesByRepo: ReleaseByRepoFromRepos[] = []
+
   const filterDate = sinceDate === undefined ? null : +sinceDate
   const getReleasesQuery = readFileSync(
     new URL('./graphql/query.graphql', import.meta.url),
     'utf8'
   )
+
+  const token = githubToken || import.meta.env.GITHUB_TOKEN
+  if (!token) {
+    throw new AstroError(
+      'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.',
+      `How to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic
+How to store GitHub PAT in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables`
+    )
+  }
+
   const octokit = new Octokit({
     auth: githubToken || import.meta.env.GITHUB_TOKEN,
   })
@@ -200,7 +211,7 @@ async function fetchReleasesByRepoList(
     }
   } catch (error) {
     throw new AstroError(
-      `Failed to load release data in 'repoList' mode: ${(error as Error).message}`
+      `Failed to load GitHub releases: ${(error as Error).message}`
     )
   }
 
