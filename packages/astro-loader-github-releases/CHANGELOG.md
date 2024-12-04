@@ -1,5 +1,11 @@
 # astro-loader-github-releases
 
+## 1.2.3
+
+### Patch Changes
+
+- Handle missing GitHub token error & Optimize logging ([`de1a6cc`](https://github.com/lin-stephanie/astro-loaders/commit/de1a6cc2b3a244d93280c96ee4b6994cd4060162))
+
 ## 1.2.2
 
 ### Patch Changes
