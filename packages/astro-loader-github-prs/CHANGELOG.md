@@ -1,5 +1,11 @@
 # astro-loader-github-prs
 
+## 1.0.1
+
+### Patch Changes
+
+- Handle missing GitHub token error ([`0ddb6b5`](https://github.com/lin-stephanie/astro-loaders/commit/0ddb6b56465f2ad1b39b8f9bde573c8fa399ab91))
+
 ## 1.0.0
 
 ### Major Changes
