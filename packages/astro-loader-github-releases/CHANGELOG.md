@@ -1,5 +1,11 @@
 # astro-loader-github-releases
 
+## 1.3.0
+
+### Minor Changes
+
+- Add `monthsBack` option in 'repoList' mode to specify the recent months for loading releases ([`752ee0e`](https://github.com/lin-stephanie/astro-loaders/commit/752ee0e9ae3fba4a78091737c675979936284279))
+
 ## 1.2.3
 
 ### Patch Changes
