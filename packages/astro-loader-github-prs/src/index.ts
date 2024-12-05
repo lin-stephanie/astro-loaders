@@ -3,7 +3,7 @@ import { Octokit } from 'octokit'
 
 import { readFileSync } from 'node:fs'
 
-import pkg from '../package.json'
+import pkg from '../package.json' with { type: 'json' }
 import { GithubPrsLoaderConfigSchema } from './config.js'
 import { GithubPrSchema } from './schema.js'
 

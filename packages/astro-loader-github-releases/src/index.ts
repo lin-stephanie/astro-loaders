@@ -1,6 +1,6 @@
 import { AstroError } from 'astro/errors'
 
-import pkg from '../package.json'
+import pkg from '../package.json' with { type: 'json' }
 import {
   GithubReleasesLoaderConfigSchema,
   repoListDefaultConfig,
