@@ -1,23 +1,24 @@
 {
   "name": "astro-loader-github-prs",
   "version": "1.0.0",
-  "description": "Aatro loader for loading GitHub pull reuqests from a given GitHub search string.",
+  "description": "Aatro loader for loading GitHub pull reuqests from a given search string.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
   "keywords": [
     "withastro",
     "astro-loader",
     "github",
-    "search",
-    "prs",
-    "pr"
+    "pull-request",
+    "pull-requests",
+    "pr",
+    "search"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
     "directory": "packages/astro-loader-github-prs"
   },
-  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-prs/README.md",
+  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-prs/",
   "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
   "type": "module",
   "files": [

@@ -13,7 +13,7 @@ import type { GetPrsQuery, GetPrsQueryVariables } from './graphql/types.js'
 import type { GithubPr } from './schema.js'
 
 /**
- * Aatro loader for loading GitHub pull reuqests from a given GitHub search string.
+ * Aatro loader for loading GitHub pull reuqests from a given search string.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-prs
  */
@@ -34,16 +34,25 @@ function githubPrsLoader(userConfig: GithubPrsLoaderUserConfig): Loader {
       const { search, githubToken } = parsedUserConfig
       const prs: GithubPr[] = []
       const query = `type:pr ${search}`
-      const getPrsQuery = readFileSync(
-        new URL('./graphql/query.graphql', import.meta.url),
-        'utf8'
+      logger.info(
+        `Loading GitHub pull reuqests based on the search string: '${query}'`
       )
+
+      const token = githubToken || import.meta.env.GITHUB_TOKEN
+      if (!token) {
+        throw new AstroError(
+          'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.',
+          `How to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic.
+How to store GitHub PAT in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables`
+        )
+      }
       const octokit = new Octokit({
         auth: githubToken || import.meta.env.GITHUB_TOKEN,
       })
 
-      logger.info(
-        `Loading pull reuqests based on the search string: '${query}'.`
+      const getPrsQuery = readFileSync(
+        new URL('./graphql/query.graphql', import.meta.url),
+        'utf8'
       )
 
       try {
@@ -108,7 +117,7 @@ function githubPrsLoader(userConfig: GithubPrsLoaderUserConfig): Loader {
         }
       } catch (error) {
         throw new AstroError(
-          `Failed to load pull requests: ${(error as Error).message}`
+          `Failed to load GitHub pull requests: ${(error as Error).message}`
         )
       }
 
@@ -119,7 +128,7 @@ function githubPrsLoader(userConfig: GithubPrsLoaderUserConfig): Loader {
         store.set({ id: item.id, data: parsedItem })
       }
 
-      logger.info('Successfully loaded the latest pull requests.')
+      logger.info('Successfully loaded GitHub pull requests')
     },
   }
 }
