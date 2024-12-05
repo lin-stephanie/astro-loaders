@@ -22,10 +22,10 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
   [
     z.object({
       /**
-       * Loads release data from commit messages in push events for a specific GitHub user
+       * Loads GitHub releases from commit messages in push events for a specific GitHub user
        * via the GitHub REST API endpoint: {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user `GET /users/<username>/events/public`}.
        *
-       * @remarks Only release data from the past 90 days can be retrieved in this mode.
+       * Only events from the past 90 days can be retrieved in this mode.
        * {@link https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#about-github-events Learn more.}
        */
       loadMode: z.literal('userCommit'),
@@ -35,7 +35,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
        */
       modeConfig: z.object({
         /**
-         * The unique username used to identify a specific GitHub account.
+         * The username used to identify a specific GitHub account.
          */
         username: z.string(),
 
@@ -67,7 +67,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
 
     z.object({
       /**
-       * Loads release data from a specified list of repositories using the GitHub GraphQL API for querying.
+       * Loads GitHub releases from a specified list of repositories using the GitHub GraphQL API for querying.
        */
       loadMode: z.literal('repoList'),
 
@@ -76,7 +76,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
        */
       modeConfig: z.object({
         /**
-         * The repositories from which to load release data, each formatted as "owner/repo".
+         * The repositories from which to load releases, each formatted as "owner/repo".
          */
         repos: z
           .array(
@@ -89,7 +89,9 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
           }),
 
         /**
-         * The date from which to start loading release data. If not specified, load all.
+         * The date from which to start loading releases. If not specified, load all.
+         *
+         * If both `monthsBack` and `sinceDate` are configured, the more recent date will be used.
          */
         sinceDate: z
           .union([
@@ -102,12 +104,21 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
           .optional(),
 
         /**
+         * The number of recent months from which to load releases, including the current month.
+         *
+         * For example, setting to `3` on December 4, 2024, will include releases
+         * from October 1, 2024, to December 4, 2024.
+         *
+         * If both `monthsBack` and `sinceDate` are configured, the more recent date will be used.
+         */
+        monthsBack: z.number().int().positive().optional(),
+
+        /**
          * Determines whether entries are returned per repository or per individual release item.
          * - 'byRepository': Return entries per repository.
          * - 'byRelease': Return entries per individual release item.
          *
-         * @remarks This option influences the Zod Schema of the loaded entries and how the data
-         * is processed afterward.
+         * This option influences the Zod Schema of the loaded entries and how the data is processed afterward.
          *
          * @default 'byRepository'
          */
@@ -119,7 +130,7 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
          * In this mode, you need to create a GitHub PAT with at least `repo` scope permissions
          * to authenticate requests to the GraphQL API.
          *
-         * @remarks This is optional; by default, it reads from the `GITHUB_TOKEN` environment variable.
+         * This is optional; by default, it reads from the `GITHUB_TOKEN` environment variable.
          * You may also configure it directly here (not recommended; if you do, ensure it is not exposed
          * in public code repositories).
          *

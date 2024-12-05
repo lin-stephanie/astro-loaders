@@ -4,7 +4,7 @@
 [![jsDocs.io][jsdocs-src]][jsdocs-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 
-This package provides a GitHub releases loader for Astro. The loader supports two configurable modes, allowing you to load public release data either from a user's commit history or from a specified list of repositories. 
+This package provides a GitHub releases loader for Astro. The loader supports two configurable modes, allowing you to load public GitHub releases either from a user's commit history or from a specified list of repositories. 
 
 ## Installation
 
@@ -40,7 +40,7 @@ const githubReleases = defineCollection({
 export const collections = { githubReleases };
 ```
 
-[Query the content collection](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#querying-collections) like any other Astro content collection to render the loaded release data:
+[Query the content collection](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#querying-collections) like any other Astro content collection to render the loaded releases:
 
 ```astro
 ---
@@ -69,7 +69,7 @@ The `githubReleasesLoader` function takes an object with the following options:
 
 | Option (* required) | Type                         | Description                                                                                                   |
 | ------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `loadMode`*         | `'userCommit' \| 'repoList'` | Specifies the method to fetch GitHub release data (corresponding to different [entries Zod Schema](#schema)). |
+| `loadMode`*         | `'userCommit' \| 'repoList'` | Specifies the method to fetch GitHub releases (corresponding to different [entries Zod Schema](#schema)). |
 | `modeConfig`*       | `Record<string, any>`        | Configures options for the selected `loadMode`.                                                               |
 
 ### `userCommit` Mode
@@ -85,14 +85,15 @@ The loader uses the GitHub REST API ([`GET /users/{username}/events/public`](htt
 
 ### `repoList` Mode
 
-The loader fetches release data from specified repositories via the GitHub GraphQL API, requiring a GitHub PAT with `repo` scope for authentication. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
+The loader fetches GitHub releases from specified repositories via the GitHub GraphQL API, requiring a GitHub PAT with `repo` scope for authentication. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
 
-| Option (* required) | Type (default)                                              | Description                                                                                                                                                                                                                                                                                       |
-| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `repos`*            | `string[]`                                                   | The repositories from which to load release data, each formatted as `'owner/repo'`.                                                                                                                                                                                                               |
-| `sinceDate`         | `Date \| string` (If not specified, load all)                           | The date from which to start loading release data. See supported date string formats [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format). For example:<br>`"2024-11-01T00:00:00.000Z"`<br>`"2024-11-01"`<br>`"01/11/24"` |
-| `entryReturnType`   | `'byRelease' \| 'byRepository'` (default: `'byRepository'`) | Determines whether entries are returned per repository or per individual release item. This option influences the Zod Schema of the loaded entries.                                                                                                                                               |
-| `githubToken`       | `string` (default: `'import.meta.env.GITHUB_TOKEN'`)        | A GitHub PAT with at least `repo` scope permissions. Defaults to the `GITHUB_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables).                                                                                                                    |
+| Option (* required) | Type (default)                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repos`*            | `string[]`                                                                   | The repositories from which to load releases, each formatted as `'owner/repo'`.                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `sinceDate`         | `Date \| string` (If `sinceDate` and `monthsBack` are unspecified, load all) | The date from which to start loading releases. See supported date string formats [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format). For example:<br>`"2024-11-01T00:00:00.000Z"`<br>`"2024-11-01"`<br>`"01/11/24"`                                                                                                                                                                                                                  |
+| `monthsBack`        | `number` (If `sinceDate` and `monthsBack` are unspecified, load all)         | The number of recent months from which to load releases, including the current month. **If both `monthsBack` and `sinceDate` are specified, the more recent date will be used**.                                                                                                                                                                                                                                                                                                                           |
+| `entryReturnType`   | `'byRelease' \| 'byRepository'` (default: `'byRepository'`)                  | Determines whether entries are returned per repository or per individual release item. This option influences the Zod Schema of the loaded entries.                                                                                                                                                                                                                                                                                                                                                         |
+| `githubToken`       | `string` (default: `'import.meta.env.GITHUB_TOKEN'`)                         | A GitHub PAT with at least `repo` scope permissions. Defaults to the `GITHUB_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure**. See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
 
 ## Schema
 

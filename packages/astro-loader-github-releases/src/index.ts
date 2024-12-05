@@ -16,7 +16,7 @@ import type { Loader } from 'astro/loaders'
 import type { GithubReleasesLoaderUserConfig } from './config.js'
 
 /**
- * Aatro loader for loading GitHub release data from a given user or multiple repositories.
+ * Aatro loader for loading GitHub releases from a given user or multiple repositories.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-releases
  */
@@ -49,7 +49,8 @@ function githubReleasesLoader(
           meta
         )
 
-        if (status === 304) logger.info('No new release data since last fetch')
+        if (status === 304)
+          logger.info('No new GitHub releases since last fetch')
 
         if (status === 200) {
           for (const item of releases) {
@@ -82,7 +83,7 @@ function githubReleasesLoader(
             store.set({ id: item.repo, data: parsedItem })
           }
         }
-        logger.info('Successfully loaded GitHub releases.')
+        logger.info('Successfully loaded GitHub releases')
       }
     },
   }

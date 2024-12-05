@@ -1,7 +1,7 @@
 import { AstroError } from 'astro/errors'
 import { Octokit, RequestError } from 'octokit'
-
 import { readFileSync } from 'node:fs'
+import { getSinceDate } from './utils.js'
 
 import type { LoaderContext } from 'astro/loaders'
 import type { RepoListOutputConfig, UserCommitOutputConfig } from './config.js'
@@ -115,16 +115,17 @@ async function fetchReleasesByUserCommit(
 async function fetchReleasesByRepoList(
   config: RepoListOutputConfig['modeConfig']
 ): Promise<ReleaseByIdFromRepos[] | ReleaseByRepoFromRepos[]> {
-  const { repos, sinceDate, entryReturnType, githubToken } = config
+  const { repos, sinceDate, monthsBack, entryReturnType, githubToken } = config
 
   const releasesById: ReleaseByIdFromRepos[] = []
   const releasesByRepo: ReleaseByRepoFromRepos[] = []
+  let sinceDateMs: null | number = null
 
-  const filterDate = sinceDate === undefined ? null : +sinceDate
-  const getReleasesQuery = readFileSync(
-    new URL('./graphql/query.graphql', import.meta.url),
-    'utf8'
-  )
+  if (monthsBack && (!Number.isInteger(monthsBack) || monthsBack <= 0)) {
+    throw new AstroError('`monthsBack` must be a positive integer')
+  }
+  if (monthsBack || sinceDate)
+    sinceDateMs = getSinceDate(monthsBack, sinceDate as Date)
 
   const token = githubToken || import.meta.env.GITHUB_TOKEN
   if (!token) {
@@ -134,10 +135,14 @@ async function fetchReleasesByRepoList(
 How to store GitHub PAT in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables`
     )
   }
-
   const octokit = new Octokit({
     auth: githubToken || import.meta.env.GITHUB_TOKEN,
   })
+
+  const getReleasesQuery = readFileSync(
+    new URL('./graphql/query.graphql', import.meta.url),
+    'utf8'
+  )
 
   try {
     for (const repo of repos) {
@@ -165,7 +170,7 @@ How to store GitHub PAT in Astro project environment variables: https://docs.ast
           .filter((node) => node !== null)
           .filter(
             (node) =>
-              filterDate === null || +new Date(node.publishedAt) >= filterDate
+              sinceDateMs === null || +new Date(node.publishedAt) >= sinceDateMs
           )
           .map((node) => {
             return {
@@ -186,8 +191,8 @@ How to store GitHub PAT in Astro project environment variables: https://docs.ast
 
         let stopFetching = false
         if (
-          filterDate !== null &&
-          +new Date(nodes[nodes.length - 1]?.publishedAt) < filterDate
+          sinceDateMs !== null &&
+          +new Date(nodes[nodes.length - 1]?.publishedAt) < sinceDateMs
         )
           stopFetching = true
 
