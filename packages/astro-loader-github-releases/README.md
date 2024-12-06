@@ -14,7 +14,7 @@ npm install -D astro-loader-github-releases
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0-beta.0`. For `^4.14.0`, enable the [experimental content layer](https://docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -40,7 +40,7 @@ const githubReleases = defineCollection({
 export const collections = { githubReleases };
 ```
 
-[Query the content collection](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#querying-collections) like any other Astro content collection to render the loaded releases:
+[Query the content collection](https://docs.astro.build/en/guides/content-collections/#querying-collections) like any other Astro content collection to render the loaded releases:
 
 ```astro
 ---
@@ -61,7 +61,7 @@ const releases = await getCollection("githubReleases");
 </ul>
 ```
 
-To update the data, trigger a site rebuild, as [the loader fetches data only at build time](https://5-0-0-beta.docs.astro.build/en/reference/content-loader-reference/#object-loaders).
+To update the data, trigger a site rebuild, as [the loader fetches data only at build time](https://docs.astro.build/en/reference/content-loader-reference/#object-loaders).
 
 ## Configuration
 
@@ -147,7 +147,7 @@ const ReleaseByRepoFromReposSchema = z.object({
 })
 ```
 
-Astro automatically applies these schemas to generate TypeScript interfaces, enabling autocompletion and type-checking for collection queries. If you [customize the collection schema](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure compatibility with the loader's built-in Zod schema to avoid errors. For additional fields, open an issue.
+Astro automatically applies these schemas to generate TypeScript interfaces, enabling autocompletion and type-checking for collection queries. If you [customize the collection schema](https://docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure compatibility with the loader's built-in Zod schema to avoid errors. For additional fields, open an issue.
 
 [version-badge]: https://img.shields.io/npm/v/astro-loader-github-releases?label=release&style=flat&colorA=080f12&colorB=ef7575
 [version-link]: https://www.npmjs.com/package/astro-loader-github-releases

@@ -14,7 +14,7 @@ npm install -D astro-loader-github-prs
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0-beta.0`. For `^4.14.0`, enable the [experimental content layer](https://docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -39,7 +39,7 @@ const githubPrs = defineCollection({
 export const collections = { githubPrs };
 ```
 
-[Query the content collection](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#querying-collections) like any other Astro content collection to render the loaded GitHub PRs:
+[Query the content collection](https://docs.astro.build/en/guides/content-collections/#querying-collections) like any other Astro content collection to render the loaded GitHub PRs:
 
 ```astro
 ---
@@ -59,7 +59,7 @@ const prs = await getCollection("githubPrs");
 </ul>
 ```
 
-To update the data, trigger a site rebuild, as [the loader fetches data only at build time](https://5-0-0-beta.docs.astro.build/en/reference/content-loader-reference/#object-loaders).
+To update the data, trigger a site rebuild, as [the loader fetches data only at build time](https://docs.astro.build/en/reference/content-loader-reference/#object-loaders).
 
 ## Configuration
 
@@ -111,7 +111,7 @@ const GithubPrSchema = z.object({
 
 Astro automatically applies this schema to generate TypeScript interfaces, providing full support for autocompletion and type-checking when querying the collection.
 
-If you need to [customize the collection schema](https://5-0-0-beta.docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure it remains compatible with the built-in Zod schema of the loader to avoid errors. For additional fields you'd like to fetch, feel free to [open an issue](https://github.com/lin-stephanie/astro-loaders/issues).
+If you need to [customize the collection schema](https://docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure it remains compatible with the built-in Zod schema of the loader to avoid errors. For additional fields you'd like to fetch, feel free to [open an issue](https://github.com/lin-stephanie/astro-loaders/issues).
 
 
 [version-badge]: https://img.shields.io/npm/v/astro-loader-github-prs?label=release&style=flat&colorA=080f12&colorB=ef7575
