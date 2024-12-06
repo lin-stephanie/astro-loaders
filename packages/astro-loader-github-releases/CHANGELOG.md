@@ -1,5 +1,11 @@
 # astro-loader-github-releases
 
+## 1.3.1
+
+### Patch Changes
+
+- Update `peerDependencies` to support Astro 4.14.0+ and 5.x ([`c9a0772`](https://github.com/lin-stephanie/astro-loaders/commit/c9a077259de2f4da9c2503955a43daddae948b0a))
+
 ## 1.3.0
 
 ### Minor Changes
