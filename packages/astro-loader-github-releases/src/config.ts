@@ -115,8 +115,8 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
 
         /**
          * Determines whether entries are returned per repository or per individual release item.
-         * - 'byRepository': Return entries per repository.
-         * - 'byRelease': Return entries per individual release item.
+         * - `'byRepository'`: Return entries per repository.
+         * - `'byRelease'`: Return entries per individual release item.
          *
          * This option influences the Zod Schema of the loaded entries and how the data is processed afterward.
          *
@@ -127,16 +127,16 @@ export const GithubReleasesLoaderConfigSchema = z.discriminatedUnion(
           .default(repoListDefaultConfig.entryReturnType),
 
         /**
-         * In this mode, you need to create a GitHub PAT with at least `repo` scope permissions
-         * to authenticate requests to the GraphQL API.
+         * In this mode, you need to {@link https://github.com/settings/tokens create a GitHub PAT}
+         * with at least `repo` scope permissions to authenticate requests to the GraphQL API.
          *
          * This is optional; by default, it reads from the `GITHUB_TOKEN` environment variable.
          * You may also configure it directly here (not recommended; if you do, ensure it is not exposed
          * in public code repositories).
          *
          * @see
-         * - {@link https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic How to create a GitHub PAT (classic).}
-         * - {@link https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables How to store GitHub PAT in Astro project environment variables.}
+         * - {@link https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic How to create a GitHub PAT (classic)}
+         * - {@link https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables How to store GitHub PAT in Astro project environment variables}
          */
         githubToken: z.string().optional(),
       }),

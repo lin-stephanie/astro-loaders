@@ -16,7 +16,7 @@
     "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
     "directory": "packages/astro-loader-github-releases"
   },
-  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-releases/README.md",
+  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-releases/",
   "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
   "type": "module",
   "files": [
@@ -44,7 +44,7 @@
     "octokit": "^4.0.2"
   },
   "peerDependencies": {
-    "astro": "^4.14.0 || ^5.0.0-beta.0"
+    "astro": ">=4.14.0 <6.0.0"
   },
   "publishConfig": {
     "provenance": true
