@@ -1,6 +1,6 @@
 {
   "name": "astro-loader-tweets",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Aatro loader for loading tweets from multiple tweet ids.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
