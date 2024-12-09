@@ -76,6 +76,7 @@ Please note that under the X API V2 free plan, the endpoint is limited to 1 requ
 | `tweetIds`*          | `string[]`                                                   | An array of Tweet IDs to fetch content for.                                                                                                                                                                                                                                                                                                                                                                 |
 | `removeTrailingUrls` | `boolean` (defaults: `true`)                                 | Whether to remove trailing URLs from the tweet text in the generated `text_html` and `text_markdown`, typically used for views or referenced tweets.                                                                                                                                                                                                                                                        |
 | `linkTextType`       | `'domain-path' \| 'display-url'` (defaults: `'display-url'`) | The type of text to display for links when generating `text_html` and `text_markdown`:<br>`'domain-path'`: Displays the link's domain and path.<br>`'display-url'`: Uses the link text as shown in the tweet.                                                                                                                                                                                               |
+| `newlineHandling`    | `'none' \| 'break' \| 'paragraph'` (defaults: `'none'`)      | The way for processing `\n` in `text_html` generation:<br>`'none'`: Keep as is.<br>`'break'`: Replace `\n` with `<br>`.<br>`'paragraph'`: Wrap paragraphs with `<p>` while removing standalone `\n`.                                                                                                                                                                                                        |
 | `authToken`          | `string` (defaults: `'import.meta.env.X_TOKEN'`)             | The X app-only Bearer Token for authentication. Defaults to the `X_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://developer.x.com/en/docs/authentication/oauth-2-0/bearer-tokens) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
 
 
@@ -94,3 +95,6 @@ If you need to [customize the collection schema](https://docs.astro.build/en/gui
 [jsdocs-href]: https://www.jsdocs.io/package/astro-loader-tweets
 [npm-downloads-src]: https://img.shields.io/npm/dm/astro-loader-tweets?style=flat&colorA=080f12&colorB=ef7575
 [npm-downloads-href]: https://npmjs.com/package/astro-loader-tweets
+
+
+<!-- Rendering posts -->

@@ -4,6 +4,7 @@ import type { Tweetv2FieldsParams } from 'twitter-api-v2'
 export const defaultConfig = {
   removeTrailingUrls: true,
   urlTextType: 'display-url' as const,
+  newlineHandling: 'none' as const,
 }
 
 export const TweetsLoaderConfigSchema = z.object({
@@ -32,9 +33,21 @@ export const TweetsLoaderConfigSchema = z.object({
     .default(defaultConfig.urlTextType),
 
   /**
+   * The way for processing `\n` in `text_html` generation:
+   * - `'none'`: Keep as is.
+   * - `'break'`: Replace `\n` with `<br>`.
+   * - `'paragraph'`: Wrap paragraphs with `<p>` while removing standalone `\n`.
+   *
+   * @default 'none'
+   */
+  newlineHandling: z
+    .enum(['none', 'break', 'paragraph'])
+    .default(defaultConfig.newlineHandling),
+
+  /**
    * The X app-only Bearer Token for authentication.
    *
-   * @remarks This is optional; by default, it reads from the `X_TOKEN` environment variable.
+   * This is optional; by default, it reads from the `X_TOKEN` environment variable.
    * You may also configure it directly here (not recommended; if you do, ensure it is not exposed
    * in public code repositories).
    *
@@ -57,27 +70,16 @@ export const getTweetsApiOptions: Partial<Tweetv2FieldsParams> = {
   'tweet.fields': [
     'id',
     'text',
-    // 'edit_history_tweet_ids', /* (default, lib missing) */
     'attachments',
     'author_id',
-    // 'context_annotations',
     'conversation_id',
     'created_at',
-    // 'edit_controls',
     'entities',
     'geo' /* (lib extra) */,
     'in_reply_to_user_id',
     'lang',
-    // 'non_public_metrics', /* (requires user context auth) */
-    // 'note_tweet', /* (lib extra) */
-    // 'organic_metrics',  /* (requires user context auth) */
-    // 'possibly_sensitive',
-    // 'promoted_metrics',  /* (requires user context auth) */
     'public_metrics',
     'referenced_tweets',
-    // 'reply_settings',
-    'source' /* (lib extra) */,
-    // 'withheld',
   ],
   'user.fields': [
     'id',
@@ -87,16 +89,9 @@ export const getTweetsApiOptions: Partial<Tweetv2FieldsParams> = {
     'created_at',
     'description',
     'entities',
-    // 'location',
-    // 'most_recent_tweet_id', /* (lib extra) */
-    // 'pinned_tweet_id',
     'profile_image_url',
-    // 'protected',
     'public_metrics',
     'url',
-    // 'verified', /* (deprecated in V2) */
-    // 'verified_type', /* (lib extra) */
-    // 'withheld',
   ],
   'place.fields': [
     'id',
@@ -119,9 +114,6 @@ export const getTweetsApiOptions: Partial<Tweetv2FieldsParams> = {
     'duration_ms',
     'public_metrics',
     'variants',
-    // 'non_public_metrics',
-    // 'organic_metrics',
-    // 'promoted_metrics',
   ],
   'poll.fields': [
     'id',

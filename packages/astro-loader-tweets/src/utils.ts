@@ -53,14 +53,12 @@ function escapeHTML(str?: string) {
  */
 export function processTweetText(
   tweet: z.infer<typeof TweetV2Schema>,
-  options: {
-    removeTrailingUrls: z.infer<
-      typeof TweetsLoaderConfigSchema
-    >['removeTrailingUrls']
-    linkTextType: z.infer<typeof TweetsLoaderConfigSchema>['linkTextType']
-  }
+  options: Omit<
+    z.infer<typeof TweetsLoaderConfigSchema>,
+    'tweetIds' | 'authToken'
+  >
 ): z.infer<typeof TweetV2WithRichContentSchema> {
-  const { removeTrailingUrls, linkTextType } = options
+  const { removeTrailingUrls, linkTextType, newlineHandling } = options
 
   // const originalText = tweet.text
   const entities = tweet.entities || {}
@@ -189,6 +187,21 @@ export function processTweetText(
   if (viewType === 'none' && lastMatchedUrlEntity) {
     viewType = lastMatchedUrlEntity.media_key ? 'media' : 'link'
     if (viewType === 'link') urlForLinkView = lastMatchedUrlEntity.expanded_url
+  }
+
+  // handle newline
+  if (newlineHandling !== 'none') {
+    if (newlineHandling === 'break') {
+      textHtml = textHtml.replaceAll('\n', '<br/ >\n')
+    } else if (newlineHandling === 'paragraph') {
+      textHtml = textHtml
+        .split('\n')
+        .map((line) => {
+          const l = line.trim()
+          if (l.length > 0) return `<p>${l}</p>`
+        })
+        .join('')
+    }
   }
 
   return {
