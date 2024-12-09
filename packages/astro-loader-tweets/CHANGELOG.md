@@ -1,5 +1,11 @@
 # astro-loader-tweets
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `newlineHandling` option to specify `\n` processing in `text_html` generation ([`2542879`](https://github.com/lin-stephanie/astro-loaders/commit/2542879d4c27a4bfe6957b6288189116e6cd696a))
+
 ## 1.0.0
 
 ### Major Changes
