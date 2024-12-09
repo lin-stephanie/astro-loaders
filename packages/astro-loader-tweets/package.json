@@ -1,20 +1,28 @@
 {
   "name": "astro-loader-tweets",
-  "private": true,
   "version": "0.0.0",
-  "description": "",
+  "description": "Aatro loader for loading tweets from multiple tweet ids.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
-  "keywords": ["withastro", "astro-loader"],
+  "keywords": [
+    "withastro",
+    "astro-loader",
+    "tweets",
+    "tweet",
+    "twitter",
+    "X"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
     "directory": "packages/astro-loader-tweets"
   },
-  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/README.md",
+  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/",
   "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.js",
   "exports": {
@@ -24,10 +32,16 @@
     }
   },
   "types": "./dist/index.d.ts",
-  "scripts": {},
-  "devDependencies": {},
-  "dependencies": {},
+  "scripts": {
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "build": "tsup src/index.ts --format esm --dts --clean --treeshake",
+    "check": "publint && attw $(pnpm pack) --ignore-rules=cjs-resolves-to-esm",
+    "prepublishOnly": "pnpm build"
+  },
   "peerDependencies": {
     "astro": ">=4.14.0 <6.0.0"
+  },
+  "dependencies": {
+    "twitter-api-v2": "^1.18.2"
   }
 }
