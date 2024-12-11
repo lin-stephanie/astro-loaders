@@ -121,7 +121,7 @@ export const TweetV2Schema = z.object({
   source: z.string().optional(),
 })
 
-export const TweetV2WithRichContentSchema = TweetV2Schema.extend({
+export const TweetV2ExtendedSchema = TweetV2Schema.extend({
   text_html: z.string(),
   text_markdown: z.string(),
   view_type: z.enum(['none', 'media', 'link']),
@@ -268,7 +268,7 @@ const ResIncludesSchema = z.object({
 
 export const TweetSchema = z.object({
   id: z.string(),
-  tweet: TweetV2WithRichContentSchema,
+  tweet: TweetV2ExtendedSchema,
   user: z.union([UserV2Schema, z.null()]),
   place: z.union([PlaceV2Schema, z.null()]),
   media: z.union([z.array(MediaObjectV2Schema), z.null()]),

@@ -1,12 +1,13 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import type { z } from 'astro/zod'
+import { z } from 'astro/zod'
+
 import type { TweetsLoaderConfigSchema } from './config.js'
 import type {
   ResIncludes,
   TweetV2Schema,
-  TweetV2WithRichContentSchema,
+  TweetV2ExtendedSchema,
   Tweet,
 } from './schema.js'
 
@@ -60,7 +61,7 @@ export function processTweetText(
     z.infer<typeof TweetsLoaderConfigSchema>,
     'ids' | 'storage' | 'storePath' | 'authToken'
   >
-): z.infer<typeof TweetV2WithRichContentSchema> {
+): z.infer<typeof TweetV2ExtendedSchema> {
   const { removeTrailingUrls, linkTextType, newlineHandling } = options
 
   // const originalText = tweet.text
@@ -221,7 +222,7 @@ export function processTweetText(
  * into an array of tweet entries conforming to the expected entry schema.
  */
 export function processTweets(
-  processedTweets: z.infer<typeof TweetV2WithRichContentSchema>[],
+  processedTweets: z.infer<typeof TweetV2ExtendedSchema>[],
   includes: ResIncludes | undefined
 ): Tweet[] {
   if (!includes) {
@@ -278,6 +279,14 @@ export function processTweets(
   })
 }
 
+const SavedTweets = z.array(
+  z
+    .object({
+      id: z.string(),
+    })
+    .passthrough()
+)
+
 /**
  * Saves or updates tweets to a specified JSON file.
  *
@@ -288,15 +297,12 @@ export function processTweets(
 export async function saveOrUpdateTweets(
   tweets: Tweet[],
   storePath: string
-): Promise<{
-  success: boolean
-  error?: Error
-}> {
+): Promise<void> {
   const resolvedPath = path.isAbsolute(storePath)
     ? storePath
     : path.resolve(process.cwd(), storePath)
 
-  let savedTweets: Tweet[] = []
+  let savedTweets: z.infer<typeof SavedTweets> = []
   let fileExists = true
 
   // check if file exists
@@ -306,20 +312,16 @@ export async function saveOrUpdateTweets(
     fileExists = false
   }
 
-  // update existing tweets
   if (fileExists) {
-    try {
-      const fileContent = await fs.readFile(resolvedPath, 'utf-8')
-      savedTweets = JSON.parse(fileContent)
-      // savedTweets = TweetsSchema.parse(parsedData)
-    } catch (error) {
-      return {
-        success: false,
-        error: new Error(
-          `Failed to process the existing tweet file at '${resolvedPath}': ${String(error)}`
-        ),
-      }
-    }
+    // update existing tweets
+    const fileContent = await fs.readFile(resolvedPath, 'utf-8')
+    const parsedContent = JSON.parse(fileContent)
+    const parsedData = SavedTweets.safeParse(parsedContent)
+    if (!parsedData.success)
+      throw Error(
+        'Invalid JSON format. Ensure the file contains an array of objects, each with a valid `id` field as a string.'
+      )
+    savedTweets = parsedData.data
 
     // create a map of existing tweets for efficient lookup
     const savedTweetsMap = new Map(savedTweets.map((t) => [t.id, t]))
@@ -332,21 +334,6 @@ export async function saveOrUpdateTweets(
   }
 
   // write updated tweets back to file
-  try {
-    await fs.mkdir(path.dirname(resolvedPath), { recursive: true })
-    await fs.writeFile(
-      resolvedPath,
-      JSON.stringify(savedTweets, null, 2),
-      'utf8'
-    )
-  } catch (error) {
-    return {
-      success: false,
-      error: new Error(
-        `Failed to save tweets to '${resolvedPath}': ${String(error)}`
-      ),
-    }
-  }
-
-  return { success: true }
+  await fs.mkdir(path.dirname(resolvedPath), { recursive: true })
+  await fs.writeFile(resolvedPath, JSON.stringify(savedTweets, null, 2), 'utf8')
 }

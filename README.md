@@ -8,7 +8,7 @@ Currently available loaders (see individual READMEs for details):
 
 - [astro-loader-github-releases](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-releases): Loads GitHub releases for user-related or specific repositories.
 - [astro-loader-github-prs](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-prs): Loads GitHub pull reuqests from a given search string.
-- [astro-loader-tweets](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-tweets): Loads tweets from multiple tweet ids.
+- [astro-loader-tweets](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-tweets): Loads tweets from multiple tweet IDs.
 
 ## Resources
 

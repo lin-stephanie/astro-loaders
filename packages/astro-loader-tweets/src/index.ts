@@ -12,7 +12,7 @@ import type { Tweet } from './schema.js'
 const MAX_IDS_PER_REQUEST = 100
 
 /**
- * Aatro loader for loading tweets from multiple tweet ids.
+ * Aatro loader for loading tweets from multiple tweet IDs.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-tweets
  */
@@ -35,7 +35,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
       const token = authToken || import.meta.env.X_TOKEN
 
       if (ids.length === 0) {
-        logger.warn('No tweet ids provided')
+        logger.warn('No tweet IDs provided')
         return
       }
 
@@ -71,28 +71,31 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
               id: item.id,
               data: item,
             })
-            const res = store.set({
+            store.set({
               id: item.id,
               data: parsedItem,
               digest: generateDigest(parsedItem),
               rendered: { html: item.tweet.text_html },
             })
-            console.log('id', item.tweet.id)
-            console.log('res', res)
           }
+          logger.info(
+            `Successfully loaded ${tweets.length} tweets into the Astro store`
+          )
         }
 
         if (storage === 'custom' || storage === 'both') {
-          const result = await saveOrUpdateTweets(tweets, storePath as string)
-          if (!result.success) {
-            logger.error((result.error as Error).message)
+          try {
+            await saveOrUpdateTweets(tweets, storePath as string)
+            logger.info(
+              `Successfully loaded ${tweets.length} tweets into '${storePath}'`
+            )
+          } catch (error) {
+            logger.error(
+              `Failed to save tweets to '${storePath}': ${(error as Error).message}`
+            )
             return
           }
         }
-
-        logger.info(
-          `Successfully loaded ${tweets.length} tweets${storage === 'custom' || storage === 'both' ? `, exported to '${storePath}'` : ''}`
-        )
       } catch (error) {
         if (
           error instanceof ApiResponseError &&

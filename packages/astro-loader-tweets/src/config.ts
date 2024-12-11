@@ -18,9 +18,9 @@ export const TweetsLoaderConfigSchema = z
 
     /**
      * The method to store the loaded tweets:
-     * - `'default'`: Store data using Astro's default KV store (`./store/data-store.json`).
-     * - `'custom'`: Use a custom local storage path and JSON file name.
-     * - `'both'`: Use both the default store and a custom path.
+     * - `'default'`: Uses Astro's default KV store (`./store/data-store.json`).
+     * - `'custom'`: Use a custom JSON file path.
+     * - `'both'`: Both default and custom path.
      *
      * @default 'default'
      */
@@ -29,7 +29,7 @@ export const TweetsLoaderConfigSchema = z
       .default(defaultConfig.storage),
 
     /**
-     * The custom local output path for storing tweets, either absolute or
+     * The custom output path for storing tweets, either absolute or
      * relative to the Astro project root. Must end with `.json`.
      * Required if `storage` is `'custom'` or `'both'`.
      *
