@@ -267,6 +267,7 @@ const ResIncludesSchema = z.object({
 })
 
 export const TweetSchema = z.object({
+  id: z.string(),
   tweet: TweetV2WithRichContentSchema,
   user: z.union([UserV2Schema, z.null()]),
   place: z.union([PlaceV2Schema, z.null()]),

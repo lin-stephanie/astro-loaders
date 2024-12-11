@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises'
+import path from 'node:path'
+
 import type { z } from 'astro/zod'
 import type { TweetsLoaderConfigSchema } from './config.js'
 import type {
@@ -55,7 +58,7 @@ export function processTweetText(
   tweet: z.infer<typeof TweetV2Schema>,
   options: Omit<
     z.infer<typeof TweetsLoaderConfigSchema>,
-    'tweetIds' | 'authToken'
+    'ids' | 'storage' | 'storePath' | 'authToken'
   >
 ): z.infer<typeof TweetV2WithRichContentSchema> {
   const { removeTrailingUrls, linkTextType, newlineHandling } = options
@@ -218,12 +221,13 @@ export function processTweetText(
  * into an array of tweet entries conforming to the expected entry schema.
  */
 export function processTweets(
-  resData: z.infer<typeof TweetV2WithRichContentSchema>[],
-  resIncludes: ResIncludes | undefined
+  processedTweets: z.infer<typeof TweetV2WithRichContentSchema>[],
+  includes: ResIncludes | undefined
 ): Tweet[] {
-  if (!resIncludes) {
-    return resData.map((data) => ({
-      tweet: data,
+  if (!includes) {
+    return processedTweets.map((tweet) => ({
+      id: tweet.id,
+      tweet: tweet,
       user: null,
       place: null,
       media: null,
@@ -231,38 +235,39 @@ export function processTweets(
     }))
   }
 
-  return resData.map((data) => {
+  return processedTweets.map((tweet) => {
     const processedTweet: Tweet = {
-      tweet: data,
+      id: tweet.id,
+      tweet: tweet,
       user: null,
       place: null,
       media: null,
       poll: null,
     }
 
-    if (data.author_id && resIncludes.users) {
+    if (tweet.author_id && includes.users) {
       processedTweet.user =
-        resIncludes.users.find((user) => user.id === data.author_id) || null
+        includes.users.find((user) => user.id === tweet.author_id) || null
     }
 
-    if (data.geo?.place_id && resIncludes.places) {
+    if (tweet.geo?.place_id && includes.places) {
       processedTweet.place =
-        resIncludes.places.find((place) => place.id === data.geo?.place_id) ||
+        includes.places.find((place) => place.id === tweet.geo?.place_id) ||
         null
     }
 
-    if (data.attachments?.media_keys && resIncludes.media) {
-      const mediaArray = resIncludes.media.filter((media) =>
-        data.attachments?.media_keys?.includes(media.media_key)
+    if (tweet.attachments?.media_keys && includes.media) {
+      const mediaArray = includes.media.filter((media) =>
+        tweet.attachments?.media_keys?.includes(media.media_key)
       )
       processedTweet.media = mediaArray.length > 0 ? mediaArray : null
     } else {
       processedTweet.media = null
     }
 
-    if (data.attachments?.poll_ids && resIncludes.polls) {
-      const pollArray = resIncludes.polls.filter((poll) =>
-        data.attachments?.poll_ids?.includes(poll.id)
+    if (tweet.attachments?.poll_ids && includes.polls) {
+      const pollArray = includes.polls.filter((poll) =>
+        tweet.attachments?.poll_ids?.includes(poll.id)
       )
       processedTweet.poll = pollArray.length > 0 ? pollArray : null
     } else {
@@ -271,4 +276,77 @@ export function processTweets(
 
     return processedTweet
   })
+}
+
+/**
+ * Saves or updates tweets to a specified JSON file.
+ *
+ * If the file does not exist, it writes a new file.
+ * If the file exists, it performs incremental updates by
+ * replacing existing tweets with the same ID or appending new ones.
+ */
+export async function saveOrUpdateTweets(
+  tweets: Tweet[],
+  storePath: string
+): Promise<{
+  success: boolean
+  error?: Error
+}> {
+  const resolvedPath = path.isAbsolute(storePath)
+    ? storePath
+    : path.resolve(process.cwd(), storePath)
+
+  let savedTweets: Tweet[] = []
+  let fileExists = true
+
+  // check if file exists
+  try {
+    await fs.access(resolvedPath)
+  } catch {
+    fileExists = false
+  }
+
+  // update existing tweets
+  if (fileExists) {
+    try {
+      const fileContent = await fs.readFile(resolvedPath, 'utf-8')
+      savedTweets = JSON.parse(fileContent)
+      // savedTweets = TweetsSchema.parse(parsedData)
+    } catch (error) {
+      return {
+        success: false,
+        error: new Error(
+          `Failed to process the existing tweet file at '${resolvedPath}': ${String(error)}`
+        ),
+      }
+    }
+
+    // create a map of existing tweets for efficient lookup
+    const savedTweetsMap = new Map(savedTweets.map((t) => [t.id, t]))
+    for (const newTweet of savedTweets) {
+      savedTweetsMap.set(newTweet.id, newTweet)
+    }
+    savedTweets = Array.from(savedTweetsMap.values())
+  } else {
+    savedTweets = tweets
+  }
+
+  // write updated tweets back to file
+  try {
+    await fs.mkdir(path.dirname(resolvedPath), { recursive: true })
+    await fs.writeFile(
+      resolvedPath,
+      JSON.stringify(savedTweets, null, 2),
+      'utf8'
+    )
+  } catch (error) {
+    return {
+      success: false,
+      error: new Error(
+        `Failed to save tweets to '${resolvedPath}': ${String(error)}`
+      ),
+    }
+  }
+
+  return { success: true }
 }

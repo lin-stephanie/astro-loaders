@@ -4,7 +4,7 @@
 [![jsDocs.io][jsdocs-src]][jsdocs-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 
-This package provides a tweets loader for Astro, fetching tweets from X (formerly Twitter) by their IDs for use in Astro projects. It also supports customizable configurations to generate HTML and Markdown for direct rendering.
+This package provides a tweets loader for Astro, fetching tweets from X (formerly Twitter) by their IDs for use in Astro projects. It supports customizable HTML/Markdown generation and saving tweets to a custom JSON file.
 
 ## Installation
 
@@ -14,7 +14,7 @@ npm install -D astro-loader-tweets
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -24,7 +24,7 @@ export default defineConfig({
 })
 ```
 
-In `src/content/config.ts`, import and configure the loader to define a new content collection:
+In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `^5.0.0`), import and configure the loader to define a new content collection:
 
 ```ts
 import { defineCollection } from "astro:content"
@@ -47,12 +47,12 @@ export const collections = { tweets }
 import { getCollection } from "astro:content"
 
 const tweets = await getCollection("tweets")
+// Check the entries' Zod schema for available props below
 ---
 
 {
   tweets.map(async (tweet) => {
     const { Content } = await render(tweet)
-    // Check the entries' Zod schema for available props below
     return (
       <section>
         <Content />
@@ -67,27 +67,76 @@ To update the data, trigger a site rebuild, as [the loader fetches data only at 
 
 ## Configuration
 
-This loader retrieves tweets via the X API V2 [`GET /2/tweets`](https://developer.x.com/en/docs/x-api/tweets/lookup/api-reference/get-tweets) endpoint, requiring an X app-only Bearer Token for authentication.
+This loader retrieves tweets via the X API V2 [`GET /2/tweets`](https://developer.x.com/en/docs/x-api/tweets/lookup/api-reference/get-tweets) endpoint, requiring an X app-only Bearer Token for authentication. Options include:
 
-Please note that under the X API V2 free plan, the endpoint is limited to 1 request per 15 minutes and a maximum of 100 posts per month. If you have a more scalable solution, please share to help overcome these limitations. Options include:
+| Option (* required)  | Type (default)                                              | Description                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ids`*               | `string[]`                                                  | An array of Tweet IDs to fetch content for.                                                                                                                                                                                                                                                                                                                 |
+| `storage`            | `'default' \| 'custom' \| 'both'` (default: `'default'`)    | The method to store the loaded tweets:<br>`'default'`: Store data using Astro's default KV store.<br>`'custom'`: Use a custom local storage path and JSON file name.<br>`'both'`: Use both the default store and a custom path.                                                                                                                             |
+| `storePath`          | `string` (default: `'src/data/tweets.json'`)                | The custom local output path for storing tweets, either absolute or relative to the Astro project root. Must end with `.json`. Required if `storage` is `'custom'` or `'both'`.                                                                                                                                                                             |
+| `removeTrailingUrls` | `boolean` (default: `true`)                                 | Whether to remove trailing URLs from the tweet text in the generated `text_html` and `text_markdown`, typically used for views or referenced tweets.                                                                                                                                                                                                        |
+| `linkTextType`       | `'domain-path' \| 'display-url'` (default: `'display-url'`) | The type of text to display for links when generating `text_html` and `text_markdown`:<br>`'domain-path'`: Displays the link's domain and path.<br>`'display-url'`: Uses the link text as shown in the tweet.                                                                                                                                               |
+| `newlineHandling`    | `'none' \| 'break' \| 'paragraph'` (default: `'none'`)      | The way for processing `\n` in `text_html` generation:<br>`'none'`: Keep as is.<br>`'break'`: Replace `\n` with `<br>`.<br>`'paragraph'`: Wrap paragraphs with `<p>` while removing standalone `\n`.                                                                                                                                                        |
+| `authToken`          | `string` (Defaults to the `X_TOKEN` environment variable)   | The X app-only Bearer Token for authentication. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://developer.x.com/en/docs/authentication/oauth-2-0/bearer-tokens) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
 
-| Option (* required)  | Type (defaults)                                              | Description                                                                                                                                                                                                                                                                                                                                                                                                 |
-| -------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tweetIds`*          | `string[]`                                                   | An array of Tweet IDs to fetch content for.                                                                                                                                                                                                                                                                                                                                                                 |
-| `removeTrailingUrls` | `boolean` (defaults: `true`)                                 | Whether to remove trailing URLs from the tweet text in the generated `text_html` and `text_markdown`, typically used for views or referenced tweets.                                                                                                                                                                                                                                                        |
-| `linkTextType`       | `'domain-path' \| 'display-url'` (defaults: `'display-url'`) | The type of text to display for links when generating `text_html` and `text_markdown`:<br>`'domain-path'`: Displays the link's domain and path.<br>`'display-url'`: Uses the link text as shown in the tweet.                                                                                                                                                                                               |
-| `newlineHandling`    | `'none' \| 'break' \| 'paragraph'` (defaults: `'none'`)      | The way for processing `\n` in `text_html` generation:<br>`'none'`: Keep as is.<br>`'break'`: Replace `\n` with `<br>`.<br>`'paragraph'`: Wrap paragraphs with `<p>` while removing standalone `\n`.                                                                                                                                                                                                        |
-| `authToken`          | `string` (defaults: `'import.meta.env.X_TOKEN'`)             | The X app-only Bearer Token for authentication. Defaults to the `X_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://developer.x.com/en/docs/authentication/oauth-2-0/bearer-tokens) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
+### About the `storage` Configuration
 
+**Why not use the Astro loader’s default storage?**
+
+- Each time the `content.config.ts` file is modified, Astro clears the [store](https://docs.astro.build/en/reference/content-loader-reference/#datastore) (i.e., `.astro/data-store.json` file).  
+- Under the X API V2 free plan, the endpoint requested are limited: only **1 request per 15 minutes** is allowed, with a maximum of **100 tweets retrievable per month**.
+
+**Benefits of custom JSON file storage**
+
+To overcome these limits, the loader allows configuring `storage` to store tweets in a custom JSON file, offering these advantages:
+
+- Newly loaded Tweets are appended or updated in the specified JSON file.  
+- Data can be edited while retaining the `id` attribute and structure, but repeated requests for the same Tweet ID will overwrite existing data.  
+- Stored Tweets persist unless the file is manually deleted, allowing up to 100 unique Tweets to be loaded monthly.
+
+**Creating content collection from JSON File**
+
+After storing tweets in a custom JSON file, you will need to define an additional content collection for rendering purposes:
+
+```ts
+import { tweetsLoader, TweetSchema } from 'astro-loader-tweets'
+
+const savedTweets = defineCollection({
+  loader: file("src/data/tweets.json"),
+  schema: TweetSchema
+})
+
+export const collections = { ..., savedTweets }
+```
+
+Additionally, use [`set:html`](https://docs.astro.build/en/reference/directives-reference/#sethtml) to embed tweets formatted in HTML instead of using the `<Content />` component.
+
+```astro
+---
+import { getCollection } from "astro:content"
+
+const savedTweets = await getCollection("savedTweets")
+---
+
+{
+  savedTweets.map(async (t) => {
+    return (
+      <section>
+        <Fragment set:html={t.data.tweet.text_html}></Fragment>
+        <p>{tweet.data.tweet.created_at}</p>
+      </section>
+    )
+  })
+}
+```
 
 ## Schema
 
-Check the Zod schema for loaded collection entries in the [source code](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/src/schema.ts).
+Check the Zod schema for loaded collection entries in the [source code](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/src/schema.ts#L269). Astro automatically applies this schema to generate TypeScript interfaces, providing full support for autocompletion and type-checking when querying the collection.
 
-Astro automatically applies this schema to generate TypeScript interfaces, providing full support for autocompletion and type-checking when querying the collection.
+Besides the fields directly fetched from the API, the loader extends fields defined in [`TweetV2WithRichContentSchema`](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/src/schema.ts#L124), allowing for more streamlined control over the display of tweet content.
 
 If you need to [customize the collection schema](https://docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure it remains compatible with the built-in Zod schema of the loader to avoid errors. For additional fields you'd like to fetch, feel free to [open an issue](https://github.com/lin-stephanie/astro-loaders/issues).
-
 
 [version-badge]: https://img.shields.io/npm/v/astro-loader-tweets?label=release&style=flat&colorA=080f12&colorB=ef7575
 [version-link]: https://www.npmjs.com/package/astro-loader-tweets
@@ -95,6 +144,3 @@ If you need to [customize the collection schema](https://docs.astro.build/en/gui
 [jsdocs-href]: https://www.jsdocs.io/package/astro-loader-tweets
 [npm-downloads-src]: https://img.shields.io/npm/dm/astro-loader-tweets?style=flat&colorA=080f12&colorB=ef7575
 [npm-downloads-href]: https://npmjs.com/package/astro-loader-tweets
-
-
-<!-- Rendering posts -->
