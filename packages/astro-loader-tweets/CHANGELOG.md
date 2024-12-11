@@ -1,5 +1,11 @@
 # astro-loader-tweets
 
+## 1.2.0
+
+### Minor Changes
+
+- Support for persisting the loaded tweets to a JSON file at a custom path, [see details](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-tweets#about-the-storage-configuration) ([`c0c6f6c`](https://github.com/lin-stephanie/astro-loaders/commit/c0c6f6cc569ba81da1d1e98dd9342fe953382939))
+
 ## 1.1.0
 
 ### Minor Changes
