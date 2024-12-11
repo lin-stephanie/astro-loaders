@@ -1,5 +1,11 @@
 # astro-loader-tweets
 
+## 1.2.1
+
+### Patch Changes
+
+- Add data type validation for JSON-stored tweets and update docs. ([`1738468`](https://github.com/lin-stephanie/astro-loaders/commit/173846821efed372d5edea957c6fbac0b8c814ee))
+
 ## 1.2.0
 
 ### Minor Changes
