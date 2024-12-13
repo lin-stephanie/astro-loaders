@@ -1,7 +1,7 @@
 {
   "name": "astro-loader-github-prs",
   "version": "1.0.2",
-  "description": "Aatro loader for loading GitHub pull reuqests from a given search string.",
+  "description": "Astro loader for loading GitHub pull requests with a search query.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
   "keywords": [

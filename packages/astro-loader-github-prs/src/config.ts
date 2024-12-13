@@ -16,6 +16,21 @@ export const GithubPrsLoaderConfigSchema = z.object({
   search: z.string(),
 
   /**
+   * The number of recent months to load pull requests, including the current month.
+   * The loader automatically converts this to a date for the 'created' qualifier in the search query.
+   *
+   * If the {@link https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests#search-by-when-an-issue-or-pull-request-was-created-or-last-updated 'created'}
+   * qualifier is defined in `search` option, it will override this value.
+   *
+   * For example, setting to `3` on December 4, 2024, would yield: 'type:pr created:>=2024-10-01 ...'.
+   */
+  monthsBack: z
+    .number()
+    .int({ message: '`monthsBack` must be an integer' })
+    .positive({ message: '`monthsBack` must be a positive integer' })
+    .optional(),
+
+  /**
    * You need to {@link https://github.com/settings/tokens create a GitHub PAT}
    * with at least `repo` scope permissions to authenticate requests to the GraphQL API.
    *
@@ -27,7 +42,7 @@ export const GithubPrsLoaderConfigSchema = z.object({
    * - {@link https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic How to create a GitHub PAT (classic)}
    * - {@link https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables How to store GitHub PAT in Astro project environment variables}
    */
-  githubToken: z.string().default(import.meta.env.GITHUB_TOKEN),
+  githubToken: z.string().optional(),
 })
 
 export type GithubPrsLoaderUserConfig = z.input<
