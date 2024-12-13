@@ -39,7 +39,6 @@ export const TweetV2Schema = z.object({
             title: z.string().optional(),
             description: z.string().optional(),
             status: z.union([z.string(), z.number()]).optional(),
-            // mismatch field
             media_key: z.string().optional(),
             images: z
               .array(
@@ -141,13 +140,11 @@ const UrlEntitySchema = EntitySchema.extend({
 })
 
 const HashtagEntitySchema = EntitySchema.extend({
-  // mismatch field
   tag: z.string().optional(),
   hashtag: z.string().optional(),
 })
 
 const CashtagEntitySchema = EntitySchema.extend({
-  // mismatch field
   tag: z.string().optional(),
   cashtag: z.string().optional(),
 })
@@ -186,7 +183,6 @@ const UserV2Schema = z.object({
       tweet_count: z.number().optional(),
       listed_count: z.number().optional(),
       like_count: z.number().optional(),
-      // mismatch field
       media_count: z.number().optional(),
     })
     .optional(),

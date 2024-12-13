@@ -1,9 +1,9 @@
-import { TwitterApi, ApiResponseError } from 'twitter-api-v2'
+import { ApiResponseError, TwitterApi } from 'twitter-api-v2'
 
 import pkg from '../package.json' with { type: 'json' }
 import { TweetsLoaderConfigSchema, getTweetsApiOptions } from './config.js'
-import { processTweets, processTweetText, saveOrUpdateTweets } from './utils.js'
 import { TweetSchema } from './schema.js'
+import { processTweetText, processTweets, saveOrUpdateTweets } from './utils.js'
 
 import type { Loader } from 'astro/loaders'
 import type { TweetsLoaderUserConfig } from './config.js'
@@ -12,7 +12,7 @@ import type { Tweet } from './schema.js'
 const MAX_IDS_PER_REQUEST = 100
 
 /**
- * Aatro loader for loading tweets from multiple tweet IDs.
+ * Astro loader for loading tweets by ID.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-tweets
  */
@@ -29,13 +29,13 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
         )
         return
       }
-      const parsedUserConfig = parsedConfig.data
+
       const { ids, storage, storePath, authToken, ...processTweetTextConfig } =
-        parsedUserConfig
+        parsedConfig.data
       const token = authToken || import.meta.env.X_TOKEN
 
       if (ids.length === 0) {
-        logger.warn('No tweet IDs provided')
+        logger.warn('No tweet IDs provided and no tweets will be loaded')
         return
       }
 
@@ -91,9 +91,8 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
             )
           } catch (error) {
             logger.error(
-              `Failed to save tweets to '${storePath}': ${(error as Error).message}`
+              `Failed to save tweets to '${storePath}'. ${(error as Error).message}`
             )
-            return
           }
         }
       } catch (error) {
@@ -103,10 +102,10 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
           error.rateLimit
         ) {
           logger.warn(
-            `Rate limit exceeded with ${error.rateLimit.limit} requests/15min, ${error.rateLimit.remaining} remaining`
+            `Please try again later as the rate limit of ${error.rateLimit.limit} per 15 minutes is exceeded with ${error.rateLimit.remaining} left`
           )
         } else {
-          logger.error(`Failed to load tweets: ${(error as Error).message}`)
+          logger.error(`Failed to load tweets. ${(error as Error).message}`)
         }
       }
     },

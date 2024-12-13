@@ -6,9 +6,9 @@ import { z } from 'astro/zod'
 import type { TweetsLoaderConfigSchema } from './config.js'
 import type {
   ResIncludes,
-  TweetV2Schema,
-  TweetV2ExtendedSchema,
   Tweet,
+  TweetV2ExtendedSchema,
+  TweetV2Schema,
 } from './schema.js'
 
 /**

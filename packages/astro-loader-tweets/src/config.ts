@@ -1,7 +1,7 @@
 import { z } from 'astro/zod'
 import type { Tweetv2FieldsParams } from 'twitter-api-v2'
 
-export const defaultConfig = {
+const defaultConfig = {
   storage: 'default' as const,
   storePath: 'src/data/tweets.json',
   removeTrailingUrls: true,

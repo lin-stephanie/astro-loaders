@@ -4,7 +4,7 @@
 [![jsDocs.io][jsdocs-src]][jsdocs-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 
-This package provides a tweets loader for Astro, fetching tweets from X (formerly Twitter) by their IDs for use in Astro projects. It supports customizable HTML/Markdown generation and saving tweets to a custom JSON file.
+This package provides a tweets loader for Astro, fetching tweets from X (formerly Twitter) by ID for use in Astro projects. It supports customizable HTML/Markdown generation and saving tweets to a custom JSON file.
 
 ## Installation
 
@@ -32,7 +32,7 @@ import { tweetsLoader } from "astro-loader-tweets"
 
 const tweets = defineCollection({
   loader: tweetsLoader({
-    tweetIds: ['1865968097976586582'],
+    ids: ['1865968097976586582'],
     // Check the configuration below
   }),
 })
@@ -79,11 +79,11 @@ This loader retrieves tweets via the X API V2 [`GET /2/tweets`](https://develope
 | `newlineHandling`    | `'none' \| 'break' \| 'paragraph'` (default: `'none'`)      | The way for processing `\n` in `text_html` generation:<br>`'none'`: Keep as is.<br>`'break'`: Replace `\n` with `<br>`.<br>`'paragraph'`: Wrap paragraphs with `<p>` while removing standalone `\n`.                                                                                                                                                        |
 | `authToken`          | `string` (Defaults to the `X_TOKEN` environment variable)   | The X app-only Bearer Token for authentication. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://developer.x.com/en/docs/authentication/oauth-2-0/bearer-tokens) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
 
-### About the `storage` Configuration
+### About `storage` Configuration
 
 **Why not use the Astro default store?**
 
-- Each time the `content.config.ts` file is modified, Astro clears the [store](https://docs.astro.build/en/reference/content-loader-reference/#datastore) (i.e., `.astro/data-store.json` file).  
+- Each time the `content.config.ts` is modified, Astro clears the [store](https://docs.astro.build/en/reference/content-loader-reference/#datastore) (i.e., `.astro/data-store.json`).  
 - Under the X API V2 free plan, the endpoint requested are limited: only **1 request per 15 minutes** is allowed, with a maximum of **100 tweets retrievable per month**.
 
 **Benefits of custom JSON file storage**
@@ -132,15 +132,23 @@ This is my current solution. If you have a more scalable approach, please share 
 
 ## Schema
 
-Refer to the [source code](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/src/schema.ts#L269) for the Zod schema used for loaded collection entries. Astro automatically applies this schema to generate TypeScript interfaces, enabling autocompletion and type-checking for collection queries.
+See the [source code](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/src/schema.ts#L265) for the Zod schema of loaded entries and refer to the [Twitter API v2 data dictionary](https://developer.x.com/en/docs/x-api/data-dictionary/introduction) for field details. Astro automatically applies this schema to generate TypeScript interfaces, enabling autocompletion and type-checking for collection queries.
 
-In addition to API-fetched fields, the loader extends fields defined in the [`TweetV2ExtendedSchema`](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/src/schema.ts#L124), simplifying the control over tweet content display.
+In addition to API-fetched fields, the loader extends fields defined in the [`TweetV2ExtendedSchema`](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-tweets/src/schema.ts#L123), simplifying the control over tweet content display.
 
-To [customize the schema](https://docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure compatibility with the loader's built-in Zod schema to prevent errors. For additional fields, consider [opening an issue](https://github.com/lin-stephanie/astro-loaders/issues).
+To [customize the schema](https://docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), ensure compatibility with the loader's built-in Zod schema to prevent errors. For additional fields, consider opening an issue.
 
-[version-badge]: https://img.shields.io/npm/v/astro-loader-tweets?label=release&style=flat&colorA=080f12&colorB=ef7575
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for the change history of this loader.
+
+## Contribution
+
+If you see any errors or room for improvement, feel free to open an [issues](https://github.com/lin-stephanie/astro-loaders/issues) or [pull request](https://github.com/lin-stephanie/astro-loaders/pulls) . Thank you in advance for contributing! ❤️
+
+[version-badge]: https://img.shields.io/npm/v/astro-loader-tweets?label=release&style=flat&colorA=080f12&colorB=f87171
 [version-link]: https://www.npmjs.com/package/astro-loader-tweets
-[jsdocs-src]: https://img.shields.io/badge/jsdocs-reference-080f12?style=flat&colorA=080f12&colorB=ef7575
+[jsdocs-src]: https://img.shields.io/badge/jsdocs-reference-080f12?style=flat&colorA=080f12&colorB=f87171
 [jsdocs-href]: https://www.jsdocs.io/package/astro-loader-tweets
-[npm-downloads-src]: https://img.shields.io/npm/dm/astro-loader-tweets?style=flat&colorA=080f12&colorB=ef7575
+[npm-downloads-src]: https://img.shields.io/npm/dm/astro-loader-tweets?style=flat&colorA=080f12&colorB=f87171
 [npm-downloads-href]: https://npmjs.com/package/astro-loader-tweets
