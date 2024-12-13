@@ -1,10 +1,12 @@
+/**
+ * Get the date since which to fetch the releases with `monthsBack`.
+ */
 export function getSinceDate(
   monthsBack: number | undefined,
   sinceDate: Date | undefined
 ) {
   if (monthsBack) {
-    const referenceDate = new Date()
-    const startDate = new Date(referenceDate)
+    const startDate = new Date()
     startDate.setMonth(startDate.getMonth() - monthsBack + 1)
     startDate.setDate(1)
 

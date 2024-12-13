@@ -1,6 +1,5 @@
-import { AstroError } from 'astro/errors'
-import { Octokit, RequestError } from 'octokit'
 import { readFileSync } from 'node:fs'
+import { Octokit, RequestError } from 'octokit'
 import { getSinceDate } from './utils.js'
 
 import type { LoaderContext } from 'astro/loaders'
@@ -21,17 +20,21 @@ const MAX_PAGE = 3
 
 async function fetchReleasesByUserCommit(
   config: UserCommitOutputConfig['modeConfig'],
-  meta: LoaderContext['meta']
+  meta: LoaderContext['meta'],
+  logger: LoaderContext['logger']
 ): Promise<{
-  status: 200 | 304
+  status?: 200 | 304
+  error?: string
   releases: ReleaseByIdFromUser[]
 }> {
   const { username, keyword, tagNameRegex, branches } = config
 
+  logger.info(`Loading GitHub releases for the user @${username}`)
+
   const releases: ReleaseByIdFromUser[] = []
   const etag = meta.get('etag')
   const lastPushTime = meta.get('lastPushTime')
-  const octokit = new Octokit(/* { auth: import.meta.env.GITHUB_TOKEN } */)
+  const octokit = new Octokit()
   const headers = {
     'X-GitHub-Api-Version': '2022-11-28',
     accept: 'application/vnd.github+json',
@@ -53,9 +56,7 @@ async function fetchReleasesByUserCommit(
         meta.set('etag', res.headers.etag)
 
       const filteredData = res.data
-        // only care about push events for releases
         .filter((item) => item.type === 'PushEvent' && item.public)
-        // filter out activities from other forks by checking the ref when syncing PRs
         .filter((item) => branches.includes((item.payload as any)?.ref))
         .filter((item) => item.created_at !== null)
 
@@ -63,8 +64,7 @@ async function fetchReleasesByUserCommit(
         if (lastPushTime && lastPushTime === item.created_at) break fetching
         if (!latestPushTime) latestPushTime = item.created_at as string
 
-        // https://docs.github.com/en/rest/using-the-rest-api/github-event-types?apiVersion=2022-11-28#event-payload-object-for-pushevent
-        // @ts-expect-error
+        // @ts-expect-error (https://docs.github.com/en/rest/using-the-rest-api/github-event-types?apiVersion=2022-11-28#event-payload-object-for-pushevent)
         const commits = item.payload.commits as Commit[]
         for (const commit of commits) {
           const message = (commit?.message || '').split('\n')[0]
@@ -73,13 +73,15 @@ async function fetchReleasesByUserCommit(
           const orgLogin = item.org?.login
           const orgAvatarUrl = item.org?.avatar_url
 
-          if (message.includes(keyword) && versionNum) {
+          if (message.includes(keyword) && tagName) {
             releases.push({
               id: item.id,
               url: `https://github.com/${item.repo.name}/releases/tag/${tagName}`,
               tagName: tagName,
               versionNum: versionNum,
-              repoName: item.repo.name,
+              repoOwner: item.repo.name.split('/')[0],
+              repoName: item.repo.name.split('/')[1],
+              repoNameWithOwner: item.repo.name,
               repoUrl: `https://github.com/${item.repo.name}`,
               commitMessage: message,
               commitSha: commit?.sha || '',
@@ -98,12 +100,13 @@ async function fetchReleasesByUserCommit(
       if (res.data.length < PER_PAGE) break
     } catch (error) {
       if (error instanceof RequestError && error.status === 304) {
-        return { status: 304, releases }
+        return { status: 304, releases: [] }
       }
 
-      throw new AstroError(
-        `Failed to load GitHub releases: ${(error as Error).message}`
-      )
+      return {
+        error: `Unexpected error: ${(error as Error).message}`,
+        releases: [],
+      }
     }
   }
 
@@ -113,36 +116,36 @@ async function fetchReleasesByUserCommit(
 }
 
 async function fetchReleasesByRepoList(
-  config: RepoListOutputConfig['modeConfig']
+  config: RepoListOutputConfig['modeConfig'],
+  logger: LoaderContext['logger']
 ): Promise<ReleaseByIdFromRepos[] | ReleaseByRepoFromRepos[]> {
   const { repos, sinceDate, monthsBack, entryReturnType, githubToken } = config
+  const token = githubToken || import.meta.env.GITHUB_TOKEN
+
+  if (!token)
+    throw new Error(
+      'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.\nHow to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.'
+    )
+
+  logger.info(
+    `Loading GitHub releases for ${repos.length} ${repos.length > 1 ? 'repositories' : 'repository'}`
+  )
 
   const releasesById: ReleaseByIdFromRepos[] = []
   const releasesByRepo: ReleaseByRepoFromRepos[] = []
-  let sinceDateMs: null | number = null
 
-  if (monthsBack && (!Number.isInteger(monthsBack) || monthsBack <= 0)) {
-    throw new AstroError('`monthsBack` must be a positive integer')
-  }
+  let sinceDateMs: null | number = null
   if (monthsBack || sinceDate)
     sinceDateMs = getSinceDate(monthsBack, sinceDate as Date)
-
-  const token = githubToken || import.meta.env.GITHUB_TOKEN
-  if (!token) {
-    throw new AstroError(
-      'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.',
-      `How to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic
-How to store GitHub PAT in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables`
-    )
-  }
-  const octokit = new Octokit({
-    auth: githubToken || import.meta.env.GITHUB_TOKEN,
-  })
 
   const getReleasesQuery = readFileSync(
     new URL('./graphql/query.graphql', import.meta.url),
     'utf8'
   )
+
+  const octokit = new Octokit({
+    auth: githubToken || import.meta.env.GITHUB_TOKEN,
+  })
 
   try {
     for (const repo of repos) {
@@ -173,13 +176,18 @@ How to store GitHub PAT in Astro project environment variables: https://docs.ast
               sinceDateMs === null || +new Date(node.publishedAt) >= sinceDateMs
           )
           .map((node) => {
+            const versionNum = node.tagName.match(
+              /.*(\d+\.\d+\.\d+(?:-[\w.]+)?)(?:\s|$)/
+            )
             return {
               id: node.id,
               url: node.url || '',
               name: node.name || '',
+              versionNum: versionNum ? versionNum[1] : '',
               tagName: node.tagName,
               description: node.description || '',
               descriptionHTML: node.descriptionHTML || '',
+              repoOwner: node.repository.nameWithOwner.split('/')[0],
               repoName: node.repository.name,
               repoNameWithOwner: node.repository.nameWithOwner,
               repoUrl: node.repository.url || '',
@@ -215,9 +223,7 @@ How to store GitHub PAT in Astro project environment variables: https://docs.ast
       }
     }
   } catch (error) {
-    throw new AstroError(
-      `Failed to load GitHub releases: ${(error as Error).message}`
-    )
+    throw new Error((error as Error).message)
   }
 
   return entryReturnType === 'byRelease' ? releasesById : releasesByRepo

@@ -1,11 +1,5 @@
-import { AstroError } from 'astro/errors'
-
 import pkg from '../package.json' with { type: 'json' }
-import {
-  GithubReleasesLoaderConfigSchema,
-  repoListDefaultConfig,
-  userCommitDefaultConfig,
-} from './config.js'
+import { GithubReleasesLoaderConfigSchema } from './config.js'
 import {
   fetchReleasesByRepoList,
   fetchReleasesByUserCommit,
@@ -16,74 +10,87 @@ import type { Loader } from 'astro/loaders'
 import type { GithubReleasesLoaderUserConfig } from './config.js'
 
 /**
- * Aatro loader for loading GitHub releases from a given user or multiple repositories.
+ * Astro loader for loading GitHub releases from a user's commit history or a list of repositories.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-releases
  */
 function githubReleasesLoader(
   userConfig: GithubReleasesLoaderUserConfig
 ): Loader {
-  const parsedConfig = GithubReleasesLoaderConfigSchema.safeParse(userConfig)
-  if (!parsedConfig.success) {
-    throw new AstroError(
-      `${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}. \nCheck out the configuration for this loader: ${pkg.homepage}#configuration.`
-    )
-  }
-  const parsedUserConfig = parsedConfig.data
-
   return {
     name: pkg.name,
-    schema: getEntrySchema(parsedUserConfig),
-    async load({ meta, store, logger, parseData /* , generateDigest */ }) {
+    schema: getEntrySchema(userConfig),
+    async load({ meta, store, logger, parseData, generateDigest }) {
+      const parsedConfig =
+        GithubReleasesLoaderConfigSchema.safeParse(userConfig)
+      if (!parsedConfig.success) {
+        logger.error(
+          `The configuration provided is invalid. ${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}.
+Check out the configuration: ${pkg.homepage}README.md#configuration.`
+        )
+        return
+      }
+
+      const parsedUserConfig = parsedConfig.data
       if (parsedUserConfig.loadMode === 'userCommit') {
-        logger.info(
-          `Loading GitHub releases for the user @${parsedUserConfig.modeConfig.username}`
+        const { status, releases, error } = await fetchReleasesByUserCommit(
+          parsedUserConfig.modeConfig,
+          meta,
+          logger
         )
 
-        const modeConfig = {
-          ...userCommitDefaultConfig,
-          ...parsedUserConfig.modeConfig,
-        }
-        const { status, releases } = await fetchReleasesByUserCommit(
-          modeConfig,
-          meta
-        )
-
-        if (status === 304)
+        if (status === 304) {
           logger.info('No new GitHub releases since last fetch')
-
-        if (status === 200) {
+        } else if (status === 200) {
           for (const item of releases) {
             const parsedItem = await parseData({ id: item.id, data: item })
-            store.set({ id: item.id, data: parsedItem })
+            store.set({
+              id: item.id,
+              data: parsedItem,
+              digest: generateDigest(parsedItem),
+            })
           }
           logger.info('Successfully loaded GitHub releases')
+        } else {
+          logger.error(`Failed to load GitHub releases. ${error}`)
         }
       }
 
       if (parsedUserConfig.loadMode === 'repoList') {
-        const repoNum = parsedUserConfig.modeConfig.repos.length
-        logger.info(
-          `Loading GitHub releases for ${repoNum} ${repoNum > 1 ? 'repositories' : 'repository'}`
-        )
+        try {
+          const releases = await fetchReleasesByRepoList(
+            parsedUserConfig.modeConfig,
+            logger
+          )
 
-        const modeConfig = {
-          ...repoListDefaultConfig,
-          ...parsedUserConfig.modeConfig,
-        }
-        const releases = await fetchReleasesByRepoList(modeConfig)
-
-        store.clear()
-        for (const item of releases) {
-          if ('id' in item && modeConfig.entryReturnType === 'byRelease') {
-            const parsedItem = await parseData({ id: item.id, data: item })
-            store.set({ id: item.id, data: parsedItem })
-          } else if ('repo' in item) {
-            const parsedItem = await parseData({ id: item.repo, data: item })
-            store.set({ id: item.repo, data: parsedItem })
+          for (const item of releases) {
+            if (
+              'id' in item &&
+              parsedUserConfig.modeConfig.entryReturnType === 'byRelease'
+            ) {
+              const parsedItem = await parseData({ id: item.id, data: item })
+              store.set({
+                id: item.id,
+                data: parsedItem,
+                digest: generateDigest(parsedItem),
+                rendered: { html: item.descriptionHTML },
+              })
+            } else if (
+              'repo' in item &&
+              parsedUserConfig.modeConfig.entryReturnType === 'byRepository'
+            ) {
+              const parsedItem = await parseData({ id: item.repo, data: item })
+              store.set({
+                id: item.repo,
+                data: parsedItem,
+                digest: generateDigest(parsedItem),
+              })
+            }
           }
+          logger.info('Successfully loaded GitHub releases')
+        } catch (error) {
+          logger.error(`Failed to load GitHub releases. ${error}`)
         }
-        logger.info('Successfully loaded GitHub releases')
       }
     },
   }
