@@ -1,5 +1,15 @@
 # astro-loader-github-releases
 
+## 1.4.0
+
+### Minor Changes
+
+- In `userCommit` mode, add `repoOwner` field and renamed `repoName` to `repoNameWithOwner` (the original `repoName` only represented the repository name). ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
+  In `repoList` mode, add `versionNum` and `repoOwner` fields.
+  In `repoList` mode, when configured with `entryReturnType: 'byRepository'`, supports returning the `<Content />` component via `render(entry)` to render the published content.
+  Errors no longer force the entire Astro project to terminate.
+  The loader no longer calls `store.clear()` internally.
+
 ## 1.3.1
 
 ### Patch Changes
