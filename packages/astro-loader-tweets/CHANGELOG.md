@@ -1,5 +1,11 @@
 # astro-loader-tweets
 
+## 1.2.2
+
+### Patch Changes
+
+- Refine logger output and update docs ([`f3c237d`](https://github.com/lin-stephanie/astro-loaders/commit/f3c237df1b014f1fb017085688395fd1b4d40648))
+
 ## 1.2.1
 
 ### Patch Changes
