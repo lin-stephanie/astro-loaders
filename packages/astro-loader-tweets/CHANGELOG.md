@@ -1,5 +1,11 @@
 # astro-loader-tweets
 
+## 1.2.3
+
+### Patch Changes
+
+- Refine handling for `linkTextType: 'domain-path'` ([`743512a`](https://github.com/lin-stephanie/astro-loaders/commit/743512a5722d4ab33b795f8ceb57977ee3b398c1))
+
 ## 1.2.2
 
 ### Patch Changes
