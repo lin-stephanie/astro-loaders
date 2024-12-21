@@ -7,8 +7,8 @@ export function getQueryWithMonthsBack(
 ) {
   if (!search.includes('created') && monthsBack) {
     const startDate = new Date()
-    startDate.setMonth(startDate.getMonth() - monthsBack + 1)
-    startDate.setDate(1)
+    startDate.setUTCMonth(startDate.getMonth() - monthsBack + 1)
+    startDate.setUTCDate(1)
 
     return `${search} created:>=${startDate.toISOString().split('T')[0]}`
   }

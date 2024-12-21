@@ -120,7 +120,7 @@ Astro automatically applies these schemas to generate TypeScript interfaces, ena
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for the change history of this loader.
+See [CHANGELOG.md](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-prs/CHANGELOG.md) for the change history of this loader.
 
 ## Contribution
 

@@ -7,8 +7,8 @@ export function getSinceDate(
 ) {
   if (monthsBack) {
     const startDate = new Date()
-    startDate.setMonth(startDate.getMonth() - monthsBack + 1)
-    startDate.setDate(1)
+    startDate.setUTCMonth(startDate.getMonth() - monthsBack + 1)
+    startDate.setUTCDate(1)
 
     return sinceDate === undefined
       ? +startDate
