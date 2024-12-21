@@ -46,7 +46,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
         return
       }
 
-      logger.info(`Loading ${ids.length} tweets...`)
+      logger.info(`Loading ${ids.length} tweets`)
 
       const tweets: Tweet[] = []
       const client = new TwitterApi(token)

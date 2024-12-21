@@ -53,6 +53,14 @@ function escapeHTML(str?: string) {
 }
 
 /**
+ * Extracts the domain and path from a given URL.
+ */
+function getDomainAndPath(url: string): string {
+  const parsedUrl = new URL(url)
+  return `${parsedUrl.hostname}${parsedUrl.pathname}`
+}
+
+/**
  * Convert a Tweet's text field to HTML and Markdown formats.
  */
 export function processTweetText(
@@ -176,7 +184,7 @@ export function processTweetText(
         const escapedUrl = escapeHTML(entity.expanded_url)
         const escapedText =
           linkTextType === 'domain-path'
-            ? escapeHTML(entity.expanded_url.replace(/^https?:\/\//, ''))
+            ? escapeHTML(getDomainAndPath(entity.expanded_url))
             : escapeHTML(entity.display_url)
         const htmlLink = `<a href="${escapedUrl}" target="_blank" rel="noopener noreferrer" aria-lable="Link to ${escapedText}">${escapedText}</a>`
         const mdLink = `[${escapedText}](${escapedUrl})`
