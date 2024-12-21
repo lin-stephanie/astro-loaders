@@ -1,10 +1,16 @@
 # astro-loader-github-releases
 
+## 1.4.1
+
+### Patch Changes
+
+- Use UTC methods in date calculations for consistency ([`0e0ca6f`](https://github.com/lin-stephanie/astro-loaders/commit/0e0ca6ff59b1183337816980dbdcfab0621430fb))
+
 ## 1.4.0
 
 ### Minor Changes ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
 
-- In `userCommit` mode, add `repoOwner` field and renamed `repoName` to `repoNameWithOwner` (the original `repoName` only represented the repository name). 
+- In `userCommit` mode, add `repoOwner` field and renamed `repoName` to `repoNameWithOwner` (the original `repoName` only represented the repository name).
 - In `repoList` mode, add `versionNum` and `repoOwner` fields.
 - In `repoList` mode, when configured with `entryReturnType: 'byRepository'`, support returning the `<Content />` component via `render(entry)` to render the published content.
 - Errors no longer force the entire Astro project to terminate.

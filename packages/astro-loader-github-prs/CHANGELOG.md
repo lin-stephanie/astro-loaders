@@ -1,5 +1,11 @@
 # astro-loader-github-prs
 
+## 1.1.1
+
+### Patch Changes
+
+- Use UTC methods in date calculations for consistency ([`0e0ca6f`](https://github.com/lin-stephanie/astro-loaders/commit/0e0ca6ff59b1183337816980dbdcfab0621430fb))
+
 ## 1.1.0
 
 ### Minor Changes ([`25f92a8`](https://github.com/lin-stephanie/astro-loaders/commit/25f92a8c2f159336ef8be4bbfe1ed72c33219cfe))
