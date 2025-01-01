@@ -9,6 +9,7 @@ Currently available loaders (see individual READMEs for details):
 - [astro-loader-github-releases](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-releases): Loads GitHub releases from commits or repositories.
 - [astro-loader-github-prs](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-prs): Loads GitHub pull requests with a search query.
 - [astro-loader-tweets](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-tweets): Loads tweets by ID.
+- [astro-loader-bluesky-posts](https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-bluesky-posts): Loads Bluesky posts and threads using AT-URI.
 
 ## Resources
 

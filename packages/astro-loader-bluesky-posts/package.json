@@ -1,0 +1,47 @@
+{
+  "name": "astro-loader-bluesky-posts",
+  "version": "0.0.0",
+  "description": "Astro loader for loading Bluesky posts and threads using AT-URI.",
+  "author": "Stephanie Lin <norwaywoods047@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "withastro",
+    "astro-loader",
+    "bluesky",
+    "posts",
+    "post",
+    "thread"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
+    "directory": "packages/astro-loader-bluesky-posts"
+  },
+  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-bluesky-posts/",
+  "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "build": "tsup src/index.ts --format esm --dts --clean --treeshake",
+    "check": "publint && attw $(pnpm pack) --ignore-rules=cjs-resolves-to-esm",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "astro": ">=4.14.0 <6.0.0"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.13.20"
+  }
+}
