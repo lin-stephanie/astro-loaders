@@ -86,15 +86,15 @@ export function renderPostAsHtml(
 }
 
 /**
+ * Constructs a URL for a specific post.
+ */
+export function getPostLink(post: PostView) {
+  return `https://bsky.app/profile/${post.author.handle}/post/${post.uri.split('/').pop()}`
+}
+
+/**
  * Recursively filters replies to return only those authored by a specified author.
  * Optionally flattens the nested structure into a single-level array of posts.
- *
- * @param {ThreadViewPost['replies']} replies - Array of potentially nested replies.
- * @param {number} depth - Maximum recursion depth.
- * @param {string} authorDid - Author's decentralized identifier (DID).
- * @param {boolean} flatten - If true, returns a flat array of posts; if false, retains nested structure.
- *
- * @returns {(ThreadViewPost[] | PostView[])} - Either a nested or flat array of posts, based on the flatten flag.
  */
 export function getOnlyAuthorReplies(
   replies: ThreadViewPost['replies'],

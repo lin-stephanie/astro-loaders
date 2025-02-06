@@ -76,6 +76,7 @@ jobs:
             - `prs`: For `astro-loader-github-prs`.
             - `releases`: For `astro-loader-github-releases`.
             - `tweets`: For `astro-loader-tweets`.
+            - `bluesky`: For `astro-loader-bluesky-posts`.
 
             Details:
 

@@ -30,7 +30,7 @@ export const BlueskyPostsLoaderConfigSchema = z.object({
   /**
    * The way for processing `\n` when generating renderable HTML:
    * - `'none'`: Keep as is.
-   * - `'break'`: Replace `\n` with `<br>`.
+   * - `'break'`: Replace consecutive `\n` with `<br>`.
    * - `'paragraph'`: Wrap paragraphs with `<p>` while removing standalone `\n`.
    *
    * @default 'none'
@@ -67,14 +67,11 @@ export const BlueskyPostsLoaderConfigSchema = z.object({
     .default(defaultConfig.threadParentHeight),
 
   /**
-   * Whether to include only the replies made by the post author
-   * at the specified `threadDepth` if fetching the thread.
+   * Fetches only the post author's replies at the specified `threadDepth`.
    *
-   * If `true`, filters replies to include only those authored by the specified DID at any depth
-   * and flatten these replies into a single-level array.
-   * The specified `threadParentHeight` will be ignored, and the `parent` field will not be returned.
-   *
-   * By default, it fetches all replies without filtering by author and maintains the nested structure.
+   * - `false` (default): Includes all replies without filtering.
+   * - `true`: Returns only the author's replies as a flat array, ignoring `threadParentHeight`,
+   *   with no `parent` field.
    *
    * @default false
    */

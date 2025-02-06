@@ -459,11 +459,12 @@ const postViewSchema = z.record(z.unknown()).and(
   })
 )
 
-/* const getPostsOutputSchema = z.record(z.unknown()).and(
+const postViewExtendedSchema = postViewSchema.and(
   z.object({
-    posts: z.array(postViewSchema),
+    link: z.string(),
+    html: z.string(),
   })
-) */
+)
 
 /* thread */
 const notFoundPostSchema = z.record(z.unknown()).and(
@@ -499,7 +500,7 @@ interface ThreadViewPost {
 
 const postWithThreadViewSchema = z.object({
   uri: z.string(),
-  post: postViewSchema,
+  post: postViewExtendedSchema,
   parent: z
     .union([
       z.lazy(() => threadViewPostSchema),
@@ -545,7 +546,7 @@ const postWithThreadViewExtendedSchema = postWithThreadViewSchema.extend({
           ])
         )
         .optional(),
-      z.array(postViewSchema).optional(),
+      z.array(postViewExtendedSchema).optional(),
     ])
     .optional(),
 })
@@ -558,4 +559,4 @@ const threadViewPostSchema: z.ZodType<ThreadViewPost> = z
     })
   )
 
-export { postViewSchema, postWithThreadViewExtendedSchema }
+export { postViewExtendedSchema, postWithThreadViewExtendedSchema }

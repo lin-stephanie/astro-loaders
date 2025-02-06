@@ -2,8 +2,11 @@ import { AtpAgent } from '@atproto/api'
 
 import pkg from '../package.json' with { type: 'json' }
 import { BlueskyPostsLoaderConfigSchema } from './config.js'
-import { postViewSchema, postWithThreadViewExtendedSchema } from './schema.js'
-import { renderPostAsHtml, getOnlyAuthorReplies } from './utils.js'
+import {
+  postViewExtendedSchema,
+  postWithThreadViewExtendedSchema,
+} from './schema.js'
+import { renderPostAsHtml, getPostLink, getOnlyAuthorReplies } from './utils.js'
 
 import type {
   PostView,
@@ -22,7 +25,7 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
     name: pkg.name,
     schema: userConfig.fetchThread
       ? postWithThreadViewExtendedSchema
-      : postViewSchema,
+      : postViewExtendedSchema,
     async load({ logger, store, parseData, generateDigest }) {
       const parsedConfig = BlueskyPostsLoaderConfigSchema.safeParse(userConfig)
       if (!parsedConfig.success) {
@@ -51,36 +54,42 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
         if (!fetchThread) {
           logger.info(`Loading ${uris.length} posts`)
 
-          const getPostsRes = await agent.getPosts({ uris: uris })
+          // limit to 25 URIs per request to prevent overload
+          const chunkSize = 25
+          const allPosts: PostView[] = []
+          for (let i = 0; i < uris.length; i += chunkSize) {
+            const chunk = uris.slice(i, i + chunkSize)
+            const getPostsRes = await agent.getPosts({ uris: chunk })
 
-          if (getPostsRes.success) {
-            const {
-              data: { posts },
-            } = getPostsRes
-
-            for (const item of posts) {
-              const parsedItem = await parseData({
-                id: item.uri,
-                // Convert `item` to a pure POJO by stripping non-serializable, non-enumerable, and inherited properties,
-                // preventing serialization errors 'Cannot stringify arbitrary non-POJOs' caused by devalue library.
-                data: JSON.parse(JSON.stringify(item)),
-              })
-              store.set({
-                id: item.uri,
-                data: parsedItem,
-                digest: generateDigest(parsedItem),
-                rendered: {
-                  html: renderPostAsHtml(item, renderPostAsHtmlConfig),
-                },
-              })
+            if (getPostsRes.success) {
+              allPosts.push(...getPostsRes.data.posts)
+            } else {
+              throw new Error(
+                `Loading posts ${i + 1} to ${i + chunk.length} encountered unknown errors`
+              )
             }
-
-            logger.info('Successfully loaded posts')
-          } else {
-            logger.error('Failed to load posts')
           }
+
+          for (const item of allPosts) {
+            const link = getPostLink(item)
+            const html = renderPostAsHtml(item, renderPostAsHtmlConfig)
+            const parsedItem = await parseData({
+              id: item.uri,
+              // convert `item` to a pure POJO by stripping non-serializable, non-enumerable, and inherited properties,
+              // preventing serialization errors 'Cannot stringify arbitrary non-POJOs' caused by devalue library.
+              data: JSON.parse(JSON.stringify({ ...item, link, html })),
+            })
+
+            store.set({
+              id: item.uri,
+              data: parsedItem,
+              digest: generateDigest(parsedItem),
+              rendered: { html },
+            })
+          }
+
+          logger.info('Successfully loaded all posts')
         } else {
-          const posts: any[] = []
           let count: number = uris.length
           logger.info(
             `Loading ${count} posts and ${fetchOnlyAuthorReplies ? 'direct replies' : 'threads'}`
@@ -112,18 +121,27 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
 
               const post = thread.post as PostView
               const replies = thread.replies as ThreadViewPost['replies']
+              const link = getPostLink(post)
+              const html = renderPostAsHtml(post, renderPostAsHtmlConfig)
               const parsedDate = await parseData({
                 id: post.uri,
                 data: JSON.parse(
                   JSON.stringify({
                     uri: post.uri,
-                    post: post,
+                    post: { ...post, link, html },
                     replies: fetchOnlyAuthorReplies
                       ? getOnlyAuthorReplies(
                           replies,
                           threadDepth,
                           post.author.did
-                        )
+                        ).map((item) => ({
+                          ...item,
+                          link: getPostLink(item as PostView),
+                          html: renderPostAsHtml(
+                            item as PostView,
+                            renderPostAsHtmlConfig
+                          ),
+                        }))
                       : replies,
                     ...(fetchOnlyAuthorReplies
                       ? {}
@@ -160,5 +178,5 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
   }
 }
 
-export { blueskyPostsLoader }
+export { blueskyPostsLoader, renderPostAsHtml, getPostLink }
 export type { BlueskyPostsLoaderUserConfig } from './config.js'
