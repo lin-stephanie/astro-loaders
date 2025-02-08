@@ -2,12 +2,12 @@
 
 ## 1.1.0
 
-### Minor Changes
+### Minor Changes ([`6f5e32e`](https://github.com/lin-stephanie/astro-loaders/commit/6f5e32edf6b68a160eed1a218c558d641933f969))
 
-- Support retrieving post URL (`link`) and rendered HTML (`html`) when `fetchThread: false` or `fetchThread: true` + `fetchOnlyAuthorReplies: true` ([`ecb7429`](https://github.com/lin-stephanie/astro-loaders/commit/ecb742918b34c9a2f1ea357b77488efb459effe3))
-  Export `renderPostAsHtml` and `getPostLink`
-  Batch process `GET /xrpc/app.bsky.feed.getPosts` to avoid exceeding 25 URIs per request
-  Update docs
+- Support retrieving post URL (`link`) and rendered HTML (`html`) when `fetchThread: false` or `fetchThread: true` + `fetchOnlyAuthorReplies: true`
+- Export `renderPostAsHtml` and `getPostLink`
+- Batch process `GET /xrpc/app.bsky.feed.getPosts` to avoid exceeding 25 URIs per request
+- Update docs
 
 ## 1.0.0
 
