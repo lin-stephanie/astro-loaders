@@ -31,7 +31,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
         return
       }
 
-      const { search, monthsBack, githubToken } = parsedConfig.data
+      const { search, monthsBack, githubToken, clearStore } = parsedConfig.data
       const token = githubToken || import.meta.env.GITHUB_TOKEN
 
       if (search.length === 0) {
@@ -121,6 +121,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
           cursor = res.search.pageInfo.endCursor || null
         }
 
+        if (clearStore) store.clear()
         for (const item of prs) {
           const parsedItem = await parseData({ id: item.id, data: item })
           store.set({

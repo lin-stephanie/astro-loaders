@@ -43,6 +43,14 @@ export const GithubPrsLoaderConfigSchema = z.object({
    * - {@link https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables How to store GitHub PAT in Astro project environment variables}
    */
   githubToken: z.string().optional(),
+
+  /**
+   * Whether to clear the {@link https://docs.astro.build/en/reference/content-loader-reference/#store store}
+   * before saving new data.
+   *
+   * @default false
+   */
+  clearStore: z.boolean().default(false),
 })
 
 export type GithubPrsLoaderUserConfig = z.input<
