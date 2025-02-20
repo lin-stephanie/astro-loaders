@@ -3,7 +3,7 @@
 [![version][version-badge]][version-link]
 [![jsDocs.io][jsdocs-src]][jsdocs-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![showcase][showcase-logo]][showcase-link]
+[![demo][demo-logo]][demo-link]
 
 This package provides a GitHub releases loader for Astro. The loader supports two configurable modes, allowing you to load public GitHub releases either from a user's commit history or a list of repositories. 
 
@@ -33,8 +33,8 @@ import { githubReleasesLoader } from "astro-loader-github-releases"
 
 const githubReleases = defineCollection({
   loader: githubReleasesLoader({
-    loadMode: /* 'userCommit' or 'repoList' */,
-    modeConfig: {/* Config options based on `loadMode`. See below. */},
+    mode: /* 'userCommit' or 'repoList' */,
+    // Config options based on `mode`. See below.
   }),
 })
 
@@ -82,14 +82,14 @@ const releases = await getCollection("githubReleases")
 ---
 import { getCollection } from "astro:content"
 
-const releases = await getCollection("githubReleases")
+const repos = await getCollection("githubReleases")
 ---
 <!-- entryReturnType: 'byRepository' -->
 {
-  releases.map((repo) => (
+  repos.map((repo) => (
     <div>
       <p>{repo.data.repo}</p>
-      {repo.data.repoReleases.map((release) => {
+      {repo.data.releases.map((release) => {
         return <section set:html={release.descriptionHTML} />
       })}
     </div>
@@ -101,17 +101,14 @@ To update the data, trigger a site rebuild (e.g., using a third-party cron job s
 
 ## Configuration
 
-The `githubReleasesLoader` function takes an object with the following options:
-
-| Option (* required) | Type                         | Description                                                                                                   |
-| ------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `loadMode`*         | `'userCommit' \| 'repoList'` | Specifies the method to fetch GitHub releases (corresponding to different [entries' Zod Schema](#schema)). |
-| `modeConfig`*       | `Record<string, any>`        | Configures options for the selected `loadMode`.                                                               |
+| Option (* required) | Type (default)               | Description                                                                                                                                                    |
+| ------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mode`*             | `'userCommit' \| 'repoList'` | Specifies loading releases from a user’s commit messages or a repository list, with mode-specific options and [entries' Zod Schema](#schema).                  |
+| `clearStore`        | `boolean` (default: `false`) | Whether to clear the [store](https://docs.astro.build/en/reference/content-loader-reference/#store) scoped to the collection before storing newly loaded data. |
 
 ### `userCommit` Mode
 
 The loader uses the GitHub REST API ([`GET /users/{username}/events/public`](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user)) to fetch up to 300 events from the past 90 days (with a latency of 30 seconds to 6 hours). If `tagNameRegex` matches, the commit will be considered a release. This mode is useful for users who want to show their recent release activities. The `modeConfig` options includes:
-
 
 | Option (* required) | Type (default)                                                                                                                                     | Description                                                                                                                             |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
@@ -184,7 +181,7 @@ const ReleaseByIdFromReposSchema = z.object({
 // entryReturnType: 'byRepository'
 const ReleaseByRepoFromReposSchema = z.object({
   repo: z.string(),
-  repoReleases: z.array(ReleaseByIdFromReposSchema),
+  releases: z.array(ReleaseByIdFromReposSchema),
 })
 ```
 
@@ -198,12 +195,14 @@ See [CHANGELOG.md](https://github.com/lin-stephanie/astro-loaders/blob/main/pack
 
 If you see any errors or room for improvement, feel free to open an [issues](https://github.com/lin-stephanie/astro-loaders/issues) or [pull request](https://github.com/lin-stephanie/astro-loaders/pulls) . Thank you in advance for contributing! ❤️
 
+<!-- Badges -->
+
 [version-badge]: https://img.shields.io/npm/v/astro-loader-github-releases?label=release&style=flat&colorA=080f12&colorB=f87171
 [version-link]: https://www.npmjs.com/package/astro-loader-github-releases
 [jsdocs-src]: https://img.shields.io/badge/jsdocs-reference-080f12?style=flat&colorA=080f12&colorB=f87171
 [jsdocs-href]: https://www.jsdocs.io/package/astro-loader-github-releases
 [npm-downloads-src]: https://img.shields.io/npm/dm/astro-loader-github-releases?style=flat&colorA=080f12&colorB=f87171
 [npm-downloads-href]: https://npmjs.com/package/astro-loader-github-releases
-[showcase-logo]: https://img.shields.io/badge/showcase-080f12?style=flat&colorA=080f12&colorB=f87171&&logoColor=ffffff&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KCTxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMiAyMkExMCAxMCAwIDAgMSAyIDEyQTEwIDEwIDAgMCAxIDEyIDJjNS41IDAgMTAgNCAxMCA5YTYgNiAwIDAgMS02IDZoLTEuOGMtLjMgMC0uNS4yLS41LjVjMCAuMS4xLjIuMS4zYy40LjUuNiAxLjEuNiAxLjdjLjEgMS40LTEgMi41LTIuNCAyLjVtMC0xOGE4IDggMCAwIDAtOCA4YTggOCAwIDAgMCA4IDhjLjMgMCAuNS0uMi41LS41YzAtLjItLjEtLjMtLjEtLjRjLS40LS41LS42LTEtLjYtMS42YzAtMS40IDEuMS0yLjUgMi41LTIuNUgxNmE0IDQgMCAwIDAgNC00YzAtMy45LTMuNi03LTgtN20tNS41IDZjLjggMCAxLjUuNyAxLjUgMS41UzcuMyAxMyA2LjUgMTNTNSAxMi4zIDUgMTEuNVM1LjcgMTAgNi41IDEwbTMtNGMuOCAwIDEuNS43IDEuNSAxLjVTMTAuMyA5IDkuNSA5UzggOC4zIDggNy41UzguNyA2IDkuNSA2bTUgMGMuOCAwIDEuNS43IDEuNSAxLjVTMTUuMyA5IDE0LjUgOVMxMyA4LjMgMTMgNy41UzEzLjcgNiAxNC41IDZtMyA0Yy44IDAgMS41LjcgMS41IDEuNXMtLjcgMS41LTEuNSAxLjVzLTEuNS0uNy0xLjUtMS41cy43LTEuNSAxLjUtMS41IiAvPgo8L3N2Zz4=
-[showcase-link]: https://astro-antfustyle-theme.vercel.app/releases/
+[demo-logo]: https://img.shields.io/badge/see-demo-080f12?style=flat&colorA=080f12&colorB=f87171
+[demo-link]: https://astro-antfustyle-theme.vercel.app/releases/
 

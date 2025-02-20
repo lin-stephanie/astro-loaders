@@ -32,9 +32,10 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
       }
 
       const parsedUserConfig = parsedConfig.data
-      if (parsedUserConfig.loadMode === 'userCommit') {
+      if (parsedUserConfig.mode === 'userCommit') {
+        const { mode, clearStore, ...config } = parsedUserConfig
         const { status, releases, error } = await fetchReleasesByUserCommit(
-          parsedUserConfig.modeConfig,
+          config,
           meta,
           logger
         )
@@ -42,6 +43,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
         if (status === 304) {
           logger.info('No new GitHub releases since last fetch')
         } else if (status === 200) {
+          if (clearStore) store.clear()
           for (const item of releases) {
             const parsedItem = await parseData({ id: item.id, data: item })
             store.set({
@@ -56,18 +58,14 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
         }
       }
 
-      if (parsedUserConfig.loadMode === 'repoList') {
+      if (parsedUserConfig.mode === 'repoList') {
         try {
-          const releases = await fetchReleasesByRepoList(
-            parsedUserConfig.modeConfig,
-            logger
-          )
+          const { mode, clearStore, ...config } = parsedUserConfig
+          const releases = await fetchReleasesByRepoList(config, logger)
 
+          if (clearStore) store.clear()
           for (const item of releases) {
-            if (
-              'id' in item &&
-              parsedUserConfig.modeConfig.entryReturnType === 'byRelease'
-            ) {
+            if ('id' in item && config.entryReturnType === 'byRelease') {
               const parsedItem = await parseData({ id: item.id, data: item })
               store.set({
                 id: item.id,
@@ -77,7 +75,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
               })
             } else if (
               'repo' in item &&
-              parsedUserConfig.modeConfig.entryReturnType === 'byRepository'
+              config.entryReturnType === 'byRepository'
             ) {
               const parsedItem = await parseData({ id: item.repo, data: item })
               store.set({

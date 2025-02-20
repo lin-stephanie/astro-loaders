@@ -19,7 +19,7 @@ const PER_PAGE = 100
 const MAX_PAGE = 3
 
 async function fetchReleasesByUserCommit(
-  config: UserCommitOutputConfig['modeConfig'],
+  config: Omit<UserCommitOutputConfig, 'mode' | 'clearStore'>,
   meta: LoaderContext['meta'],
   logger: LoaderContext['logger']
 ): Promise<{
@@ -116,7 +116,7 @@ async function fetchReleasesByUserCommit(
 }
 
 async function fetchReleasesByRepoList(
-  config: RepoListOutputConfig['modeConfig'],
+  config: Omit<RepoListOutputConfig, 'mode' | 'clearStore'>,
   logger: LoaderContext['logger']
 ): Promise<ReleaseByIdFromRepos[] | ReleaseByRepoFromRepos[]> {
   const { repos, sinceDate, monthsBack, entryReturnType, githubToken } = config
@@ -218,7 +218,7 @@ async function fetchReleasesByRepoList(
       if (entryReturnType === 'byRepository') {
         releasesByRepo.push({
           repo: repo,
-          repoReleases: releasesPreRepo,
+          releases: releasesPreRepo,
         })
       }
     }
