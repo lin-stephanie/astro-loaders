@@ -1,5 +1,15 @@
 # astro-loader-github-releases
 
+## 2.0.0
+
+### Major Changes
+
+- Update Configuration Structure ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
+  - Renamed `loadMode` to `mode`
+  - Removed `modeConfig`; options are now configured per mode
+    Add `clearStore` option to clear store before saving new data
+    In `repoList` mode, when `entryReturnType: 'byRepository'`, renamed `releases` in the entry Zod schema to `repoReleases`.
+
 ## 1.4.1
 
 ### Patch Changes
