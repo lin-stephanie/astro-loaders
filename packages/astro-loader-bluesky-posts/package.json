@@ -1,6 +1,6 @@
 {
   "name": "astro-loader-bluesky-posts",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Astro loader for loading Bluesky posts and threads using AT-URI.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",

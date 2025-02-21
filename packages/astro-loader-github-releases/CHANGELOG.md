@@ -1,5 +1,15 @@
 # astro-loader-github-releases
 
+## 2.0.0
+
+### Major Changes ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
+
+-  Update Configuration Structure
+    -  Renamed `loadMode` to `mode`
+    -  Removed `modeConfig`; options are now configured per mode directly
+-  In `repoList` mode, when `entryReturnType: 'byRepository'`, renamed `repoReleases` in the entry Zod schema to `releases`
+-  Add `clearStore` option to control whether to clear store before saving new data
+
 ## 1.4.1
 
 ### Patch Changes
@@ -10,11 +20,11 @@
 
 ### Minor Changes ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
 
-- In `userCommit` mode, add `repoOwner` field and renamed `repoName` to `repoNameWithOwner` (the original `repoName` only represented the repository name).
-- In `repoList` mode, add `versionNum` and `repoOwner` fields.
-- In `repoList` mode, when configured with `entryReturnType: 'byRelease'`, support returning the `<Content />` component via `render(entry)` to render the published content.
-- Errors no longer force the entire Astro project to terminate.
-- No longer calls `store.clear()` internally.
+- In `userCommit` mode, add `repoOwner` field and renamed `repoName` to `repoNameWithOwner` (the original `repoName` only represented the repository name)
+- In `repoList` mode, add `versionNum` and `repoOwner` fields
+- In `repoList` mode, when configured with `entryReturnType: 'byRelease'`, support returning the `<Content />` component via `render(entry)` to render the published content
+- Errors no longer force the entire Astro project to terminate
+- No longer calls `store.clear()` internally
 
 ## 1.3.1
 

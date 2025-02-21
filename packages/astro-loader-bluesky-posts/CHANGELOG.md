@@ -1,5 +1,15 @@
 # astro-loader-bluesky-posts
 
+## 1.2.0
+
+### Minor Changes ([`2140c1c`](https://github.com/lin-stephanie/astro-loaders/commit/2140c1c8cc7a783864cb72b6287706c26826d6b7))
+
+- Support `uris` for direct Bluesky post URLs
+- Skip if `uris` unchanged, unless `src/content/config.ts` or `src/content.config.ts` changes
+- Rename the `linkTextType` option value from `'display-url'` to `'post-text'`
+- Update the `link` field to use `did` instead of `handle` within the post URL string
+- Update the entry Zod schema
+
 ## 1.1.0
 
 ### Minor Changes ([`6f5e32e`](https://github.com/lin-stephanie/astro-loaders/commit/6f5e32edf6b68a160eed1a218c558d641933f969))
