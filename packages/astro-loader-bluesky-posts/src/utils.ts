@@ -1,12 +1,32 @@
 import { RichText } from '@atproto/api'
 import { isThreadViewPost } from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
 
+import type { AtpAgent, $Typed } from '@atproto/api'
 import type { z } from 'astro/zod'
 import type {
   PostView,
   ThreadViewPost,
 } from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
 import type { BlueskyPostsLoaderConfigSchema } from './config.js'
+
+export async function getAtUri(uri: string, agent: AtpAgent) {
+  try {
+    const parts = uri.startsWith('at:')
+      ? uri.split('/')
+      : new URL(uri).pathname.split('/')
+    let id = parts[2]
+    const postId = parts[4]
+
+    if (!id.startsWith('did:')) {
+      const handleResolution = await agent.resolveHandle({ handle: id })
+      id = handleResolution.data.did
+    }
+
+    return `at://${id}/app.bsky.feed.post/${postId}`
+  } catch {
+    throw new Error(`Invalid post URL: ${uri}.`)
+  }
+}
 
 /**
  * Escapes HTML special characters to prevent XSS attacks
@@ -50,6 +70,8 @@ export function renderPostAsHtml(
   }
 ) {
   const { linkTextType, newlineHandling } = options
+  // if user schema does not define record field
+  if (!post?.record) return ''
   const rt = new RichText(post.record as any)
 
   let html = ''
@@ -57,7 +79,7 @@ export function renderPostAsHtml(
   // handle link
   for (const segment of rt.segments()) {
     if (segment.isLink()) {
-      html += `<a href="${escapeHTML(segment.link?.uri)}">${escapeHTML(linkTextType === 'display-url' ? segment.text : getDomainAndPath(segment.link?.uri))}</a>`
+      html += `<a href="${escapeHTML(segment.link?.uri)}">${escapeHTML(linkTextType === 'post-text' ? segment.text : getDomainAndPath(segment.link?.uri))}</a>`
     } else if (segment.isMention()) {
       html += `<a href="https://bsky.app/profile/${escapeHTML(segment.mention?.did)}">${escapeHTML(segment.text)}</a>`
     } else if (segment.isTag()) {
@@ -86,10 +108,12 @@ export function renderPostAsHtml(
 }
 
 /**
- * Constructs a URL for a specific post.
+ * Converts an AT-URI to a post URI.
  */
-export function getPostLink(post: PostView) {
-  return `https://bsky.app/profile/${post.author.handle}/post/${post.uri.split('/').pop()}`
+export function atUriToPostUri(atUri: string) {
+  const [, , did, , postId] = atUri.split('/')
+
+  return `https://bsky.app/profile/${did}/post/${postId}`
 }
 
 /**
@@ -99,42 +123,22 @@ export function getPostLink(post: PostView) {
 export function getOnlyAuthorReplies(
   replies: ThreadViewPost['replies'],
   depth: number,
-  authorDid: string,
-  flatten = true
-): ThreadViewPost[] | PostView[] {
+  authorDid: string
+) {
   if (!replies || replies.length === 0 || depth <= 0) return []
 
   const filtered = replies.filter(
-    (item): item is ThreadViewPost =>
+    (item): item is $Typed<ThreadViewPost> =>
       isThreadViewPost(item) && item.post.author.did === authorDid
   )
 
-  if (!flatten) {
-    return filtered.map((item): ThreadViewPost => {
-      const filteredReplies = getOnlyAuthorReplies(
-        item.replies,
-        depth - 1,
-        authorDid
-      )
-      return {
-        ...item,
-        replies: filteredReplies as ThreadViewPost[],
-      }
-    })
-  }
-
-  return filtered.reduce((acc, item) => {
+  return filtered.reduce<PostView[]>((acc, item) => {
     acc.push(item.post)
 
-    const childPosts = getOnlyAuthorReplies(
-      item.replies,
-      depth - 1,
-      authorDid,
-      true
-    )
+    const childPosts = getOnlyAuthorReplies(item.replies, depth - 1, authorDid)
 
-    acc.push(...(childPosts as PostView[]))
+    acc.push(...childPosts)
 
     return acc
-  }, [] as PostView[])
+  }, [])
 }

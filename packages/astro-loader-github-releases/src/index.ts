@@ -1,4 +1,3 @@
-import pkg from '../package.json' with { type: 'json' }
 import { GithubReleasesLoaderConfigSchema } from './config.js'
 import {
   fetchReleasesByRepoList,
@@ -18,15 +17,14 @@ function githubReleasesLoader(
   userConfig: GithubReleasesLoaderUserConfig
 ): Loader {
   return {
-    name: pkg.name,
+    name: 'astro-loader-github-releases',
     schema: getEntrySchema(userConfig),
     async load({ meta, store, logger, parseData, generateDigest }) {
       const parsedConfig =
         GithubReleasesLoaderConfigSchema.safeParse(userConfig)
       if (!parsedConfig.success) {
         logger.error(
-          `The configuration provided is invalid. ${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}.
-Check out the configuration: ${pkg.homepage}README.md#configuration.`
+          `The configuration provided is invalid. ${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}. Check out the configuration: https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-releases/README.md#configuration.`
         )
         return
       }

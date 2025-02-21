@@ -19,14 +19,13 @@ import type { GithubPr } from './schema.js'
  */
 function githubPrsLoader(userConfig: GithubPrsLoaderUserConfig): Loader {
   return {
-    name: pkg.name,
+    name: 'astro-loader-github-prs',
     schema: GithubPrSchema,
     async load({ logger, store, parseData, generateDigest }) {
       const parsedConfig = GithubPrsLoaderConfigSchema.safeParse(userConfig)
       if (!parsedConfig.success) {
         logger.error(
-          `The configuration provided is invalid. ${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}.
-Check out the configuration: ${pkg.homepage}README.md#configuration.`
+          `The configuration provided is invalid. ${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}. Check out the configuration: https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-github-prs/README.md#configuration.`
         )
         return
       }

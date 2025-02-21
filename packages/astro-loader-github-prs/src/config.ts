@@ -46,7 +46,7 @@ export const GithubPrsLoaderConfigSchema = z.object({
 
   /**
    * Whether to clear the {@link https://docs.astro.build/en/reference/content-loader-reference/#store store}
-   * before saving new data.
+   * scoped to the collection before storing newly loaded data.
    *
    * @default false
    */

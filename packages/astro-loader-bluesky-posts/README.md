@@ -3,6 +3,7 @@
 [![version][version-badge]][version-link]
 [![jsDocs.io][jsdocs-src]][jsdocs-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![demo][demo-logo]][demo-link]
 
 This package provides a Bluesky posts loader for Astro, utilizing [AT-URI](https://atproto.com/specs/at-uri-scheme) to fetch posts for use in Astro projects. Features include customizable HTML rendering, optional threaded loading, and targeted fetching of author-specific replies.
 
@@ -33,8 +34,10 @@ import { BlueskyPostsLoader } from "astro-loader-bluesky-posts"
 const posts = defineCollection({
   loader: BlueskyPostsLoader({
     uris: [
-      'at://bsky.app/app.bsky.feed.post/3l6oveex3ii2l',
-      'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.post/3lax5zxh7bc2p'
+      'https://bsky.app/profile/bsky.app/post/3l6oveex3ii2l'
+      // 'https://bsky.app/profile/did:plc:z72i7hdynmk6r22z27h6tvur/post/3l6oveex3ii2l'
+      // 'at://bsky.app/app.bsky.feed.post/3l6oveex3ii2l'
+      // 'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.post/3l6oveex3ii2l'
     ],
     // Check the configuration below
   }),
@@ -74,16 +77,13 @@ This loader retrieves posts via the Bluesky API [`GET /xrpc/app.bsky.feed.getPos
 
 | Option (* required)      | Type (default)                                              | Description                                                                                                                                                                                                            |
 | ------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `uris`*                  | `string[]`                                                  | List of post [AT-URIs](https://atproto.com/specs/at-uri-scheme).                                                                                                                                                       |
-| `linkTextType`           | `'domain-path' \| 'display-url'` (default: `'display-url'`) | The type of text to display for links when generating renderable HTML:<br>`'domain-path'`: Displays the link's domain and path.<br>`'display-url'`: Uses the link text as shown in the tweet.                          |
+| `uris`*                  | `string[]`                                                  | List of Bluesky post URLs or [AT-URIs](https://atproto.com/specs/at-uri-scheme).                                                                                                                                       |
+| `linkTextType`           | `'domain-path' \| 'post-text'` (default: `'post-text'`) | The type of text to display for links when generating renderable HTML:<br>`'domain-path'`: Displays the link's domain and path.<br>`'post-text'`: Uses the link text as shown in the tweet.                          |
 | `newlineHandling`        | `'none' \| 'break' \| 'paragraph'` (default: `'none'`)      | The way for processing `\n` when generating renderable HTML:<br>`'none'`: Keep as is.<br>`'break'`: Replace consecutive `\n` with `<br>`.<br>`'paragraph'`: Wrap paragraphs with `<p>` while removing standalone `\n`. |
 | `fetchThread`            | `boolean` (default: `false`)                                | Whether to fetch the post's thread including replies and parents.                                                                                                                                                      |
 | `threadDepth`            | number (default: `1`)                                       | The depth of the descendant post tree to fetch if fetching the thread. Specifies how many levels of reply depth should be included.                                                                                    |
 | `threadParentHeight`     | number (default: `1`)                                       | The height of the ancestor post tree to fetch if fetching the thread. Specifies how many levels of parent posts should be included.                                                                                    |
 | `fetchOnlyAuthorReplies` | `boolean` (default: `false`)                                | Whether to fetch only the post author's replies at the specified `threadDepth`. When `true`, it returns only the author's replies as a flat array, ignoring `threadParentHeight` and `parent`.                         |
-
-> [!WARNING]  
-> When `fetchThread: false`, the plugin calls `GET /xrpc/app.bsky.feed.getPosts`. This API returns data when using a DID in AT_URI (e.g., `'at://did:plc:xxx.../app.bsky.feed.post/...'`), but returns empty data when using a handle (e.g., `'at://xxx.bsky.social/app.bsky.feed.post/...'`). Reported in [#3201](https://github.com/bluesky-social/atproto/issues/3201).
 
 ## Schema
 
@@ -107,3 +107,5 @@ If you see any errors or room for improvement, feel free to open an [issues](htt
 [jsdocs-href]: https://www.jsdocs.io/package/astro-loader-bluesky-posts
 [npm-downloads-src]: https://img.shields.io/npm/dm/astro-loader-bluesky-posts?style=flat&colorA=080f12&colorB=f87171
 [npm-downloads-href]: https://npmjs.com/package/astro-loader-bluesky-posts
+[demo-logo]: https://img.shields.io/badge/see-demo-080f12?style=flat&colorA=080f12&colorB=f87171
+[demo-link]: https://astro-antfustyle-theme.vercel.app/highlights/

@@ -35,13 +35,13 @@
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "build": "tsup src/index.ts --format esm --dts --clean --treeshake",
     "postbuild": "copyfiles -u 1 src/**/*.graphql dist",
-    "check": "publint && attw $(pnpm pack) --ignore-rules=cjs-resolves-to-esm",
+    "check": "publint && pnpm pack | grep '.tgz$' | xargs attw --ignore-rules=cjs-resolves-to-esm",
     "test": "vitest && vitest run --coverage",
     "generate": "graphql-codegen --config codegen.config.ts",
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "octokit": "^4.0.2"
+    "octokit": "^4.1.2"
   },
   "peerDependencies": {
     "astro": ">=4.14.0 <6.0.0"

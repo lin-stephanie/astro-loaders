@@ -1,7 +1,7 @@
 import { z } from 'astro/zod'
 
 const defaultConfig = {
-  urlTextType: 'display-url' as const,
+  urlTextType: 'post-text' as const,
   newlineHandling: 'none' as const,
   fetchThread: false,
   threadDepth: 1,
@@ -11,20 +11,19 @@ const defaultConfig = {
 
 export const BlueskyPostsLoaderConfigSchema = z.object({
   /**
-   * List of post {@link https://atproto.com/specs/at-uri-scheme AT-URIs}
-   * to return hydrated views for.
+   * List of Bluesky post URLs or {@link https://atproto.com/specs/at-uri-scheme AT-URIs}.
    */
   uris: z.array(z.string()),
 
   /**
    * The type of text to display for links when generating renderable HTML:
-   * - `'domain-path'`: Displays the link's domain and path.
-   * - `'display-url'`: Uses the link text as shown in the tweet.
+   * - `'domain-path'`: Shows the link's domain and path.
+   * - `'post-text'`: Uses the link text as shown in the post.
    *
-   * @default 'display-url'
+   * @default 'post-text'
    */
   linkTextType: z
-    .enum(['domain-path', 'display-url'])
+    .enum(['domain-path', 'post-text'])
     .default(defaultConfig.urlTextType),
 
   /**

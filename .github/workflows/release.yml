@@ -10,9 +10,6 @@ permissions:
   pull-requests: write
   id-token: write
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-
 jobs:
   check_commit:
     runs-on: ubuntu-latest

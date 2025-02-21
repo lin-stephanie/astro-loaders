@@ -3,7 +3,7 @@
 [![version][version-badge]][version-link]
 [![jsDocs.io][jsdocs-src]][jsdocs-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![showcase][showcase-logo]][showcase-link]
+[![demo][demo-logo]][demo-link]
 
 This package provides a GitHub PRs loader for Astro, fetching pull requests with a search query for use in Astro projects.
 
@@ -72,14 +72,12 @@ To update the data, trigger a site rebuild (e.g., using a third-party cron job s
 
 The loader fetches PRs via the GitHub GraphQL API with a search string, requiring a repo-scoped PAT, and [returns up to 1,000 results](https://docs.github.com/en/graphql/reference/objects#searchresultitemconnection). Options include:
 
-
 | Option (* required) | Type (default)                                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `search`*           | `string`                                                       | The search string for querying pull requests on GitHub. This string will be concatenated with `type:pr` to form the complete search query. See [how to search pull requests](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests). For examples:<br>`'author:xxx created:>=2024-01-01'`: matches prs written by xxx that were created after 2024.<br>`'author:xxx -user:xxx'`: matches prs written by xxx, but not to their own repositories.                   |
 | `monthsBack`        | `number`                                                       | The number of recent months to load pull requests, including the current month. The loader automatically converts this to a date for the 'created' qualifier in the search query. If the `'created'` qualifier is defined in search option, it will override this value.                                                                                                                                                                                                                                    |
 | `githubToken`       | `string` (Defaults to the `GITHUB_TOKEN` environment variable) | A GitHub PAT with at least `repo` scope permissions. Defaults to the `GITHUB_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
-| `clearStore`        | `boolean` (`false`)                                            | Whether to clear the [store](https://docs.astro.build/en/reference/content-loader-reference/#store) before saving new data.                                                                                                                                                                                                                                                                                                                                                                                 |
-
+| `clearStore`        | `boolean` (default: `false`)                                            | Whether to clear the [store](https://docs.astro.build/en/reference/content-loader-reference/#store) scoped to the collection before storing newly loaded data.                                                                                                                                                                                                                                                                                                                                              |
 
 ## Schema
 
@@ -137,5 +135,5 @@ If you see any errors or room for improvement, feel free to open an [issues](htt
 [jsdocs-href]: https://www.jsdocs.io/package/astro-loader-github-prs
 [npm-downloads-src]: https://img.shields.io/npm/dm/astro-loader-github-prs?style=flat&colorA=080f12&colorB=f87171
 [npm-downloads-href]: https://npmjs.com/package/astro-loader-github-prs
-[showcase-logo]: https://img.shields.io/badge/showcase-080f12?style=flat&colorA=080f12&colorB=f87171&&logoColor=ffffff&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KCTxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMiAyMkExMCAxMCAwIDAgMSAyIDEyQTEwIDEwIDAgMCAxIDEyIDJjNS41IDAgMTAgNCAxMCA5YTYgNiAwIDAgMS02IDZoLTEuOGMtLjMgMC0uNS4yLS41LjVjMCAuMS4xLjIuMS4zYy40LjUuNiAxLjEuNiAxLjdjLjEgMS40LTEgMi41LTIuNCAyLjVtMC0xOGE4IDggMCAwIDAtOCA4YTggOCAwIDAgMCA4IDhjLjMgMCAuNS0uMi41LS41YzAtLjItLjEtLjMtLjEtLjRjLS40LS41LS42LTEtLjYtMS42YzAtMS40IDEuMS0yLjUgMi41LTIuNUgxNmE0IDQgMCAwIDAgNC00YzAtMy45LTMuNi03LTgtN20tNS41IDZjLjggMCAxLjUuNyAxLjUgMS41UzcuMyAxMyA2LjUgMTNTNSAxMi4zIDUgMTEuNVM1LjcgMTAgNi41IDEwbTMtNGMuOCAwIDEuNS43IDEuNSAxLjVTMTAuMyA5IDkuNSA5UzggOC4zIDggNy41UzguNyA2IDkuNSA2bTUgMGMuOCAwIDEuNS43IDEuNSAxLjVTMTUuMyA5IDE0LjUgOVMxMyA4LjMgMTMgNy41UzEzLjcgNiAxNC41IDZtMyA0Yy44IDAgMS41LjcgMS41IDEuNXMtLjcgMS41LTEuNSAxLjVzLTEuNS0uNy0xLjUtMS41cy43LTEuNSAxLjUtMS41IiAvPgo8L3N2Zz4=
-[showcase-link]: https://astro-antfustyle-theme.vercel.app/prs/
+[demo-logo]: https://img.shields.io/badge/see-demo-080f12?style=flat&colorA=080f12&colorB=f87171
+[demo-link]: https://astro-antfustyle-theme.vercel.app/prs/

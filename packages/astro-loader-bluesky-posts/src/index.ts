@@ -1,17 +1,23 @@
 import { AtpAgent } from '@atproto/api'
+import {
+  isNotFoundPost,
+  isBlockedPost,
+  isThreadViewPost,
+} from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
 
-import pkg from '../package.json' with { type: 'json' }
 import { BlueskyPostsLoaderConfigSchema } from './config.js'
 import {
   postViewExtendedSchema,
   postWithThreadViewExtendedSchema,
 } from './schema.js'
-import { renderPostAsHtml, getPostLink, getOnlyAuthorReplies } from './utils.js'
+import {
+  getAtUri,
+  atUriToPostUri,
+  renderPostAsHtml,
+  getOnlyAuthorReplies,
+} from './utils.js'
 
-import type {
-  PostView,
-  ThreadViewPost,
-} from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
+import type { PostView } from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
 import type { Loader } from 'astro/loaders'
 import type { BlueskyPostsLoaderUserConfig } from './config.js'
 
@@ -22,16 +28,15 @@ import type { BlueskyPostsLoaderUserConfig } from './config.js'
  */
 function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
   return {
-    name: pkg.name,
+    name: 'astro-loader-bluesky-posts',
     schema: userConfig.fetchThread
       ? postWithThreadViewExtendedSchema
       : postViewExtendedSchema,
-    async load({ logger, store, parseData, generateDigest }) {
+    async load({ logger, store, parseData, generateDigest, meta }) {
       const parsedConfig = BlueskyPostsLoaderConfigSchema.safeParse(userConfig)
       if (!parsedConfig.success) {
         logger.error(
-          `The configuration provided is invalid. ${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}.
-Check out the configuration: ${pkg.homepage}README.md#configuration.`
+          `The configuration provided is invalid. ${parsedConfig.error.issues.map((issue) => issue.message).join('\n')}. Check out the configuration: https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-bluesky-posts/README.md#configuration.`
         )
         return
       }
@@ -49,16 +54,27 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
         return
       }
 
+      const preUris = meta.get('uris')
+      if (preUris && preUris === generateDigest(JSON.stringify(uris))) {
+        logger.info('`uris` unchanged, skipping')
+        return
+      }
+      meta.set('uris', generateDigest(JSON.stringify(uris)))
+
       try {
         const agent = new AtpAgent({ service: 'https://public.api.bsky.app' })
+        const atUris = await Promise.all(
+          uris.map((uri) => getAtUri(uri, agent))
+        )
+
         if (!fetchThread) {
-          logger.info(`Loading ${uris.length} posts`)
+          logger.info(`Loading ${atUris.length} posts`)
 
           // limit to 25 URIs per request to prevent overload
           const chunkSize = 25
           const allPosts: PostView[] = []
-          for (let i = 0; i < uris.length; i += chunkSize) {
-            const chunk = uris.slice(i, i + chunkSize)
+          for (let i = 0; i < atUris.length; i += chunkSize) {
+            const chunk = atUris.slice(i, i + chunkSize)
             const getPostsRes = await agent.getPosts({ uris: chunk })
 
             if (getPostsRes.success) {
@@ -71,7 +87,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
           }
 
           for (const item of allPosts) {
-            const link = getPostLink(item)
+            const link = atUriToPostUri(item.uri)
             const html = renderPostAsHtml(item, renderPostAsHtmlConfig)
             const parsedItem = await parseData({
               id: item.uri,
@@ -90,12 +106,12 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
 
           logger.info('Successfully loaded all posts')
         } else {
-          let count: number = uris.length
+          let count: number = atUris.length
           logger.info(
             `Loading ${count} posts and ${fetchOnlyAuthorReplies ? 'direct replies' : 'threads'}`
           )
 
-          for (const uri of uris) {
+          for (const uri of atUris) {
             const getPostThreadRes = await agent.getPostThread({
               uri,
               depth: threadDepth,
@@ -107,60 +123,62 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
                 data: { thread },
               } = getPostThreadRes
 
-              if (thread.notFound && thread.notFound === true) {
+              if (isNotFoundPost(thread)) {
                 logger.warn(`Post with '${uri}' not found`)
                 count--
                 continue
               }
 
-              if (thread.blocked && thread.blocked === true) {
+              if (isBlockedPost(thread)) {
                 logger.warn(`Post with '${uri}' is blocked`)
                 count--
                 continue
               }
 
-              const post = thread.post as PostView
-              const replies = thread.replies as ThreadViewPost['replies']
-              const link = getPostLink(post)
-              const html = renderPostAsHtml(post, renderPostAsHtmlConfig)
-              const parsedDate = await parseData({
-                id: post.uri,
-                data: JSON.parse(
-                  JSON.stringify({
-                    uri: post.uri,
-                    post: { ...post, link, html },
-                    replies: fetchOnlyAuthorReplies
-                      ? getOnlyAuthorReplies(
-                          replies,
-                          threadDepth,
-                          post.author.did
-                        ).map((item) => ({
-                          ...item,
-                          link: getPostLink(item as PostView),
-                          html: renderPostAsHtml(
-                            item as PostView,
-                            renderPostAsHtmlConfig
-                          ),
-                        }))
-                      : replies,
-                    ...(fetchOnlyAuthorReplies
-                      ? {}
-                      : { parent: thread.parent }),
-                  })
-                ),
-              })
-
-              store.set({
-                id: parsedDate.uri,
-                data: parsedDate,
-                digest: generateDigest(parsedDate),
-                rendered: {
-                  html: renderPostAsHtml(
-                    parsedDate.post,
-                    renderPostAsHtmlConfig
+              if (isThreadViewPost(thread)) {
+                const post = thread.post
+                const replies = thread.replies
+                const link = atUriToPostUri(post.uri)
+                const html = renderPostAsHtml(post, renderPostAsHtmlConfig)
+                const parsedDate = await parseData({
+                  id: post.uri,
+                  data: JSON.parse(
+                    JSON.stringify({
+                      uri: post.uri,
+                      post: { ...post, link, html },
+                      replies: fetchOnlyAuthorReplies
+                        ? getOnlyAuthorReplies(
+                            replies,
+                            threadDepth,
+                            post.author.did
+                          ).map((item) => ({
+                            ...item,
+                            link: atUriToPostUri(item.uri),
+                            html: renderPostAsHtml(
+                              item as PostView,
+                              renderPostAsHtmlConfig
+                            ),
+                          }))
+                        : replies,
+                      ...(fetchOnlyAuthorReplies
+                        ? {}
+                        : { parent: thread.parent }),
+                    })
                   ),
-                },
-              })
+                })
+
+                store.set({
+                  id: parsedDate.uri,
+                  data: parsedDate,
+                  digest: generateDigest(parsedDate),
+                  rendered: {
+                    html: renderPostAsHtml(
+                      parsedDate.post,
+                      renderPostAsHtmlConfig
+                    ),
+                  },
+                })
+              }
             } else {
               logger.warn(`Post with '${uri}' load failed`)
               count--
@@ -168,7 +186,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
           }
 
           logger.info(
-            `Successfully loaded ${count === uris.length ? 'all' : `${count}`} posts`
+            `Successfully loaded ${count === atUris.length ? 'all' : `${count}`} posts`
           )
         }
       } catch (error) {
@@ -178,5 +196,5 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
   }
 }
 
-export { blueskyPostsLoader, renderPostAsHtml, getPostLink }
+export { blueskyPostsLoader, renderPostAsHtml, atUriToPostUri }
 export type { BlueskyPostsLoaderUserConfig } from './config.js'
