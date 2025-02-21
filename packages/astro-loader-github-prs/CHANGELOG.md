@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- Add `clearStore` option to clear store before saving new data. ([`d03abe0`](https://github.com/lin-stephanie/astro-loaders/commit/d03abe02d699cbd7f8375959f236f3a2afb85051))
+- Add `clearStore` option to control whether to clear store before saving new data ([`d03abe0`](https://github.com/lin-stephanie/astro-loaders/commit/d03abe02d699cbd7f8375959f236f3a2afb85051))
 
 ## 1.1.1
 
