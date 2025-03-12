@@ -204,7 +204,7 @@ export function processTweetText(
   // handle newline
   if (newlineHandling !== 'none') {
     if (newlineHandling === 'break') {
-      textHtml = textHtml.replaceAll('\n', '<br/ >\n')
+      textHtml = textHtml.replace(/\n+/g, '<br/ >\n')
     } else if (newlineHandling === 'paragraph') {
       textHtml = textHtml
         .split('\n')

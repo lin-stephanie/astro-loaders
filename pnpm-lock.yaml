@@ -96,8 +96,8 @@ importers:
         specifier: '>=4.14.0 <6.0.0'
         version: 4.16.18(@types/node@22.13.4)(rollup@4.34.8)(typescript@5.7.3)
       twitter-api-v2:
-        specifier: ^1.20.1
-        version: 1.20.1
+        specifier: ^1.20.2
+        version: 1.20.2
 
   playground:
     devDependencies:
@@ -4275,8 +4275,8 @@ packages:
   tweetnacl@0.14.5:
     resolution: {integrity: sha512-KXXFFdAbFXY4geFIwoyNK+f5Z1b7swfXABfL7HXCmoIWMKU3dmS26672A4EeQtDzLKy7SXmfBu51JolvEKwtGA==}
 
-  twitter-api-v2@1.20.1:
-    resolution: {integrity: sha512-sRsjtXAC3zdJEY9sA8Gf99MeReyws26092XpXNL0Rtb74mtGykYptLHI/7blC1txt4c4HkN6hMIKiUx8JNR+AQ==}
+  twitter-api-v2@1.20.2:
+    resolution: {integrity: sha512-0Q+yJetijJon8rctNuy7kDfHK4/8rZw6ZRO0Ix7K7+tuk2eZN5j0loeBpEsijxO+dEW+YxGhq1V7FhjUJwAQJw==}
 
   type-fest@0.21.3:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
@@ -9976,7 +9976,7 @@ snapshots:
 
   tweetnacl@0.14.5: {}
 
-  twitter-api-v2@1.20.1: {}
+  twitter-api-v2@1.20.2: {}
 
   type-fest@0.21.3: {}
 

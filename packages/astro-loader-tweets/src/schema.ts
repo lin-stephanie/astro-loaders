@@ -167,12 +167,14 @@ const UserV2Schema = z.object({
           urls: z.array(UrlEntitySchema),
         })
         .optional(),
-      description: z.object({
-        urls: z.array(UrlEntitySchema).optional(),
-        hashtags: z.array(HashtagEntitySchema).optional(),
-        cashtags: z.array(CashtagEntitySchema).optional(),
-        mentions: z.array(MentionEntitySchema).optional(),
-      }),
+      description: z
+        .object({
+          urls: z.array(UrlEntitySchema).optional(),
+          hashtags: z.array(HashtagEntitySchema).optional(),
+          cashtags: z.array(CashtagEntitySchema).optional(),
+          mentions: z.array(MentionEntitySchema).optional(),
+        })
+        .optional(),
     })
     .optional(),
   profile_image_url: z.string().optional(),

@@ -5,7 +5,7 @@ const defaultConfig = {
   storage: 'default' as const,
   storePath: 'src/data/tweets.json',
   removeTrailingUrls: true,
-  urlTextType: 'display-url' as const,
+  urlTextType: 'post-text' as const,
   newlineHandling: 'none' as const,
 }
 
@@ -50,19 +50,19 @@ export const TweetsLoaderConfigSchema = z
 
     /**
      * The type of text to display for links when generating `text_html` and `text_markdown`:
-     * - `'domain-path'`: Displays the link's domain and path.
-     * - `'display-url'`: Uses the link text as shown in the tweet.
+     * - `'domain-path'`: Shows the link's domain and path.
+     * - `'post-text'`: Uses the link text as shown in the tweet.
      *
-     * @default 'display-url'
+     * @default 'post-text'
      */
     linkTextType: z
-      .enum(['domain-path', 'display-url'])
+      .enum(['domain-path', 'post-text'])
       .default(defaultConfig.urlTextType),
 
     /**
      * The way for processing `\n` in `text_html` generation:
      * - `'none'`: Keep as is.
-     * - `'break'`: Replace `\n` with `<br>`.
+     * - `'break'`: Replace consecutive `\n` with `<br>`.
      * - `'paragraph'`: Wrap paragraphs with `<p>` while removing standalone `\n`.
      *
      * @default 'none'
@@ -109,6 +109,7 @@ export const getTweetsApiOptions: Partial<Tweetv2FieldsParams> = {
   'tweet.fields': [
     'id',
     'text',
+    'edit_history_tweet_ids',
     'attachments',
     'author_id',
     'conversation_id',
