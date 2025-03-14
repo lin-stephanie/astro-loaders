@@ -2,11 +2,11 @@
 
 ## 1.3.0
 
-### Minor Changes
+### Minor Changes ([`bc7ccc0`](https://github.com/lin-stephanie/astro-loaders/commit/bc7ccc09581913a47132e8b691d57c9ba54ca763))
 
-- Consolidate consecutive newlines (`\n`) to single `<br/ >\n` ([`bc7ccc0`](https://github.com/lin-stephanie/astro-loaders/commit/bc7ccc09581913a47132e8b691d57c9ba54ca763))
-  Rename `urlTextType` option 'display-url' to 'post-text'
-  Fix schema for optional `description` in `UserV2Schema`
+- Consolidate consecutive newlines (`\n`) to single `<br/ >\n` 
+- Rename `urlTextType` option 'display-url' to 'post-text'
+- Fix schema for optional `description` in `UserV2Schema`
 
 ## 1.2.3
 
