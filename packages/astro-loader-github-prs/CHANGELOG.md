@@ -1,5 +1,11 @@
 # astro-loader-github-prs
 
+## 1.2.1
+
+### Patch Changes
+
+- Log missing tokens as `warn` instead of `error`. ([`0650a3d`](https://github.com/lin-stephanie/astro-loaders/commit/0650a3d60a424d5685151d169716c155513b5075))
+
 ## 1.2.0
 
 ### Minor Changes

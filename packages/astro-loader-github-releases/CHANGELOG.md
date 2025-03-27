@@ -1,14 +1,20 @@
 # astro-loader-github-releases
 
+## 2.0.1
+
+### Patch Changes
+
+- Log missing tokens as `warn` instead of `error`. ([`0650a3d`](https://github.com/lin-stephanie/astro-loaders/commit/0650a3d60a424d5685151d169716c155513b5075))
+
 ## 2.0.0
 
 ### Major Changes ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
 
--  Update Configuration Structure
-    -  Renamed `loadMode` to `mode`
-    -  Removed `modeConfig`; options are now configured per mode directly
--  In `repoList` mode, when `entryReturnType: 'byRepository'`, renamed `repoReleases` in the entry Zod schema to `releases`
--  Add `clearStore` option to control whether to clear store before saving new data
+- Update Configuration Structure
+  - Renamed `loadMode` to `mode`
+  - Removed `modeConfig`; options are now configured per mode directly
+- In `repoList` mode, when `entryReturnType: 'byRepository'`, renamed `repoReleases` in the entry Zod schema to `releases`
+- Add `clearStore` option to control whether to clear store before saving new data
 
 ## 1.4.1
 
