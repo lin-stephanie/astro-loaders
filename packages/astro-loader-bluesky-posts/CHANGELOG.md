@@ -1,5 +1,12 @@
 # astro-loader-bluesky-posts
 
+## 1.2.1
+
+### Patch Changes
+
+- Refactor first parameter type of exported `renderPostAsHtml` from [PostView](https://github.com/bluesky-social/atproto/blob/main/packages/api/src/client/types/app/bsky/feed/defs.ts#L26) to [RichTextProps](https://github.com/bluesky-social/atproto/blob/main/packages/api/src/rich-text/rich-text.ts#L105) ([`981ee1a`](https://github.com/lin-stephanie/astro-loaders/commit/981ee1a25cd856bcb2f77626764f89ecae20aff3))
+- Update docs
+
 ## 1.2.0
 
 ### Minor Changes ([`2140c1c`](https://github.com/lin-stephanie/astro-loaders/commit/2140c1c8cc7a783864cb72b6287706c26826d6b7))
