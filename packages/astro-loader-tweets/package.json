@@ -42,6 +42,6 @@
     "astro": ">=4.14.0 <6.0.0"
   },
   "dependencies": {
-    "twitter-api-v2": "^1.20.2"
+    "twitter-api-v2": "^1.22.0"
   }
 }

@@ -22,7 +22,7 @@ import type { Loader } from 'astro/loaders'
 import type { BlueskyPostsLoaderUserConfig } from './config.js'
 
 /**
- * Astro loader for loading Bluesky posts and threads using AT-URI.
+ * Astro loader for loading Bluesky posts and threads using post URLs or AT-URIs.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-bluesky-posts
  */
@@ -88,7 +88,10 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
 
           for (const item of allPosts) {
             const link = atUriToPostUri(item.uri)
-            const html = renderPostAsHtml(item, renderPostAsHtmlConfig)
+            const html = renderPostAsHtml(
+              item.record as any,
+              renderPostAsHtmlConfig
+            )
             const parsedItem = await parseData({
               id: item.uri,
               // convert `item` to a pure POJO by stripping non-serializable, non-enumerable, and inherited properties,
@@ -139,7 +142,10 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
                 const post = thread.post
                 const replies = thread.replies
                 const link = atUriToPostUri(post.uri)
-                const html = renderPostAsHtml(post, renderPostAsHtmlConfig)
+                const html = renderPostAsHtml(
+                  post.record as any,
+                  renderPostAsHtmlConfig
+                )
                 const parsedDate = await parseData({
                   id: post.uri,
                   data: JSON.parse(
@@ -155,7 +161,7 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
                             ...item,
                             link: atUriToPostUri(item.uri),
                             html: renderPostAsHtml(
-                              item as PostView,
+                              item.record as any,
                               renderPostAsHtmlConfig
                             ),
                           }))

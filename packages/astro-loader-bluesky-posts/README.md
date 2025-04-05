@@ -5,7 +5,7 @@
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![demo][demo-logo]][demo-link]
 
-This package provides a Bluesky posts loader for Astro, utilizing [AT-URI](https://atproto.com/specs/at-uri-scheme) to fetch posts for use in Astro projects. Features include customizable HTML rendering, optional threaded loading, and targeted fetching of author-specific replies.
+This package provides a Bluesky posts loader for Astro, supporting both post URLs and [AT-URIs](https://atproto.com/specs/at-uri-scheme) to fetch posts for use in Astro projects. Features include customizable HTML rendering, optional threaded loading, and targeted fetching of author-specific replies.
 
 ## Installation
 

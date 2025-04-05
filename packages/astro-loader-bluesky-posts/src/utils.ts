@@ -1,7 +1,7 @@
 import { RichText } from '@atproto/api'
 import { isThreadViewPost } from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
 
-import type { AtpAgent, $Typed } from '@atproto/api'
+import type { AtpAgent, RichTextProps, $Typed } from '@atproto/api'
 import type { z } from 'astro/zod'
 import type {
   PostView,
@@ -59,7 +59,7 @@ function getDomainAndPath(url?: string): string {
  * Renders a post as HTML based on the given configuration options.
  */
 export function renderPostAsHtml(
-  post: PostView,
+  richText: RichTextProps,
   options: {
     linkTextType: z.output<
       typeof BlueskyPostsLoaderConfigSchema
@@ -70,9 +70,7 @@ export function renderPostAsHtml(
   }
 ) {
   const { linkTextType, newlineHandling } = options
-  // if user schema does not define record field
-  if (!post?.record) return ''
-  const rt = new RichText(post.record as any)
+  const rt = new RichText(richText)
 
   let html = ''
 
