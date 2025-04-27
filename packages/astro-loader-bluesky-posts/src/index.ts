@@ -7,8 +7,8 @@ import {
 
 import { BlueskyPostsLoaderConfigSchema } from './config.js'
 import {
-  postViewExtendedSchema,
-  postWithThreadViewExtendedSchema,
+  PostViewExtendedSchema,
+  PostWithThreadViewExtendedSchema,
 } from './schema.js'
 import {
   getAtUri,
@@ -30,8 +30,8 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
   return {
     name: 'astro-loader-bluesky-posts',
     schema: userConfig.fetchThread
-      ? postWithThreadViewExtendedSchema
-      : postViewExtendedSchema,
+      ? PostWithThreadViewExtendedSchema
+      : PostViewExtendedSchema,
     async load({ logger, store, parseData, generateDigest, meta }) {
       const parsedConfig = BlueskyPostsLoaderConfigSchema.safeParse(userConfig)
       if (!parsedConfig.success) {
@@ -177,12 +177,7 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
                   id: parsedDate.uri,
                   data: parsedDate,
                   digest: generateDigest(parsedDate),
-                  rendered: {
-                    html: renderPostAsHtml(
-                      parsedDate.post,
-                      renderPostAsHtmlConfig
-                    ),
-                  },
+                  rendered: { html },
                 })
               }
             } else {
