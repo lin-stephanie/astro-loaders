@@ -1,5 +1,12 @@
 # astro-loader-bluesky-posts
 
+## 1.2.2
+
+### Patch Changes
+
+- Update the entry Zod schema ([`aec3423`](https://github.com/lin-stephanie/astro-loaders/commit/aec342343b0872dbf2d1eab3132a216230a6a45d))
+  Resolve `<Content />` becomes non-functional when `fetchThread: true` is set
+
 ## 1.2.1
 
 ### Patch Changes
