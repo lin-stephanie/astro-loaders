@@ -1,6 +1,6 @@
 {
   "name": "astro-loader-github-releases",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Astro loader for loading GitHub releases from a user's commit history or a list of repositories.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",

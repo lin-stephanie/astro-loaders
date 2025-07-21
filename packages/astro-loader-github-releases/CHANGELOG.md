@@ -1,5 +1,11 @@
 # astro-loader-github-releases
 
+## 2.0.2
+
+### Patch Changes
+
+- Exit early in 'repoList' mode when GitHub token is missing ([`e2fdc33`](https://github.com/lin-stephanie/astro-loaders/commit/e2fdc33a405a4e4e15470c524dc9d8eab4909321))
+
 ## 2.0.1
 
 ### Patch Changes
