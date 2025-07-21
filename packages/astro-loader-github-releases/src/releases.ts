@@ -120,12 +120,6 @@ async function fetchReleasesByRepoList(
   logger: LoaderContext['logger']
 ): Promise<ReleaseByIdFromRepos[] | ReleaseByRepoFromRepos[]> {
   const { repos, sinceDate, monthsBack, entryReturnType, githubToken } = config
-  const token = githubToken || import.meta.env.GITHUB_TOKEN
-
-  if (!token)
-    logger.warn(
-      'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.\nHow to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.'
-    )
 
   logger.info(
     `Loading GitHub releases for ${repos.length} ${repos.length > 1 ? 'repositories' : 'repository'}`
