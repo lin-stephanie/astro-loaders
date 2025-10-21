@@ -81,7 +81,7 @@ export function processTweetText(
 
   let text = tweet.text
   let viewType: 'none' | 'link' | 'media' = 'none'
-  let urlForLinkView: string | undefined = undefined
+  let urlForLinkView: string | undefined
 
   // determine embed view type & handle trailing URLs
   const trailingUrls = getTrailingUrls(text)
@@ -211,6 +211,7 @@ export function processTweetText(
         .map((line) => {
           const l = line.trim()
           if (l.length > 0) return `<p>${l}</p>`
+          return line
         })
         .join('')
     }

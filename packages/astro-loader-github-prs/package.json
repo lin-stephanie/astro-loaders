@@ -42,7 +42,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "octokit": "^4.1.2"
+    "octokit": "^5.0.4"
   },
   "peerDependencies": {
     "astro": ">=4.14.0 <6.0.0"

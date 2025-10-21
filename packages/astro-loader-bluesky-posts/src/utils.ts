@@ -97,6 +97,7 @@ export function renderPostAsHtml(
         .map((line) => {
           const l = line.trim()
           if (l.length > 0) return `<p>${l}</p>`
+          return line
         })
         .join('')
     }

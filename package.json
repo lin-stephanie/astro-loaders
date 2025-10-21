@@ -15,29 +15,33 @@
     "test": "pnpm --filter 'astro-loader*' test",
     "format": "biome format",
     "format:write": "biome format --write",
-    "format:imports": "biome check --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true --write",
+    "format:imports": "biome check --formatter-enabled=false --linter-enabled=false --write",
     "lint": "biome lint",
     "lint:fix": "biome lint --write",
     "change": "changeset add"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.17.4",
-    "@biomejs/biome": "1.9.4",
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@biomejs/biome": "2.2.6",
     "@changesets/cli": "^2.28.1",
-    "@graphql-codegen/cli": "^5.0.5",
-    "@graphql-codegen/typescript": "^4.1.5",
-    "@graphql-codegen/typescript-operations": "^4.5.1",
+    "@graphql-codegen/cli": "^6.0.1",
+    "@graphql-codegen/typed-document-node": "^6.0.2",
+    "@graphql-codegen/typescript": "^5.0.2",
+    "@graphql-codegen/typescript-operations": "^5.0.2",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@microsoft/api-extractor": "^7.53.1",
     "@svitejs/changesets-changelog-github-compact": "^1.2.0",
-    "@types/node": "^22.13.14",
+    "@types/node": "^24.9.1",
     "@vitest/coverage-v8": "^3.0.9",
-    "astro": "^5.5.5",
+    "astro": "^5.14.7",
     "copyfiles": "^2.4.1",
-    "publint": "^0.3.9",
+    "graphql": "^16.11.0",
+    "publint": "^0.3.15",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.9.3",
     "vitest": "^3.0.9"
   },
   "engines": {
-    "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
+    "node": "18.20.8 || ^20.9.0 || ^22.0.0"
   }
 }
