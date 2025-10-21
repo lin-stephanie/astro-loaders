@@ -61,7 +61,7 @@ jobs:
         uses: changesets/action@v1
         with:
           version: pnpm changeset version
-          publish: npm changeset publish
+          publish: pnpm changeset publish
           commit: "ci: release"
           title: "ci: release"
         env:
