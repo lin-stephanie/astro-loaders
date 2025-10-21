@@ -1,41 +1,61 @@
+# https://docs.github.com/en/graphql/reference/objects#pullrequest
+fragment PullRequestCore on PullRequest {
+  id
+  url
+  title
+  titleHTML
+  number
+  state
+  isDraft
+  body
+  bodyHTML
+  bodyText
+  author {
+    login
+    url
+    avatarUrl
+  }
+  repository {
+    name
+    nameWithOwner
+    url
+    stargazerCount
+    isInOrganization
+    owner {
+      login
+      url
+      avatarUrl
+    }
+  }
+  createdAt
+  mergedAt
+}
+
+# https://docs.github.com/en/graphql/reference/queries#search
 query GetPrs($search: String!, $first: Int!, $cursor: String) {
   search(query: $search, type: ISSUE, first: $first, after: $cursor) {
     nodes {
-      ... on PullRequest {
-        id
-        url
-        title
-        titleHTML
-        number
-        state
-        isDraft
-        body
-        bodyHTML
-        bodyText
-        author {
-          login
-          url
-          avatarUrl
-        }
-        repository {
-          name
-          nameWithOwner
-          url
-          stargazerCount
-          isInOrganization
-          owner {
-            login
-            url
-            avatarUrl
-          }
-        }
-        createdAt
-        mergedAt
-      }
+      ...PullRequestCore
     }
     pageInfo {
       hasNextPage
       endCursor
     }
+  }
+}
+
+# https://docs.github.com/en/graphql/reference/queries#repository
+query GetPrByNumber($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $number) {
+      ...PullRequestCore
+    }
+  }
+}
+
+# https://docs.github.com/en/graphql/reference/queries#node
+query GetPrById($id: ID!) {
+  node(id: $id) {
+    ...PullRequestCore
   }
 }

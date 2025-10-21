@@ -1,7 +1,7 @@
 {
   "name": "astro-loader-github-prs",
   "version": "1.2.1",
-  "description": "Astro loader for loading GitHub pull requests with a search query.",
+  "description": "Astro loader for fetching GitHub Pull Requests, supporting both build-time and runtime retrieval.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -46,8 +46,5 @@
   },
   "peerDependencies": {
     "astro": ">=4.14.0 <6.0.0"
-  },
-  "publishConfig": {
-    "provenance": true
   }
 }

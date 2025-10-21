@@ -11,11 +11,17 @@ export const GithubPrSchema = z.object({
   body: z.string(),
   bodyHTML: z.string(),
   bodyText: z.string(),
-  author: z.object({
-    login: z.string(),
-    url: z.string(),
-    avatarUrl: z.string(),
-  }),
+  author: z
+    .union([
+      z.object({
+        login: z.string(),
+        name: z.string().optional(),
+        url: z.string(),
+        avatarUrl: z.string(),
+      }),
+      z.null(),
+    ])
+    .optional(),
   repository: z.object({
     name: z.string(),
     nameWithOwner: z.string(),
@@ -24,12 +30,13 @@ export const GithubPrSchema = z.object({
     isInOrganization: z.boolean(),
     owner: z.object({
       login: z.string(),
+      name: z.string().optional(),
       url: z.string(),
       avatarUrl: z.string(),
     }),
   }),
   createdAt: z.string(),
-  mergedAt: z.string(),
+  mergedAt: z.union([z.string(), z.null()]).optional(),
 })
 
 export type GithubPr = z.infer<typeof GithubPrSchema>
