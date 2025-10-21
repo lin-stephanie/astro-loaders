@@ -2,18 +2,18 @@
 
 ## 1.3.0
 
-### Minor Changes
+### Minor Changes ([`34f18dc`](https://github.com/lin-stephanie/astro-loaders/commit/34f18dc929daf0ead9ad9eff0daa63cb53be6755))
 
-- Add `liveGithubPrsLoader` live loader that fetches PRs at runtime on each request ([`34f18dc`](https://github.com/lin-stephanie/astro-loaders/commit/34f18dc929daf0ead9ad9eff0daa63cb53be6755))
-  Add exports including `LiveGithubPrsLoaderError` (extends `Error`) and the types `LiveGithubPrsLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter`
-  Add `maxEntries` option
-  Update schema
+- Add `liveGithubPrsLoader` live loader that fetches PRs at runtime on each request
+- Add exports including `LiveGithubPrsLoaderError` (extends `Error`) and the types `LiveGithubPrsLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter`
+- Add `maxEntries` option
+- Update schema
 
 ## 1.2.1
 
 ### Patch Changes
 
-- Log missing tokens as `warn` instead of `error`. ([`0650a3d`](https://github.com/lin-stephanie/astro-loaders/commit/0650a3d60a424d5685151d169716c155513b5075))
+- Log missing tokens as `warn` instead of `error` ([`0650a3d`](https://github.com/lin-stephanie/astro-loaders/commit/0650a3d60a424d5685151d169716c155513b5075))
 
 ## 1.2.0
 
