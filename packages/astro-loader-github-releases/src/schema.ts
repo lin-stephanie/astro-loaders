@@ -41,18 +41,22 @@ export type ReleaseByIdFromUser = z.infer<typeof ReleaseByIdFromUserSchema>
 const ReleaseByIdFromReposSchema = z.object({
   id: z.string(),
   url: z.string(),
-  name: z.string(),
+  name: z.string().optional(),
   tagName: z.string(),
-  versionNum: z.string(),
-  description: z.string(),
-  descriptionHTML: z.string(),
+  versionNum: z.string().optional(),
+  description: z.string().optional(),
+  descriptionHTML: z.string().optional(),
+  isDraft: z.boolean(),
+  isLatest: z.boolean(),
+  isPrerelease: z.boolean(),
   repoOwner: z.string(),
   repoName: z.string(),
   repoNameWithOwner: z.string(),
   repoUrl: z.string(),
   repoStargazerCount: z.number(),
   repoIsInOrganization: z.boolean(),
-  publishedAt: z.string(),
+  createdAt: z.string(),
+  publishedAt: z.string().optional(),
 })
 export type ReleaseByIdFromRepos = z.infer<typeof ReleaseByIdFromReposSchema>
 

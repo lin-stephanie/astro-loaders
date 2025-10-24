@@ -1,3 +1,26 @@
+# https://docs.github.com/en/graphql/reference/objects#release
+fragment ReleaseCore on Release {
+  id
+  url
+  name
+  tagName
+  description
+  descriptionHTML
+  isDraft
+  isLatest
+  isPrerelease
+  repository {
+    name
+    nameWithOwner
+    url
+    stargazerCount
+    isInOrganization
+  }
+  createdAt
+  publishedAt
+}
+
+# https://docs.github.com/en/graphql/reference/queries#repository
 query GetReleases(
   $owner: String!
   $repo: String!
@@ -7,25 +30,28 @@ query GetReleases(
   repository(owner: $owner, name: $repo) {
     releases(first: $first, after: $cursor) {
       nodes {
-        id
-        url
-        name
-        tagName
-        description
-        descriptionHTML
-        repository {
-          name
-          nameWithOwner
-          url
-          stargazerCount
-          isInOrganization
-        }
-        publishedAt
+        ...ReleaseCore
       }
       pageInfo {
         hasNextPage
         endCursor
       }
     }
+  }
+}
+
+# https://docs.github.com/en/graphql/reference/queries#repository
+query GetReleaseByTagName($owner: String!, $repo: String!, $tagName: String!) {
+  repository(owner: $owner, name: $repo) {
+    release(tagName: $tagName) {
+      ...ReleaseCore
+    }
+  }
+}
+
+# https://docs.github.com/en/graphql/reference/queries#node
+query GetReleaseById($id: ID!) {
+  node(id: $id) {
+    ...ReleaseCore
   }
 }

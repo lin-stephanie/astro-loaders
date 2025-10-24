@@ -1,13 +1,14 @@
-import { readFileSync } from 'node:fs'
 import { Octokit, RequestError } from 'octokit'
-import { getSinceDate } from './utils.js'
+import { print } from 'graphql'
+import { GetReleasesDocument } from './graphql/gen/operations.js'
+import { getSinceDate, getValidReleaseNode } from './utils.js'
 
 import type { LoaderContext } from 'astro/loaders'
 import type { RepoListOutputConfig, UserCommitOutputConfig } from './config.js'
 import type {
   GetReleasesQuery,
   GetReleasesQueryVariables,
-} from './graphql/types.js'
+} from './graphql/gen/operations.js'
 import type {
   Commit,
   ReleaseByIdFromRepos,
@@ -18,10 +19,10 @@ import type {
 const PER_PAGE = 100
 const MAX_PAGE = 3
 
-async function fetchReleasesByUserCommit(
+export async function fetchReleasesByUserCommit(
   config: Omit<UserCommitOutputConfig, 'mode' | 'clearStore'>,
-  meta: LoaderContext['meta'],
-  logger: LoaderContext['logger']
+  meta?: LoaderContext['meta'],
+  logger?: LoaderContext['logger']
 ): Promise<{
   status?: 200 | 304
   error?: string
@@ -29,14 +30,15 @@ async function fetchReleasesByUserCommit(
 }> {
   const { username, keyword, tagNameRegex, branches } = config
 
-  logger.info(`Loading GitHub releases for the user @${username}`)
+  logger?.info(`Loading GitHub releases for the user @${username}`)
 
   const releases: ReleaseByIdFromUser[] = []
-  const etag = meta.get('etag')
-  const lastPushTime = meta.get('lastPushTime')
+  const etag = meta?.get('etag')
+  const lastPushTime = meta?.get('lastPushTime')
   const octokit = new Octokit()
   const headers = {
     'X-GitHub-Api-Version': '2022-11-28',
+    'X-Github-Next-Global-ID': '1',
     accept: 'application/vnd.github+json',
     ...(etag ? { 'If-None-Match': etag } : {}),
   }
@@ -53,7 +55,7 @@ async function fetchReleasesByUserCommit(
       })
 
       if (page === 1 && res.headers.etag && etag !== res.headers.etag)
-        meta.set('etag', res.headers.etag)
+        meta?.set('etag', res.headers.etag)
 
       const filteredData = res.data
         .filter((item) => item.type === 'PushEvent' && item.public)
@@ -104,24 +106,24 @@ async function fetchReleasesByUserCommit(
       }
 
       return {
-        error: `Unexpected error: ${(error as Error).message}`,
+        error: 'Unknown error',
         releases: [],
       }
     }
   }
 
-  if (latestPushTime) meta.set('lastPushTime', latestPushTime)
+  if (latestPushTime) meta?.set('lastPushTime', latestPushTime)
 
   return { status: 200, releases }
 }
 
-async function fetchReleasesByRepoList(
+export async function fetchReleasesByRepoList(
   config: Omit<RepoListOutputConfig, 'mode' | 'clearStore'>,
-  logger: LoaderContext['logger']
+  logger?: LoaderContext['logger']
 ): Promise<ReleaseByIdFromRepos[] | ReleaseByRepoFromRepos[]> {
   const { repos, sinceDate, monthsBack, entryReturnType, githubToken } = config
 
-  logger.info(
+  logger?.info(
     `Loading GitHub releases for ${repos.length} ${repos.length > 1 ? 'repositories' : 'repository'}`
   )
 
@@ -129,13 +131,7 @@ async function fetchReleasesByRepoList(
   const releasesByRepo: ReleaseByRepoFromRepos[] = []
 
   let sinceDateMs: null | number = null
-  if (monthsBack || sinceDate)
-    sinceDateMs = getSinceDate(monthsBack, sinceDate as Date)
-
-  const getReleasesQuery = readFileSync(
-    new URL('./graphql/query.graphql', import.meta.url),
-    'utf8'
-  )
+  if (monthsBack || sinceDate) sinceDateMs = getSinceDate(monthsBack, sinceDate)
 
   const octokit = new Octokit({
     auth: githubToken || import.meta.env.GITHUB_TOKEN,
@@ -158,43 +154,30 @@ async function fetchReleasesByRepoList(
         }
 
         const res = await octokit.graphql<GetReleasesQuery>(
-          getReleasesQuery,
-          variables
+          print(GetReleasesDocument),
+          {
+            headers: {
+              'X-Github-Next-Global-ID': '1',
+            },
+            ...variables,
+          }
         )
 
         const nodes = res.repository?.releases.nodes || []
         const releasesPerPage = nodes
+          .map((node) => getValidReleaseNode(node))
           .filter((node) => node !== null)
           .filter(
             (node) =>
-              sinceDateMs === null || +new Date(node.publishedAt) >= sinceDateMs
+              sinceDateMs === null || +new Date(node.createdAt) >= sinceDateMs
           )
-          .map((node) => {
-            const versionNum = node.tagName.match(
-              /.*(\d+\.\d+\.\d+(?:-[\w.]+)?)(?:\s|$)/
-            )
-            return {
-              id: node.id,
-              url: node.url || '',
-              name: node.name || '',
-              versionNum: versionNum ? versionNum[1] : '',
-              tagName: node.tagName,
-              description: node.description || '',
-              descriptionHTML: node.descriptionHTML || '',
-              repoOwner: node.repository.nameWithOwner.split('/')[0],
-              repoName: node.repository.name,
-              repoNameWithOwner: node.repository.nameWithOwner,
-              repoUrl: node.repository.url || '',
-              repoStargazerCount: node.repository.stargazerCount,
-              repoIsInOrganization: node.repository.isInOrganization,
-              publishedAt: node.publishedAt || '',
-            }
-          })
 
         let stopFetching = false
+        const lastNode = nodes.at(-1)
         if (
           sinceDateMs !== null &&
-          +new Date(nodes[nodes.length - 1]?.publishedAt) < sinceDateMs
+          lastNode &&
+          +new Date(lastNode.createdAt) < sinceDateMs
         )
           stopFetching = true
 
@@ -217,10 +200,9 @@ async function fetchReleasesByRepoList(
       }
     }
   } catch (error) {
-    throw new Error((error as Error).message)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    throw new Error(message)
   }
 
   return entryReturnType === 'byRelease' ? releasesById : releasesByRepo
 }
-
-export { fetchReleasesByUserCommit, fetchReleasesByRepoList }
