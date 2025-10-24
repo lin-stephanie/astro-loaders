@@ -1,6 +1,6 @@
 {
   "name": "astro-loader-github-releases",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Astro loader for fetching GitHub releases, supporting both build-time and runtime retrieval.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
   "license": "MIT",
