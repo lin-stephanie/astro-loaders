@@ -2,11 +2,11 @@
 
 ## 2.1.0
 
-### Minor Changes
+### Minor Changes ([`348d6cf`](https://github.com/lin-stephanie/astro-loaders/commit/348d6cf435e30c80e5a3fc9663f9cdc0d0a1b3d2))
 
-- Add `liveGithubReleasesLoader` live loader that fetches releases at runtime on each request ([`348d6cf`](https://github.com/lin-stephanie/astro-loaders/commit/348d6cf435e30c80e5a3fc9663f9cdc0d0a1b3d2))
-  Add exports including `LiveGithubReleasesLoaderError` (extends `Error`) and the types `LiveGithubReleasesLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter`
-  Update schema (for `mode: 'repoList'`)
+- Add `liveGithubReleasesLoader` live loader that fetches releases at runtime on each request 
+- Add exports including `LiveGithubReleasesLoaderError` (extends `Error`) and the types `LiveGithubReleasesLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter`
+- Update schema (for `mode: 'repoList'`)
 
 ## 2.0.2
 
@@ -18,7 +18,7 @@
 
 ### Patch Changes
 
-- Log missing tokens as `warn` instead of `error`. ([`0650a3d`](https://github.com/lin-stephanie/astro-loaders/commit/0650a3d60a424d5685151d169716c155513b5075))
+- Log missing tokens as `warn` instead of `error` ([`0650a3d`](https://github.com/lin-stephanie/astro-loaders/commit/0650a3d60a424d5685151d169716c155513b5075))
 
 ## 2.0.0
 
