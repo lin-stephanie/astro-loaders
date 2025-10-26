@@ -1,6 +1,6 @@
 {
   "name": "astro-loader-ins-medias",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Astro loader for loading Instagram medias.",
   "author": "Stephanie Lin <norwaywoods047@gmail.com>",
