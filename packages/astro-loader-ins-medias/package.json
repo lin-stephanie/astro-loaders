@@ -1,0 +1,45 @@
+{
+  "name": "astro-loader-ins-medias",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Astro loader for loading Instagram medias.",
+  "author": "Stephanie Lin <norwaywoods047@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "withastro",
+    "astro-loader",
+    "ins",
+    "instagram",
+    "media",
+    "medias"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lin-stephanie/astro-loaders.git",
+    "directory": "packages/astro-loader-ins-medias"
+  },
+  "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-ins-medias/",
+  "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "build": "tsup src/index.ts --format esm --dts --clean --treeshake",
+    "check": "publint && pnpm pack | grep '.tgz$' | xargs attw --ignore-rules=cjs-resolves-to-esm",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "astro": ">=4.14.0 <6.0.0"
+  }
+}
