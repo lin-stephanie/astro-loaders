@@ -28,24 +28,38 @@ jobs:
             fix(prs)
             fix(releases)
             fix(tweets)
+            fix(bluesky)
+            fix(ins)
             feat(prs)
             feat(releases)
             feat(tweets)
+            feat(bluesky)
+            feat(ins)
             chore(prs)
             chore(releases)
             chore(tweets)
+            chore(bluesky)
+            chore(ins)
             docs(prs)
             docs(releases)
             docs(tweets)
+            docs(bluesky)
+            docs(ins)
             ci(prs)
             ci(releases)
             ci(tweets)
+            ci(bluesky)
+            ci(ins)
             test(prs)
             test(releases)
             test(tweets)
+            test(bluesky)
+            test(ins)
             revert(prs)
             revert(releases)
             revert(tweets)
+            revert(bluesky)
+            revert(ins)
         id: lint_pr_title
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,6 +91,7 @@ jobs:
             - `releases`: For `astro-loader-github-releases`.
             - `tweets`: For `astro-loader-tweets`.
             - `bluesky`: For `astro-loader-bluesky-posts`.
+            - `ins`: For `astro-loader-ins-medias`.
 
             Details:
 
