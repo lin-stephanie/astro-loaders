@@ -1,17 +1,23 @@
 # astro-loader-bluesky-posts
 
+## 1.2.3
+
+### Patch Changes
+
+- Update schema ([`29a885d`](https://github.com/lin-stephanie/astro-loaders/commit/29a885dbbb776e205948b3482ebca9db4331e007))
+
 ## 1.2.2
 
 ### Patch Changes ([`aec3423`](https://github.com/lin-stephanie/astro-loaders/commit/aec342343b0872dbf2d1eab3132a216230a6a45d))
 
-- Update the entry Zod schema 
+- Update the entry Zod schema
 - Resolve `<Content />` becomes non-functional when `fetchThread: true` is set
 
 ## 1.2.1
 
 ### Patch Changes ([`981ee1a`](https://github.com/lin-stephanie/astro-loaders/commit/981ee1a25cd856bcb2f77626764f89ecae20aff3))
 
-- Refactor first parameter type of exported `renderPostAsHtml` from [PostView](https://github.com/bluesky-social/atproto/blob/main/packages/api/src/client/types/app/bsky/feed/defs.ts#L26) to [RichTextProps](https://github.com/bluesky-social/atproto/blob/main/packages/api/src/rich-text/rich-text.ts#L105) 
+- Refactor first parameter type of exported `renderPostAsHtml` from [PostView](https://github.com/bluesky-social/atproto/blob/main/packages/api/src/client/types/app/bsky/feed/defs.ts#L26) to [RichTextProps](https://github.com/bluesky-social/atproto/blob/main/packages/api/src/rich-text/rich-text.ts#L105)
 - Update docs
 
 ## 1.2.0
