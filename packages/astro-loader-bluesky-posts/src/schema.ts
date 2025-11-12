@@ -187,7 +187,7 @@ const EmbedRecordWithMediaSchema = z.object({
       text: z.string().optional(),
     }),
   }),
-  media: z.union([EmbedExternalSchema, EmbedImagesSchema]),
+  media: z.union([EmbedExternalSchema, EmbedImagesSchema, EmbedVideoSchema]),
 })
 
 const EmbedRecordWithMediaViewSchema = z.object({
@@ -207,7 +207,11 @@ const EmbedRecordWithMediaViewSchema = z.object({
       text: z.string().optional(),
     }),
   }),
-  media: z.union([EmbedExternalViewSchema, EmbedImagesViewSchema]),
+  media: z.union([
+    EmbedExternalViewSchema,
+    EmbedImagesViewSchema,
+    EmbedVideoViewSchema,
+  ]),
 })
 
 const EmbedStarterPackViewSchema = z.object({
