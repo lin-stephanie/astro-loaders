@@ -7,9 +7,8 @@
 
 This package provides GitHub Pull Request (PR) loaders for Astro projects. It includes:
 
-- `githubPrsLoader`: Loads multiple PRs at build time using a search query.
-- `liveGithubPrsLoader`: Fetches PRs at runtime on each request — multiple PRs by search query or a single PR by identifier.
-
+- `githubPrsLoader`: Loads PRs at build time using a search query.
+- `liveGithubPrsLoader`: Fetches PRs at runtime on each request — multiple PRs by search query or a single PR by its identifier.
 
 ## Installation
 
@@ -19,7 +18,7 @@ npm install astro-loader-github-prs
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -153,7 +152,7 @@ const { entries: prs, error } = await getLiveCollection('liveGithubPrs',{
 
 | Option (* required) | Type (default)                                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `search`*           | `string`                                                       | The search string for querying pull requests on GitHub. This string will be concatenated with `type:pr` to form the complete search query. See [how to search pull requests](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests). For examples:<br>`'author:xxx created:>=2024-01-01'`: matches prs written by xxx that were created after 2024.<br>`'author:xxx -user:xxx'`: matches prs written by xxx, but not to their own repositories.                   |
+| `search`*           | `string`                                                       | The search string for querying pull requests on GitHub. This string will be concatenated with `type:pr` to form the complete search query. See [how to search pull requests](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests). For examples:<br>- `'author:xxx created:>=2024-01-01'`: matches prs written by xxx that were created after 2024.<br>- `'author:xxx -user:xxx'`: matches prs written by xxx, but not to their own repositories.                   |
 | `monthsBack`        | `number`                                                       | The number of recent months to load pull requests, including the current month. The loader automatically converts this to a date for the 'created' qualifier in the search query. If the `'created'` qualifier is defined in search option, it will override this value.                                                                                                                                                                                                                                    |
 | `maxEntries`        | `number`                                                       | Maximum number of pull requests to load.<br>- Based on GitHub GraphQL search [max 1,000 results](https://docs.github.com/en/graphql/reference/queries#search) .<br>- Returns up to `maxEntries`, or fewer if fewer exist.<br>- If `monthsBack` is set and results exceed `maxEntries`, only `maxEntries` are returned.                                                                                                                                                                                      |
 | `clearStore`        | `boolean` (default: `false`)                                   | Whether to clear the [store](https://docs.astro.build/en/reference/content-loader-reference/#store) scoped to the collection before storing newly loaded data.                                                                                                                                                                                                                                                                                                                                              |
@@ -228,7 +227,7 @@ Astro uses these schemas to generate TypeScript interfaces for autocompletion an
 
 ## Live Collections Error Handling
 
-Live loaders may fail due to network, API, or validation errors. [Handle these errors](https://docs.astro.build/en/guides/content-collections/#error-handling) in your components. The live loader also returns specific error codes:
+Live loaders may fail due to network, API, or validation errors. [Handle these errors](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/#error-handling) in your components. The live loader also returns specific error codes:
 
 - `INVALID_FILTER`: Missing required filter options.
 - `COLLECTION_LOAD_ERROR`: Failed to load collection.
