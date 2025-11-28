@@ -1,5 +1,11 @@
 # astro-loader-github-prs
 
+## 1.3.1
+
+### Patch Changes
+
+- Update `README.md` ([`7deec94`](https://github.com/lin-stephanie/astro-loaders/commit/7deec9474f52150356f1a3c096723d39f4538fb5))
+
 ## 1.3.0
 
 ### Minor Changes ([`34f18dc`](https://github.com/lin-stephanie/astro-loaders/commit/34f18dc929daf0ead9ad9eff0daa63cb53be6755))
