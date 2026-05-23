@@ -8,7 +8,7 @@
 This package provides GitHub Pull Request (PR) loaders for Astro projects. It includes:
 
 - `githubPrsLoader`: Loads PRs at build time using a search query.
-- `liveGithubPrsLoader`: Fetches PRs at runtime on each request — multiple PRs by search query or a single PR by its identifier.
+- `liveGithubPrsLoader`: Fetches PRs at runtime on each request — PRs by search query or a single PR by its identifier.
 
 ## Installation
 
@@ -18,7 +18,7 @@ npm install astro-loader-github-prs
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `>=4.14.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -30,7 +30,7 @@ export default defineConfig({
 
 ### `githubPrsLoader` (Build-time Collection)
 
-In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `^5.0.0`), import and configure the build-time loader to define a new content collection:
+In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `>=5.0.0`), import and configure the build-time loader to define a new content collection:
 
 ```ts
 import { defineCollection } from "astro:content"
@@ -72,25 +72,23 @@ const prs = await getCollection("githubPrs")
 
 To update the data, trigger a site rebuild (e.g., using a third-party cron job service), as [the loader fetches data only at build time](https://docs.astro.build/en/reference/content-loader-reference/#object-loaders).
 
-### `liveGithubPrsLoader` (Live Collection, Experimental)
+### `liveGithubPrsLoader` (Live Collection)
 
-Astro 5.10+ introduces [experimental live content collections](https://docs.astro.build/en/reference/experimental-flags/live-content-collections), which allow data fetching at runtime. To use this feature, enable the experimental `liveContentCollections` flag as shown below, and use an adapter that supports [on-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/).
+To use live content collections, ensure Astro version `>=5.10.0` and use an adapter that supports [on-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/) with [`astro:env/server` runtime support](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables). For `^5.10.0`, [enable the experimental `liveContentCollections` flag](https://v5.docs.astro.build/en/reference/experimental-flags/live-content-collections/) in `astro.config.ts`:
 
-```js title="astro.config.mjs"
-// astro.config.mjs
+```ts
 export default {
   experimental: {
     liveContentCollections: true,
   },
 };
 ```
+Starting in `6.0.0`, this feature is no longer experimental. In `src/live.config.ts`, import and configure the live loader to define a new live content collection:
 
-In `src/live.config.ts`, import and configure the live loader to define a new live content collection:
-
-```ts title="src/live.config.ts"
+```ts
 // src/live.config.ts
 import { defineLiveCollection } from 'astro:content';
-import { liveGithubPrsLoader } from 'astro-loader-github-prs';
+import { liveGithubPrsLoader } from 'astro-loader-github-prs/live';
 
 const liveGithubPrs = defineLiveCollection({
   loader: liveGithubPrsLoader(),
@@ -156,13 +154,13 @@ const { entries: prs, error } = await getLiveCollection('liveGithubPrs',{
 | `monthsBack`        | `number`                                                       | The number of recent months to load pull requests, including the current month. The loader automatically converts this to a date for the 'created' qualifier in the search query. If the `'created'` qualifier is defined in search option, it will override this value.                                                                                                                                                                                                                                    |
 | `maxEntries`        | `number`                                                       | Maximum number of pull requests to load.<br>- Based on GitHub GraphQL search [max 1,000 results](https://docs.github.com/en/graphql/reference/queries#search) .<br>- Returns up to `maxEntries`, or fewer if fewer exist.<br>- If `monthsBack` is set and results exceed `maxEntries`, only `maxEntries` are returned.                                                                                                                                                                                      |
 | `clearStore`        | `boolean` (default: `false`)                                   | Whether to clear the [store](https://docs.astro.build/en/reference/content-loader-reference/#store) scoped to the collection before storing newly loaded data.                                                                                                                                                                                                                                                                                                                                              |
-| `githubToken`       | `string` (Defaults to the `GITHUB_TOKEN` environment variable) | A GitHub PAT with at least `repo` scope permissions. Defaults to the `GITHUB_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
+| `githubToken`       | `string` (Defaults to `GITHUB_TOKEN` via `import.meta.env`) | A GitHub PAT with at least `repo` scope permissions. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
 
 ### `liveGithubPrsLoader` Options
 
 | Option (* required) | Type (default)                                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `githubToken`       | `string` (Defaults to the `GITHUB_TOKEN` environment variable) | A GitHub PAT with at least `repo` scope permissions. Defaults to the `GITHUB_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
+| `githubToken`       | `string` (Defaults to `GITHUB_TOKEN` via `getSecret()`) | A GitHub PAT with at least `repo` scope permissions. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
 
 ### `liveGithubPrsLoader` Collection Filters
 

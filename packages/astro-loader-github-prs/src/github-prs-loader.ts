@@ -15,7 +15,7 @@ import type {
 } from './graphql/gen/operations.js'
 
 /**
- * Build-time Astro loader that loads multiple PRs at build time using a search query.
+ * Build-time Astro loader that loads PRs at build time using a search query.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-prs#githubprsloader-build-time-collection
  */
