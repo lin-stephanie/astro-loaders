@@ -39,7 +39,7 @@
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
-    "astro": ">=4.14.0 <6.0.0"
+    "astro": ">=4.14.0 <7.0.0"
   },
   "dependencies": {
     "twitter-api-v2": "^1.22.0"

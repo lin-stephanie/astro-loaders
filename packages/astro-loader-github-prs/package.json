@@ -45,6 +45,6 @@
     "octokit": "^5.0.4"
   },
   "peerDependencies": {
-    "astro": ">=4.14.0 <6.0.0"
+    "astro": ">=4.14.0 <7.0.0"
   }
 }
