@@ -1,3 +1,5 @@
+import { getSecret } from 'astro:env/server'
+
 import { Octokit } from 'octokit'
 import { print } from 'graphql'
 
@@ -41,7 +43,7 @@ export class LiveGithubPrsLoaderError extends Error {
 }
 
 /**
- * Live Astro loader that fetches PRs at runtime on each request — multiple PRs by search query or a single PR by identifier.
+ * Live Astro loader that fetches PRs at runtime on each request — PRs by search query or a single PR by identifier.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-prs#livegithubprsloader-live-collection-experimental
  */
@@ -69,18 +71,21 @@ export function liveGithubPrsLoader(
     githubToken = parsed.data.githubToken
   }
 
-  const token = githubToken || import.meta.env.GITHUB_TOKEN
-  if (!token) {
-    throw new LiveGithubPrsLoaderError(
-      'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.\nHow to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.',
-      'MISSING_TOKEN'
-    )
-  }
+  const getToken = () => githubToken || getSecret('GITHUB_TOKEN')
 
   return {
     name: 'live-github-prs',
 
     async loadCollection({ filter }) {
+      const token = getToken()
+      if (!token)
+        return {
+          error: new LiveGithubPrsLoaderError(
+            'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.\nHow to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.',
+            'MISSING_TOKEN'
+          ),
+        }
+
       const parsedFilter = LiveCollectionFilterSchema.safeParse(filter)
       if (!parsedFilter.success)
         return {
@@ -160,6 +165,15 @@ export function liveGithubPrsLoader(
     },
 
     async loadEntry({ filter }) {
+      const token = getToken()
+      if (!token)
+        return {
+          error: new LiveGithubPrsLoaderError(
+            'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.\nHow to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.',
+            'MISSING_TOKEN'
+          ),
+        }
+
       const parsedFilter = LiveEntryFilterSchema.safeParse(filter)
       if (!parsedFilter.success)
         return {

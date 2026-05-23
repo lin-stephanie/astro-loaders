@@ -15,11 +15,13 @@ import type {
 } from './graphql/gen/operations.js'
 
 /**
- * Build-time Astro loader that loads multiple PRs at build time using a search query.
+ * Build-time Astro loader that loads PRs at build time using a search query.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-prs#githubprsloader-build-time-collection
  */
-export function githubPrsLoader(userConfig: GithubPrsLoaderUserConfig): Loader {
+export function githubPrsLoader(
+  userConfig: GithubPrsLoaderUserConfig
+): Loader & { schema: typeof GithubPrSchema } {
   return {
     name: 'github-prs',
     schema: GithubPrSchema,
@@ -116,5 +118,5 @@ export function githubPrsLoader(userConfig: GithubPrsLoaderUserConfig): Loader {
         logger.error(`Failed to load GitHub pull requests. ${message}`)
       }
     },
-  }
+  } satisfies Loader
 }

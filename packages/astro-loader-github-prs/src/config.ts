@@ -114,9 +114,18 @@ export const AllConfigSchema = z.object({
    * You need to {@link https://github.com/settings/tokens create a GitHub PAT}
    * with at least `repo` scope permissions to authenticate requests to the GraphQL API.
    *
-   * This is optional; by default, it reads from the `GITHUB_TOKEN` environment variable.
-   * You may also configure it directly here (not recommended; if you do, ensure it is not exposed
-   * in public code repositories).
+   * Build-time loader:
+   * - Optional. If omitted, `githubReleasesLoader` reads `GITHUB_TOKEN`
+   *   from `import.meta.env` during Astro dev/build.
+   *
+   * Live loader:
+   * - Optional. If omitted, `liveGithubReleasesLoader` reads `GITHUB_TOKEN`
+   *   at request time with Astro's `getSecret('GITHUB_TOKEN')`.
+   * - Requires an Astro adapter with `astro:env/server` runtime support.
+   *
+   * Passing this option directly is supported, but in production it is
+   * recommended to use the `GITHUB_TOKEN` environment variable instead to
+   * avoid bundling the token in server code.
    *
    * @see
    * - {@link https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic How to create a GitHub PAT (classic)}
