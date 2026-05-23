@@ -1,5 +1,19 @@
 # astro-loader-github-prs
 
+## 2.0.0
+
+### Major Changes
+
+- Move live loaders to the `/live` subpath and read runtime tokens with Astro's `getSecret()`. ([`f126bf6`](https://github.com/lin-stephanie/astro-loaders/commit/f126bf69f4590ecd26bbd91ff61af5aacf108b3c))
+
+  Breaking change: `liveGithubPrsLoader` is no longer exported from the package root. Import it from the `/live` subpath instead:
+
+  ```ts
+  import { liveGithubPrsLoader } from "astro-loader-github-prs/live";
+  ```
+
+  This keeps the package root focused on build-time loaders and prevents build-time users from loading live runtime dependencies such as `astro:env/server`.
+
 ## 1.3.1
 
 ### Patch Changes
