@@ -4,15 +4,15 @@
 
 ### Patch Changes
 
-- Implement the Astro 6 migration change where [schema types are inferred instead of generated](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-schema-types-are-inferred-instead-of-generated-content-loader-api), while preserving accurate loader-based entry data inference and avoiding Zod 4 internal type leakage in published declarations. ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
+- Implement the Astro 6 migration change where [schema types are inferred instead of generated](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-schema-types-are-inferred-instead-of-generated-content-loader-api), while preserving accurate loader-based entry data inference and avoiding Zod 4 internal type leakage in published declarations ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
 
 ## 1.3.0
 
-### Minor Changes ([`bc7ccc0`](https://github.com/lin-stephanie/astro-loaders/commit/bc7ccc09581913a47132e8b691d57c9ba54ca763))
+### Minor Changes
 
-- Consolidate consecutive newlines (`\n`) to single `<br/ >\n`
-- Rename `urlTextType` option 'display-url' to 'post-text'
-- Fix schema for optional `description` in `UserV2Schema`
+- Consolidate consecutive newlines (`\n`) to single `<br/ >\n` ([`bc7ccc0`](https://github.com/lin-stephanie/astro-loaders/commit/bc7ccc09581913a47132e8b691d57c9ba54ca763))
+- Rename `urlTextType` option 'display-url' to 'post-text' ([`bc7ccc0`](https://github.com/lin-stephanie/astro-loaders/commit/bc7ccc09581913a47132e8b691d57c9ba54ca763))
+- Fix schema for optional `description` in `UserV2Schema` ([`bc7ccc0`](https://github.com/lin-stephanie/astro-loaders/commit/bc7ccc09581913a47132e8b691d57c9ba54ca763))
 
 ## 1.2.3
 
