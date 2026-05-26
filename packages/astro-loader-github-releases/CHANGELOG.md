@@ -4,9 +4,9 @@
 
 ### Major Changes
 
-- Remove the `userCommit` mode from build-time and live release loaders because GitHub no longer includes commit summaries in public `PushEvent` payloads. The `mode: 'repoList'` discriminator is also removed because repository-list loading is now the only supported behavior. ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
+- Remove the `userCommit` mode from build-time and live release loaders because GitHub no longer includes commit summaries in public `PushEvent` payloads. The `mode: 'repoList'` discriminator is also removed because repository-list loading is now the only supported behavior ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
 
-  Move live loaders to the `/live` subpath. `liveGithubReleasesLoader` is no longer exported from the package root, so import it from the `/live` subpath instead:
+- Move live loaders to the `/live` subpath. `liveGithubReleasesLoader` is no longer exported from the package root, so import it from the `/live` subpath instead: ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
 
   ```ts
   import { liveGithubReleasesLoader } from "astro-loader-github-releases/live";
@@ -14,9 +14,9 @@
 
   This keeps the package root focused on build-time loaders and prevents build-time users from loading live runtime dependencies such as `astro:env/server`.
 
-  Use Astro's adapter-backed `getSecret()` for live loader GitHub tokens instead of `import.meta.env`, avoiding build-time inlining and allowing runtime-provided secrets to be read per request.
+- Use Astro's adapter-backed `getSecret()` for live loader GitHub tokens instead of `import.meta.env`, avoiding build-time inlining and allowing runtime-provided secrets to be read per request ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
 
-  Implement the Astro 6 migration change where [schema types are inferred instead of generated (Content Loader API)](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-schema-types-are-inferred-instead-of-generated-content-loader-api), while preserving accurate `entryReturnType` inference and avoiding Zod 4 internal type leakage in published declarations.
+- Implement the Astro 6 migration change where [schema types are inferred instead of generated](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-schema-types-are-inferred-instead-of-generated-content-loader-api), while preserving accurate `entryReturnType` inference and avoiding Zod 4 internal type leakage in published declarations ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
 
 ## 2.1.1
 
@@ -26,11 +26,11 @@
 
 ## 2.1.0
 
-### Minor Changes ([`348d6cf`](https://github.com/lin-stephanie/astro-loaders/commit/348d6cf435e30c80e5a3fc9663f9cdc0d0a1b3d2))
+### Minor Changes 
 
-- Add `liveGithubReleasesLoader` live loader that fetches releases at runtime on each request
-- Add exports including `LiveGithubReleasesLoaderError` (extends `Error`) and the types `LiveGithubReleasesLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter`
-- Update schema (for `mode: 'repoList'`)
+- Add `liveGithubReleasesLoader` live loader that fetches releases at runtime on each request ([`348d6cf`](https://github.com/lin-stephanie/astro-loaders/commit/348d6cf435e30c80e5a3fc9663f9cdc0d0a1b3d2))
+- Add exports including `LiveGithubReleasesLoaderError` (extends `Error`) and the types `LiveGithubReleasesLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter` ([`348d6cf`](https://github.com/lin-stephanie/astro-loaders/commit/348d6cf435e30c80e5a3fc9663f9cdc0d0a1b3d2))
+- Update schema (for `mode: 'repoList'`) ([`348d6cf`](https://github.com/lin-stephanie/astro-loaders/commit/348d6cf435e30c80e5a3fc9663f9cdc0d0a1b3d2))
 
 ## 2.0.2
 
@@ -46,13 +46,16 @@
 
 ## 2.0.0
 
-### Major Changes ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
+### Major Changes
 
-- Update Configuration Structure
+- Update Configuration Structure ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
+
   - Renamed `loadMode` to `mode`
   - Removed `modeConfig`; options are now configured per mode directly
-- In `repoList` mode, when `entryReturnType: 'byRepository'`, renamed `repoReleases` in the entry Zod schema to `releases`
-- Add `clearStore` option to control whether to clear store before saving new data
+- In `repoList` mode, when `entryReturnType: 'byRepository'`, renamed `repoReleases` in the entry Zod schema to `releases` ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
+
+- Add `clearStore` option to control whether to clear store before saving new data ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
+
 
 ## 1.4.1
 
@@ -62,13 +65,13 @@
 
 ## 1.4.0
 
-### Minor Changes ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
+### Minor Changes 
 
-- In `userCommit` mode, add `repoOwner` field and renamed `repoName` to `repoNameWithOwner` (the original `repoName` only represented the repository name)
-- In `repoList` mode, add `versionNum` and `repoOwner` fields
-- In `repoList` mode, when configured with `entryReturnType: 'byRelease'`, support returning the `<Content />` component via `render(entry)` to render the published content
-- Errors no longer force the entire Astro project to terminate
-- No longer calls `store.clear()` internally
+- In `userCommit` mode, add `repoOwner` field and renamed `repoName` to `repoNameWithOwner` (the original `repoName` only represented the repository name) ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
+- In `repoList` mode, add `versionNum` and `repoOwner` fields ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
+- In `repoList` mode, when configured with `entryReturnType: 'byRelease'`, support returning the `<Content />` component via `render(entry)` to render the published content ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
+- Errors no longer force the entire Astro project to terminate ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
+- No longer calls `store.clear()` internally ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
 
 ## 1.3.1
 
