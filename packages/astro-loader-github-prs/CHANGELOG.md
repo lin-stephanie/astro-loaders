@@ -1,5 +1,20 @@
 # astro-loader-github-prs
 
+## 2.0.0
+
+### Major Changes
+
+- Move live loaders to the `/live` subpath. `liveGithubPrsLoader` is no longer exported from the package root, so import it from the `/live` subpath instead: ([`41b7369`](https://github.com/lin-stephanie/astro-loaders/commit/41b7369c4f04674bd234caa8512f5567dd31a0a8))
+
+    ```ts
+    import { liveGithubPrsLoader } from "astro-loader-github-prs/live";
+    ```
+
+    This keeps the package root focused on build-time loaders and prevents build-time users from loading live runtime dependencies such as `astro:env/server`
+
+- Use Astro's adapter-backed `getSecret()` for live loader GitHub tokens instead of `import.meta.env`, avoiding build-time inlining and allowing runtime-provided secrets to be read per request ([`41b7369`](https://github.com/lin-stephanie/astro-loaders/commit/41b7369c4f04674bd234caa8512f5567dd31a0a8))
+- Implement the Astro 6 migration change where [schema types are inferred instead of generated](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-schema-types-are-inferred-instead-of-generated-content-loader-api), while preserving accurate loader-based entry data inference and avoiding Zod 4 internal type leakage in published declarations ([`41b7369`](https://github.com/lin-stephanie/astro-loaders/commit/41b7369c4f04674bd234caa8512f5567dd31a0a8))
+
 ## 1.3.1
 
 ### Patch Changes
@@ -8,12 +23,12 @@
 
 ## 1.3.0
 
-### Minor Changes ([`34f18dc`](https://github.com/lin-stephanie/astro-loaders/commit/34f18dc929daf0ead9ad9eff0daa63cb53be6755))
+### Minor Changes
 
-- Add `liveGithubPrsLoader` live loader that fetches PRs at runtime on each request
-- Add exports including `LiveGithubPrsLoaderError` (extends `Error`) and the types `LiveGithubPrsLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter`
-- Add `maxEntries` option
-- Update schema
+- Add `liveGithubPrsLoader` live loader that fetches PRs at runtime on each request ([`34f18dc`](https://github.com/lin-stephanie/astro-loaders/commit/34f18dc929daf0ead9ad9eff0daa63cb53be6755))
+- Add exports including `LiveGithubPrsLoaderError` (extends `Error`) and the types `LiveGithubPrsLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter` ([`34f18dc`](https://github.com/lin-stephanie/astro-loaders/commit/34f18dc929daf0ead9ad9eff0daa63cb53be6755))
+- Add `maxEntries` option ([`34f18dc`](https://github.com/lin-stephanie/astro-loaders/commit/34f18dc929daf0ead9ad9eff0daa63cb53be6755))
+- Update schema ([`34f18dc`](https://github.com/lin-stephanie/astro-loaders/commit/34f18dc929daf0ead9ad9eff0daa63cb53be6755))
 
 ## 1.2.1
 
@@ -35,12 +50,12 @@
 
 ## 1.1.0
 
-### Minor Changes ([`25f92a8`](https://github.com/lin-stephanie/astro-loaders/commit/25f92a8c2f159336ef8be4bbfe1ed72c33219cfe))
+### Minor Changes
 
-- Add `monthsBack` option to specify the recent months for loading pull requests
-- Support returning the `<Content />` component via `render(entry)` to render the PR content
-- Errors no longer force the entire Astro project to terminate
-- No longer calls `store.clear()` internally
+- Add `monthsBack` option to specify the recent months for loading pull requests ([`25f92a8`](https://github.com/lin-stephanie/astro-loaders/commit/25f92a8c2f159336ef8be4bbfe1ed72c33219cfe))
+- Support returning the `<Content />` component via `render(entry)` to render the PR content ([`25f92a8`](https://github.com/lin-stephanie/astro-loaders/commit/25f92a8c2f159336ef8be4bbfe1ed72c33219cfe))
+- Errors no longer force the entire Astro project to terminate ([`25f92a8`](https://github.com/lin-stephanie/astro-loaders/commit/25f92a8c2f159336ef8be4bbfe1ed72c33219cfe))
+- No longer calls `store.clear()` internally ([`25f92a8`](https://github.com/lin-stephanie/astro-loaders/commit/25f92a8c2f159336ef8be4bbfe1ed72c33219cfe))
 
 ## 1.0.2
 
