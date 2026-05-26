@@ -14,7 +14,7 @@ npm install -D astro-loader-tweets
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `>=4.14.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -24,7 +24,7 @@ export default defineConfig({
 })
 ```
 
-In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `^5.0.0`), import and configure the loader to define a new content collection:
+In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `>=5.0.0`), import and configure the loader to define a new content collection:
 
 ```ts
 import { defineCollection } from "astro:content"

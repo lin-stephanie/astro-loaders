@@ -154,7 +154,7 @@ const EmbedRecordViewSchema = z.object({
     author: z.object({
       did: z.string(),
       handle: z.string(),
-      displayName: z.string(),
+      displayName: z.string().optional(),
       avatar: z.string().url().optional(),
     }),
     value: z.object({
@@ -178,7 +178,7 @@ const EmbedRecordWithMediaSchema = z.object({
     author: z.object({
       did: z.string(),
       handle: z.string(),
-      displayName: z.string(),
+      displayName: z.string().optional(),
       avatar: z.string().url().optional(),
     }),
     value: z.object({
@@ -198,7 +198,7 @@ const EmbedRecordWithMediaViewSchema = z.object({
     author: z.object({
       did: z.string(),
       handle: z.string(),
-      displayName: z.string(),
+      displayName: z.string().optional(),
       avatar: z.string().url().optional(),
     }),
     value: z.object({
@@ -234,7 +234,7 @@ const UnknownEmbedSchema = z
   .object({
     $type: z.string(),
   })
-  .passthrough()
+  .catchall(z.unknown())
 
 const EmbedSchema = z.union([
   EmbedImagesSchema,
@@ -260,7 +260,7 @@ const PostSchema = z.object({
   author: z.object({
     did: z.string(),
     handle: z.string(),
-    displayName: z.string(),
+    displayName: z.string().optional(),
     avatar: z.string().url().optional(),
     associated: z
       .object({
@@ -271,8 +271,8 @@ const PostSchema = z.object({
           .optional(),
       })
       .optional(),
-    labels: z.array(z.any()).optional(),
-    createdAt: z.string().datetime(),
+    labels: z.array(z.unknown()).optional(),
+    createdAt: z.string().datetime().optional(),
   }),
   record: z
     .object({
@@ -314,29 +314,27 @@ const PostSchema = z.object({
                   $type: z.literal('app.bsky.richtext.facet#tag'),
                   tag: z.string(),
                 }),
-                z.object({}).passthrough(),
+                z.object({}).catchall(z.unknown()),
               ])
             ),
           })
         )
         .optional(),
     })
-    .passthrough(),
+    .catchall(z.unknown()),
   embed: EmbedSchema.optional(),
   replyCount: z.number().nonnegative(),
   repostCount: z.number().nonnegative(),
   likeCount: z.number().nonnegative(),
   quoteCount: z.number().nonnegative(),
   indexedAt: z.string().datetime(),
-  labels: z.array(z.any()).optional(),
+  labels: z.array(z.unknown()).optional(),
 })
 
-const PostViewExtendedSchema = PostSchema.and(
-  z.object({
-    link: z.string(),
-    html: z.string(),
-  })
-)
+const PostViewExtendedSchema = PostSchema.extend({
+  link: z.string(),
+  html: z.string(),
+})
 
 const NotFoundPostSchema = z.object({
   $type: z.literal('app.bsky.feed.defs#notFoundPost').optional(),
@@ -374,7 +372,7 @@ const PostWithThreadViewSchema = z.object({
 
 interface ThreadViewPost {
   $type?: 'app.bsky.feed.defs#threadViewPost'
-  post: z.infer<typeof PostViewExtendedSchema>
+  post: z.infer<typeof PostSchema>
   parent?:
     | ThreadViewPost
     | z.infer<typeof NotFoundPostSchema>
@@ -386,10 +384,26 @@ interface ThreadViewPost {
   )[]
 }
 
-const ThreadViewPostSchema: z.ZodType<ThreadViewPost> =
-  PostWithThreadViewSchema.omit({
-    uri: true,
-  })
+const ThreadViewPostSchema: z.ZodType<ThreadViewPost> = z.object({
+  $type: z.literal('app.bsky.feed.defs#threadViewPost').optional(),
+  post: PostSchema,
+  parent: z
+    .union([
+      z.lazy(() => ThreadViewPostSchema),
+      NotFoundPostSchema,
+      BlockedPostSchema,
+    ])
+    .optional(),
+  replies: z
+    .array(
+      z.union([
+        z.lazy(() => ThreadViewPostSchema),
+        NotFoundPostSchema,
+        BlockedPostSchema,
+      ])
+    )
+    .optional(),
+})
 
 const PostWithThreadViewExtendedSchema = PostWithThreadViewSchema.extend({
   replies: z
@@ -406,4 +420,14 @@ const PostWithThreadViewExtendedSchema = PostWithThreadViewSchema.extend({
     .optional(),
 })
 
-export { PostViewExtendedSchema, PostWithThreadViewExtendedSchema }
+const PostWithOnlyAuthorRepliesExtendedSchema = PostWithThreadViewSchema.omit({
+  parent: true,
+}).extend({
+  replies: z.array(PostViewExtendedSchema).optional(),
+})
+
+export {
+  PostViewExtendedSchema,
+  PostWithThreadViewExtendedSchema,
+  PostWithOnlyAuthorRepliesExtendedSchema,
+}

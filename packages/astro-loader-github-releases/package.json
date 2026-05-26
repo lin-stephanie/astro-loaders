@@ -28,20 +28,24 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./live": {
+      "types": "./dist/live.d.ts",
+      "import": "./dist/live.js"
     }
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "dev": "tsup src/index.ts --format esm --dts --watch",
-    "build": "tsup src/index.ts --format esm --dts --clean --treeshake",
+    "dev": "tsup src/index.ts src/live.ts --format esm --dts --watch --external astro:env/server",
+    "build": "tsup src/index.ts src/live.ts --format esm --dts --clean --treeshake --external astro:env/server",
     "postbuild": "copyfiles -u 1 src/**/*.graphql dist",
-    "check": "publint && pnpm pack | grep '.tgz$' | xargs attw --ignore-rules=cjs-resolves-to-esm",
+    "check": "publint && pnpm pack | grep '.tgz$' | xargs attw --profile node16 --ignore-rules=cjs-resolves-to-esm",
     "test": "vitest && vitest run --coverage",
     "generate": "graphql-codegen --config codegen.config.ts",
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "octokit": "^5.0.4"
+    "octokit": "^5.0.5"
   },
   "peerDependencies": {
     "astro": ">=4.14.0 <7.0.0"

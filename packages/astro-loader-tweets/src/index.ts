@@ -16,7 +16,9 @@ const MAX_IDS_PER_REQUEST = 100
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-tweets
  */
-function tweetsLoader(userConfig: TweetsLoaderUserConfig): Loader {
+function tweetsLoader(
+  userConfig: TweetsLoaderUserConfig
+): Loader & { schema: typeof TweetSchema } {
   return {
     name: pkg.name,
     schema: TweetSchema,
@@ -109,7 +111,7 @@ Check out the configuration: ${pkg.homepage}README.md#configuration.`
         }
       }
     },
-  }
+  } satisfies Loader
 }
 
 export { tweetsLoader, TweetSchema }

@@ -22,7 +22,7 @@ export const InsMediaSchema = z
           })
           .partial()
           .required({ id: true })
-          .passthrough()
+          .catchall(z.unknown())
       ),
     }),
     comments: z.object({
@@ -36,12 +36,12 @@ export const InsMediaSchema = z
           })
           .partial()
           .required({ id: true })
-          .passthrough()
+          .catchall(z.unknown())
       ),
     }),
   })
   .partial()
   .required({ id: true })
-  .passthrough()
+  .catchall(z.unknown())
 
 export type InsMedia = z.infer<typeof InsMediaSchema>

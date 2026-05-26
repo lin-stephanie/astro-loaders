@@ -1,3 +1,5 @@
+import { getSecret } from 'astro:env/server'
+
 import { Octokit } from 'octokit'
 import { print } from 'graphql'
 
@@ -6,10 +8,7 @@ import {
   LiveCollectionFilterSchema,
   LiveEntryFilterSchema,
 } from './config.js'
-import {
-  fetchReleasesByRepoList,
-  fetchReleasesByUserCommit,
-} from './releases.js'
+import { fetchReleasesByRepoList } from './releases.js'
 import {
   GetReleaseByIdDocument,
   GetReleaseByTagNameDocument,
@@ -28,16 +27,9 @@ import type {
   GetReleaseByTagNameQuery,
   GetReleaseByTagNameQueryVariables,
 } from './graphql/gen/operations.js'
-import type {
-  ReleaseByIdFromRepos,
-  ReleaseByIdFromUser,
-  ReleaseByRepoFromRepos,
-} from './schema.js'
+import type { ReleaseByIdFromRepos, ReleaseByRepoFromRepos } from './schema.js'
 
-type LiveGithubReleasesEntry =
-  | ReleaseByIdFromUser
-  | ReleaseByIdFromRepos
-  | ReleaseByRepoFromRepos
+type LiveGithubReleasesEntry = ReleaseByIdFromRepos | ReleaseByRepoFromRepos
 
 export class LiveGithubReleasesLoaderError extends Error {
   constructor(
@@ -52,7 +44,7 @@ export class LiveGithubReleasesLoaderError extends Error {
 
 /**
  * Live Astro loader that fetches releases at runtime on each request.
- * Supports the same two modes when fetching multiple releases, or fetches a single release by its identifier.
+ * Fetches releases from repository lists or a single release by its identifier.
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-github-releases#livegithubreleasesloader-live-collection-experimental
  */
@@ -100,74 +92,36 @@ export function liveGithubReleasesLoader(
 
       const parsed = parsedFilter.data
 
-      if (parsed.mode === 'userCommit') {
-        const { mode, ...config } = parsed
-        const { status, releases, error } =
-          await fetchReleasesByUserCommit(config)
-
-        if (status === 200)
-          return {
-            entries: releases.map((release) => ({
-              id: release.id,
-              data: release,
-            })),
-          }
-
-        if (status === 304)
-          return {
-            error: new LiveGithubReleasesLoaderError(
-              'No new GitHub releases since last fetch',
-              'NO_NEW_RELEASES'
-            ),
-          }
-
+      const config = parsed
+      const token = githubToken || getSecret('GITHUB_TOKEN')
+      if (!token)
         return {
           error: new LiveGithubReleasesLoaderError(
-            error || 'Unknown error',
+            'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.\nHow to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.',
+            'MISSING_TOKEN'
+          ),
+        }
+
+      try {
+        const releases = await fetchReleasesByRepoList(config, token)
+
+        return {
+          entries: releases.map((release) => ({
+            id: 'id' in release ? release.id : release.repo,
+            data: release,
+            rendered:
+              'descriptionHTML' in release
+                ? { html: release.descriptionHTML || '' }
+                : undefined,
+          })),
+        }
+      } catch (error) {
+        return {
+          error: new LiveGithubReleasesLoaderError(
+            'Failed to load GitHub releases.',
             'COLLECTION_LOAD_ERROR'
           ),
         }
-      }
-
-      if (parsed.mode === 'repoList') {
-        const { mode, ...config } = parsed
-        const token = githubToken || import.meta.env.GITHUB_TOKEN
-        if (!token)
-          return {
-            error: new LiveGithubReleasesLoaderError(
-              'No GitHub token provided. Please provide a `githubToken` or set the `GITHUB_TOKEN` environment variable.\nHow to create a GitHub PAT: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.',
-              'MISSING_TOKEN'
-            ),
-          }
-
-        try {
-          const releases = await fetchReleasesByRepoList(config)
-
-          return {
-            entries: releases.map((release) => ({
-              id: 'id' in release ? release.id : release.repo,
-              data: release,
-              rendered:
-                'descriptionHTML' in release
-                  ? { html: release.descriptionHTML || '' }
-                  : undefined,
-            })),
-          }
-        } catch (error) {
-          return {
-            error: new LiveGithubReleasesLoaderError(
-              'Failed to load GitHub releases.',
-              'COLLECTION_LOAD_ERROR'
-            ),
-          }
-        }
-      }
-
-      return {
-        error: new LiveGithubReleasesLoaderError(
-          'Unknown error',
-          'COLLECTION_LOAD_ERROR'
-        ),
       }
     },
 
@@ -185,7 +139,7 @@ export function liveGithubReleasesLoader(
           ),
         }
 
-      const token = githubToken || import.meta.env.GITHUB_TOKEN
+      const token = githubToken || getSecret('GITHUB_TOKEN')
       if (!token) {
         return {
           error: new LiveGithubReleasesLoaderError(

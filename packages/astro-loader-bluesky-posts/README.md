@@ -15,7 +15,7 @@ npm install -D astro-loader-bluesky-posts
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `>=4.14.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -25,7 +25,7 @@ export default defineConfig({
 })
 ```
 
-In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `^5.0.0`), import and configure the loader to define a new content collection:
+In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `>=5.0.0`), import and configure the loader to define a new content collection:
 
 ```ts
 import { defineCollection } from "astro:content"
@@ -84,6 +84,9 @@ This loader retrieves posts via the Bluesky API [`GET /xrpc/app.bsky.feed.getPos
 | `threadDepth`            | number (default: `1`)                                       | The depth of the descendant post tree to fetch if fetching the thread. Specifies how many levels of reply depth should be included.                                                                                    |
 | `threadParentHeight`     | number (default: `1`)                                       | The height of the ancestor post tree to fetch if fetching the thread. Specifies how many levels of parent posts should be included.                                                                                    |
 | `fetchOnlyAuthorReplies` | `boolean` (default: `false`)                                | Whether to fetch only the post author's replies at the specified `threadDepth`. When `true`, it returns only the author's replies as a flat array, ignoring `threadParentHeight` and `parent`.                         |
+
+> [!NOTE]
+> `linkTextType` and `newlineHandling` are applied to the generated `html` field. The main post always includes `html`. When `fetchOnlyAuthorReplies` is `true`, the flattened author replies also include `html`. When `fetchOnlyAuthorReplies` is `false`, replies are returned as the original nested thread data and are not pre-rendered with `html`.
 
 ## Schema
 

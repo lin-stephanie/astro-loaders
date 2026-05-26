@@ -87,17 +87,26 @@ const AllConfigSchema = z.object({
   /**
    * The API version to use for the Instagram API.
    *
-   * @default "v23.0"
+   * @default "v25.0"
    */
-  apiVersion: z.string().startsWith('v').default('v23.0'),
+  apiVersion: z.string().startsWith('v').default('v25.0'),
 
   /**
    * You need to {@link https://developers.facebook.com/apps get an access token} that
    * ensures the loader can access the Instagram API with Instagram Login.
    *
-   * This is optional; by default, it reads from the `INSTAGRAM_TOKEN` environment variable.
-   * You may also configure it directly here (not recommended; if you do, ensure it is not exposed
-   * in public code repositories).
+   * Build-time loader:
+   * - Optional. If omitted, `insMediasLoader` reads `INSTAGRAM_TOKEN`
+   *   from `import.meta.env` during Astro dev/build.
+   *
+   * Live loader:
+   * - Optional. If omitted, `liveInsMediasLoader` reads `INSTAGRAM_TOKEN`
+   *   at request time with Astro's `getSecret('INSTAGRAM_TOKEN')`.
+   * - Requires an Astro adapter with `astro:env/server` runtime support.
+   *
+   * Passing this option directly is supported, but in production it is
+   * recommended to use the `INSTAGRAM_TOKEN` environment variable instead to
+   * avoid bundling the token in server code.
    *
    * Note: Access tokens from the App Dashboard are long-lived and are **valid for 60 days**.
    *

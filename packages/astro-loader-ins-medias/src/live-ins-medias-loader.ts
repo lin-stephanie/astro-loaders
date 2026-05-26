@@ -1,3 +1,5 @@
+import { getSecret } from 'astro:env/server'
+
 import {
   DEFAULT_BASE_URL,
   LiveInsMediasLoaderUserConfigSchema,
@@ -31,7 +33,7 @@ export class LiveInsMediasLoaderError extends Error {
 }
 
 export function liveInsMediasLoader(
-  userConfig: LiveInsMediasLoaderUserConfig
+  userConfig?: LiveInsMediasLoaderUserConfig
 ): LiveLoader<
   InsMedia,
   LiveEntryFilter,
@@ -40,7 +42,7 @@ export function liveInsMediasLoader(
 > {
   const baseUrl = DEFAULT_BASE_URL
 
-  const parsed = LiveInsMediasLoaderUserConfigSchema.safeParse(userConfig)
+  const parsed = LiveInsMediasLoaderUserConfigSchema.safeParse(userConfig ?? {})
   if (!parsed.success)
     throw new LiveInsMediasLoaderError(
       `The configuration provided is invalid. ${parsed.error.issues
@@ -53,18 +55,21 @@ export function liveInsMediasLoader(
 
   const { fields: defaultFields, apiVersion, instagramToken } = parsed.data
 
-  const token = instagramToken || import.meta.env.INSTAGRAM_TOKEN
-  if (!token) {
-    throw new LiveInsMediasLoaderError(
-      'No Instagram token provided. Please provide a `instagramToken` or set the `INSTAGRAM_TOKEN` environment variable.\nHow to get an access token via the App Dashboard: https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/get-started.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.',
-      'MISSING_TOKEN'
-    )
-  }
+  const getToken = () => instagramToken || getSecret('INSTAGRAM_TOKEN')
 
   return {
     name: 'live-ins-medias',
 
     loadCollection: async ({ filter }) => {
+      const token = getToken()
+      if (!token)
+        return {
+          error: new LiveInsMediasLoaderError(
+            'No Instagram token provided. Please provide a `instagramToken` or set the `INSTAGRAM_TOKEN` environment variable.\nHow to get an access token via the App Dashboard: https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/get-started.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.',
+            'MISSING_TOKEN'
+          ),
+        }
+
       const parsedFilter = LiveCollectionFilterSchema.safeParse(filter)
       if (!parsedFilter.success) {
         return {
@@ -120,6 +125,15 @@ export function liveInsMediasLoader(
     },
 
     loadEntry: async ({ filter }) => {
+      const token = getToken()
+      if (!token)
+        return {
+          error: new LiveInsMediasLoaderError(
+            'No Instagram token provided. Please provide a `instagramToken` or set the `INSTAGRAM_TOKEN` environment variable.\nHow to get an access token via the App Dashboard: https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/get-started.\nHow to store token in Astro project environment variables: https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables.',
+            'MISSING_TOKEN'
+          ),
+        }
+
       const parsedFilter = LiveEntryFilterSchema.safeParse(filter)
       if (!parsedFilter.success) {
         return {

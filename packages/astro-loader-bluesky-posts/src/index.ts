@@ -1,14 +1,10 @@
-import { AtpAgent } from '@atproto/api'
-import {
-  isNotFoundPost,
-  isBlockedPost,
-  isThreadViewPost,
-} from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
+import { AppBskyFeedDefs, AtpAgent } from '@atproto/api'
 
 import { BlueskyPostsLoaderConfigSchema } from './config.js'
 import {
   PostViewExtendedSchema,
   PostWithThreadViewExtendedSchema,
+  PostWithOnlyAuthorRepliesExtendedSchema,
 } from './schema.js'
 import {
   getAtUri,
@@ -17,7 +13,6 @@ import {
   getOnlyAuthorReplies,
 } from './utils.js'
 
-import type { PostView } from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
 import type { Loader } from 'astro/loaders'
 import type { BlueskyPostsLoaderUserConfig } from './config.js'
 
@@ -26,11 +21,45 @@ import type { BlueskyPostsLoaderUserConfig } from './config.js'
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-bluesky-posts
  */
-function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
+function blueskyPostsLoader(
+  userConfig: BlueskyPostsLoaderUserConfig & {
+    fetchThread: true
+    fetchOnlyAuthorReplies: true
+  }
+): Loader & { schema: typeof PostWithOnlyAuthorRepliesExtendedSchema }
+function blueskyPostsLoader(
+  userConfig: BlueskyPostsLoaderUserConfig & {
+    fetchThread: true
+    fetchOnlyAuthorReplies?: false | undefined
+  }
+): Loader & { schema: typeof PostWithThreadViewExtendedSchema }
+function blueskyPostsLoader(
+  userConfig: BlueskyPostsLoaderUserConfig & {
+    fetchThread?: false | undefined
+  }
+): Loader & { schema: typeof PostViewExtendedSchema }
+function blueskyPostsLoader(
+  userConfig: BlueskyPostsLoaderUserConfig
+): Loader & {
+  schema:
+    | typeof PostWithOnlyAuthorRepliesExtendedSchema
+    | typeof PostWithThreadViewExtendedSchema
+    | typeof PostViewExtendedSchema
+}
+function blueskyPostsLoader(
+  userConfig: BlueskyPostsLoaderUserConfig
+): Loader & {
+  schema:
+    | typeof PostWithOnlyAuthorRepliesExtendedSchema
+    | typeof PostWithThreadViewExtendedSchema
+    | typeof PostViewExtendedSchema
+} {
   return {
     name: 'astro-loader-bluesky-posts',
     schema: userConfig.fetchThread
-      ? PostWithThreadViewExtendedSchema
+      ? userConfig.fetchOnlyAuthorReplies
+        ? PostWithOnlyAuthorRepliesExtendedSchema
+        : PostWithThreadViewExtendedSchema
       : PostViewExtendedSchema,
     async load({ logger, store, parseData, generateDigest, meta }) {
       const parsedConfig = BlueskyPostsLoaderConfigSchema.safeParse(userConfig)
@@ -54,12 +83,12 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
         return
       }
 
-      const preUris = meta.get('uris')
-      if (preUris && preUris === generateDigest(JSON.stringify(uris))) {
-        logger.info('`uris` unchanged, skipping')
+      const preConfig = meta.get('config')
+      const configDigest = generateDigest(JSON.stringify(parsedConfig.data))
+      if (preConfig && preConfig === configDigest) {
+        logger.info('Configuration unchanged, skipping')
         return
       }
-      meta.set('uris', generateDigest(JSON.stringify(uris)))
 
       try {
         const agent = new AtpAgent({ service: 'https://public.api.bsky.app' })
@@ -72,7 +101,7 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
 
           // limit to 25 URIs per request to prevent overload
           const chunkSize = 25
-          const allPosts: PostView[] = []
+          const allPosts: AppBskyFeedDefs.PostView[] = []
           for (let i = 0; i < atUris.length; i += chunkSize) {
             const chunk = atUris.slice(i, i + chunkSize)
             const getPostsRes = await agent.getPosts({ uris: chunk })
@@ -126,19 +155,19 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
                 data: { thread },
               } = getPostThreadRes
 
-              if (isNotFoundPost(thread)) {
+              if (AppBskyFeedDefs.isNotFoundPost(thread)) {
                 logger.warn(`Post with '${uri}' not found`)
                 count--
                 continue
               }
 
-              if (isBlockedPost(thread)) {
+              if (AppBskyFeedDefs.isBlockedPost(thread)) {
                 logger.warn(`Post with '${uri}' is blocked`)
                 count--
                 continue
               }
 
-              if (isThreadViewPost(thread)) {
+              if (AppBskyFeedDefs.isThreadViewPost(thread)) {
                 const post = thread.post
                 const replies = thread.replies
                 const link = atUriToPostUri(post.uri)
@@ -146,31 +175,34 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
                   post.record as any,
                   renderPostAsHtmlConfig
                 )
+
+                const data = JSON.parse(
+                  JSON.stringify({
+                    uri: post.uri,
+                    post: { ...post, link, html },
+                    replies: fetchOnlyAuthorReplies
+                      ? getOnlyAuthorReplies(
+                          replies,
+                          threadDepth,
+                          post.author.did
+                        ).map((item) => ({
+                          ...item,
+                          link: atUriToPostUri(item.uri),
+                          html: renderPostAsHtml(
+                            item.record as any,
+                            renderPostAsHtmlConfig
+                          ),
+                        }))
+                      : replies,
+                    ...(fetchOnlyAuthorReplies
+                      ? {}
+                      : { parent: thread.parent }),
+                  })
+                )
+
                 const parsedDate = await parseData({
                   id: post.uri,
-                  data: JSON.parse(
-                    JSON.stringify({
-                      uri: post.uri,
-                      post: { ...post, link, html },
-                      replies: fetchOnlyAuthorReplies
-                        ? getOnlyAuthorReplies(
-                            replies,
-                            threadDepth,
-                            post.author.did
-                          ).map((item) => ({
-                            ...item,
-                            link: atUriToPostUri(item.uri),
-                            html: renderPostAsHtml(
-                              item.record as any,
-                              renderPostAsHtmlConfig
-                            ),
-                          }))
-                        : replies,
-                      ...(fetchOnlyAuthorReplies
-                        ? {}
-                        : { parent: thread.parent }),
-                    })
-                  ),
+                  data: data,
                 })
 
                 store.set({
@@ -190,11 +222,16 @@ function blueskyPostsLoader(userConfig: BlueskyPostsLoaderUserConfig): Loader {
             `Successfully loaded ${count === atUris.length ? 'all' : `${count}`} posts`
           )
         }
+        meta.set('config', configDigest)
       } catch (error) {
-        logger.error(`Failed to load posts. ${(error as Error).message}`)
+        if (error instanceof Error) {
+          logger.error(error.stack ?? error.message)
+        } else {
+          logger.error('Failed to load posts.')
+        }
       }
     },
-  }
+  } satisfies Loader
 }
 
 export { blueskyPostsLoader, renderPostAsHtml, atUriToPostUri }

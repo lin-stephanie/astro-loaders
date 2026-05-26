@@ -7,8 +7,8 @@
 
 This package provides GitHub releases loaders for Astro projects. It includes:
 
-- `githubReleasesLoader` – Loads releases at build time. Supports two modes: load from a user’s commit history or from a list of repositories.
-- `liveGithubReleasesLoader` – Fetches releases at runtime on each request. Supports the same two modes when fetching multiple releases, or fetches a single release by its identifier.
+- `githubReleasesLoader` – Loads releases from a list of repositories at build time.
+- `liveGithubReleasesLoader` – Fetches releases at runtime on each request — releases from a list of repositories or a single release by its identifier.
 
 ## Installation
 
@@ -18,7 +18,7 @@ npm install astro-loader-github-releases
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `>=4.14.0`. For `^4.14.0`, enable the [experimental content layer](https://v4.docs.astro.build/en/reference/configuration-reference/#experimentalcontentlayer) in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -30,7 +30,7 @@ export default defineConfig({
 
 ### `githubReleasesLoader` (Build-time Collection)
 
-In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `^5.0.0`), import and configure the build-time loader to define a new content collection:
+In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `>=5.0.0`), import and configure the build-time loader to define a new content collection:
 
 ```ts
 import { defineCollection } from "astro:content"
@@ -38,8 +38,7 @@ import { githubReleasesLoader } from "astro-loader-github-releases"
 
 const githubReleases = defineCollection({
   loader: githubReleasesLoader({
-    mode: /* 'userCommit' or 'repoList' */,
-    // Config options based on `mode`. See below.
+    repos: ['withastro/astro'],
   }),
 })
 
@@ -54,7 +53,7 @@ import { getCollection } from "astro:content"
 
 const releases = await getCollection("githubReleases")
 ---
-<!-- Entries' Zod Schema varies by `loadMode`. See below. -->
+<!-- Entries' Zod Schema varies by `entryReturnType`. -->
 <ul>
   {
     releases.map((release) => (
@@ -66,7 +65,7 @@ const releases = await getCollection("githubReleases")
 </ul>
 ```
 
-`repoList` mode supports rendering release content:
+Support rendering of release content:
 
 ```astro
 ---
@@ -104,25 +103,22 @@ const repos = await getCollection("githubReleases")
 
 To update the data, trigger a site rebuild (e.g., using a third-party cron job service), as [the loader fetches data only at build time](https://docs.astro.build/en/reference/content-loader-reference/#object-loaders).
 
-### `liveGithubReleasesLoader` (Live Collection, Experimental)
+### `liveGithubReleasesLoader` (Live Collection)
 
-Astro 5.10+ introduces [experimental live content collections](https://docs.astro.build/en/reference/experimental-flags/live-content-collections), which allow data fetching at runtime. To use this feature, enable the experimental `liveContentCollections` flag as shown below, and use an adapter that supports [on-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/).
+To use live content collections, ensure Astro version `>=5.10.0` and use an adapter that supports [on-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/) with [`astro:env/server` runtime support](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables). For `^5.10.0`, [enable the experimental `liveContentCollections` flag](https://v5.docs.astro.build/en/reference/experimental-flags/live-content-collections/) in `astro.config.ts`:
 
-```js title="astro.config.mjs"
-// astro.config.mjs
+```ts
 export default {
   experimental: {
     liveContentCollections: true,
   },
 };
 ```
+Starting in `6.0.0`, this feature is no longer experimental. In `src/live.config.ts`, import and configure the live loader to define a new live content collection:
 
-In `src/live.config.ts`, import and configure the live loader to define a new live content collection:
-
-```ts title="src/live.config.ts"
-// src/live.config.ts
+```ts
 import { defineLiveCollection } from 'astro:content';
-import { liveGithubReleasesLoader } from 'astro-loader-github-releases';
+import { liveGithubReleasesLoader } from 'astro-loader-github-releases/live';
 
 const liveGithubReleases = defineLiveCollection({
   loader: liveGithubReleasesLoader(),
@@ -140,8 +136,7 @@ import { getLiveCollection, getLiveEntry } from 'astro:content';
 
 // Get releases
 const { entries: releases, error } = await getLiveCollection('liveGithubReleases', {
-  mode: /* 'userCommit' or 'repoList' */,
-  // Config options based on `mode`. See below.
+  repos: ['withastro/astro'],
 });
 
 // Get individual release
@@ -165,7 +160,7 @@ const { entries: releases, error } = await getLiveCollection('liveGithubReleases
       {releases?.map((release) => (
         <div>
           <a href={release.data.url}>{release.data.repoNameWithOwner} - {release.data.tagName}</a>
-          {/* Optional `<Content />` from `await render(release)` for `mode: 'repoList'` */}
+          {/* Optional `<Content />` from `await render(release)` */}
         </div>
       ))}
     </div>
@@ -173,30 +168,9 @@ const { entries: releases, error } = await getLiveCollection('liveGithubReleases
 }
 ```
 
-
 ## Configuration
 
 ### `githubReleasesLoader` Options
-
-| Option (* required) | Type (default)               | Description                                                                                                                                                    |
-| ------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`*             | `'userCommit' \| 'repoList'` | Specifies loading releases from a user’s commit messages or a repository list, with mode-specific options and [entries' Zod Schema](#schema).                  |
-| `clearStore`        | `boolean` (default: `false`) | Whether to clear the [store](https://docs.astro.build/en/reference/content-loader-reference/#store) scoped to the collection before storing newly loaded data. |
-
-#### `userCommit` Mode
-
-The loader uses the GitHub REST API ([`GET /users/{username}/events/public`](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user)) to fetch up to 300 events from the past 90 days (with a latency of 30 seconds to 6 hours). If `tagNameRegex` matches, the commit will be considered a release. This mode is useful for users who want to show their recent release activities. The `modeConfig` options includes:
-
-| Option (* required) | Type (default)                                                                                                                                     | Description                                                                                                                             |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `username`*         | `string`                                                                                                                                           | The unique username used to identify a specific GitHub account.                                                                         |
-| `tagNameRegex`      | `string`（default: `'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s\|$)'`)                                                                               | Regular expression for matching tag name in commit messages. The first capturing group in the regex will be used as `versionNum` field. |
-| `keyword`           | `string`（default: `'release'`）                                                                                                                     | The keyword to filter push events' commit messages for releases. Can be empty, meaning no filtering.                                    |
-| `branches`          | `string[]` (default: `['refs/heads/main', 'refs/heads/master', 'refs/heads/latest', 'refs/heads/stable', 'refs/heads/release', 'refs/heads/dev']`) | The branches to monitor for push events. Filters out activities from other forks based on these refs.                                   |
-
-#### `repoList` mode
-
-The loader fetches GitHub releases from specified repositories via the GitHub GraphQL API, requiring a GitHub PAT with `repo` scope for authentication. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
 
 | Option (* required) | Type (default)                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -204,41 +178,23 @@ The loader fetches GitHub releases from specified repositories via the GitHub Gr
 | `sinceDate`         | `Date \| string \| number` (If `sinceDate` and `monthsBack` are unspecified, load all) | The date from which to start loading releases. See supported date string formats [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format). For example:<br>`"2024-11-01T00:00:00.000Z"`<br>`"2024-11-01"`<br>`"01/11/24"`                                                                                                                                                                 |
 | `monthsBack`        | `number` (If `sinceDate` and `monthsBack` are unspecified, load all)         | The number of recent months to load releases, including the current month. **If both `monthsBack` and `sinceDate` are specified, the more recent date will be used**.                                                                                                                                                                                                                                                                                  |
 | `entryReturnType`   | `'byRelease' \| 'byRepository'` (default: `'byRepository'`)                  | Determines whether entries are returned per repository or per individual release item. This option influences the entries' Zod Schema.                                                                                                                                                                                                                                                                                                                 |
-| `githubToken`       | `string` (Defaults to the `GITHUB_TOKEN` environment variable)               | A GitHub PAT with at least `repo` scope permissions. **If configured here, keep confidential and avoid public exposure**. See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
+| `clearStore`        | `boolean` (default: `false`)                                                 | Whether to clear the [store](https://docs.astro.build/en/reference/content-loader-reference/#store) scoped to the collection before storing newly loaded data. |
+| `githubToken`       | `string` (Defaults to `GITHUB_TOKEN` via `import.meta.env`)                  | A GitHub PAT with at least `repo` scope permissions. **If configured here, keep confidential and avoid public exposure**. See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
 
 ### `liveGithubReleasesLoader` Options
 
 | Option                                                                                | Type (default)                                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `githubToken` (required for multiple releases in `repoList` mode or a single release) | `string` (Defaults to the `GITHUB_TOKEN` environment variable) | A GitHub PAT with at least `repo` scope permissions. Defaults to the `GITHUB_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
+| `githubToken` | `string` (Defaults to `GITHUB_TOKEN` via `getSecret()`) | A GitHub PAT with at least `repo` scope permissions. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). |
 
 ### `liveGithubReleasesLoader` Collection Filters
 
-| Option (* required) | Type (default)               | Description                                                                                                                                   |
-| ------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`*             | `'userCommit' \| 'repoList'` | Specifies loading releases from a user’s commit messages or a repository list, with mode-specific options and [entries' Zod Schema](#schema). |
-
-#### `userCommit` Mode
-
-The loader uses the GitHub REST API ([`GET /users/{username}/events/public`](https://docs.github.com/en/rest/activity/events?apiVersion=2022-11-28#list-public-events-for-a-user)) to fetch up to 300 events from the past 90 days (with a latency of 30 seconds to 6 hours). If `tagNameRegex` matches, the commit will be considered a release. This mode is useful for users who want to show their recent release activities. The `modeConfig` options includes:
-
-| Option (* required) | Type (default)                                                                                                                                     | Description                                                                                                                             |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `username`*         | `string`                                                                                                                                           | The unique username used to identify a specific GitHub account.                                                                         |
-| `tagNameRegex`      | `string`（default: `'v?(\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?)(?:\\s\|$)'`)                                                                               | Regular expression for matching tag name in commit messages. The first capturing group in the regex will be used as `versionNum` field. |
-| `keyword`           | `string`（default: `'release'`）                                                                                                                     | The keyword to filter push events' commit messages for releases. Can be empty, meaning no filtering.                                    |
-| `branches`          | `string[]` (default: `['refs/heads/main', 'refs/heads/master', 'refs/heads/latest', 'refs/heads/stable', 'refs/heads/release', 'refs/heads/dev']`) | The branches to monitor for push events. Filters out activities from other forks based on these refs.                                   |
-
-#### `repoList` mode
-
-The loader fetches GitHub releases from specified repositories via the GitHub GraphQL API, requiring a GitHub PAT with `repo` scope for authentication. By default, it retrieves all releases from the listed repositories, ideal for displaying data grouped by repository. The `modeConfig` options includes:
-
-| Option (* required) | Type (default)                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `repos`*            | `string[]`                                                                   | The repositories from which to load releases, each formatted as `'owner/repo'`.                                                                                                                                                                                                                                                                                                                                                                        |
-| `sinceDate`         | `Date \| string` (If `sinceDate` and `monthsBack` are unspecified, load all) | The date from which to start loading releases. See supported date string formats [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format). For example:<br>`"2024-11-01T00:00:00.000Z"`<br>`"2024-11-01"`<br>`"01/11/24"`                                                                                                                                                                 |
-| `monthsBack`        | `number` (If `sinceDate` and `monthsBack` are unspecified, load all)         | The number of recent months to load releases, including the current month. **If both `monthsBack` and `sinceDate` are specified, the more recent date will be used**.                                                                                                                                                                                                                                                                                  |
-| `entryReturnType`   | `'byRelease' \| 'byRepository'` (default: `'byRepository'`)                  | Determines whether entries are returned per repository or per individual release item. This option influences the entries' Zod Schema.                                                                                                                                                                                                                                                                                                                 |
+| Option (* required) | Type (default)                                              | Description                                                                                                                                                                                                                                                                    |
+| ------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `repos`*            | `string[]`                                                  | The repositories from which to load releases, each formatted as `'owner/repo'`.                                                                                                                                                                                                |
+| `sinceDate`         | `Date \| string`                                            | The date from which to start loading releases. If both `monthsBack` and `sinceDate` are specified, the more recent date will be used.                                                                                                                                          |
+| `monthsBack`        | `number`                                                    | The number of recent months to load releases, including the current month. If both `monthsBack` and `sinceDate` are specified, the more recent date will be used.                                                                                                              |
+| `entryReturnType`   | `'byRelease' \| 'byRepository'` (default: `'byRepository'`) | Determines whether entries are returned per repository or per individual release item. This option influences the entries' Zod Schema.                                                                                                                                          |
 
 ### `liveGithubReleasesLoader` Entry Filters
 
@@ -248,33 +204,7 @@ The loader fetches GitHub releases from specified repositories via the GitHub Gr
 
 ## Schema
 
-The Zod schema for the entries in the loaded collection is defined below.
-
-### `userCommit` Mode
-
-```ts
-const ReleaseByIdFromUserSchema = z.object({
-  id: z.string(),
-  url: z.string(),
-  tagName: z.string(),
-  versionNum: z.string(),
-  repoOwner: z.string(),
-  repoName: z.string(),
-  repoNameWithOwner: z.string(),
-  repoUrl: z.string(),
-  commitMessage: z.string(),
-  commitSha: z.string(),
-  commitUrl: z.string(),
-  actorLogin: z.string(),
-  actorAvatarUrl: z.string(),
-  isOrg: z.boolean(),
-  orgLogin: z.string().optional(),
-  orgAvatarUrl: z.string().optional(),
-  createdAt: z.string(),
-})
-```
-
-### `repoList` Mode
+The collection entries use the following Zod schema:
 
 ```ts
 // entryReturnType: 'byRelease'
@@ -313,10 +243,9 @@ Astro uses these schemas to generate TypeScript interfaces for autocompletion an
 Live loaders may fail due to network, API, or validation errors. [Handle these errors](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/#error-handling) in your components. The live loader also returns specific error codes:
 
 - `INVALID_FILTER`: Missing required filter options.
-- `NO_NEW_RELEASES`: No new releases found since last fetch.
 - `COLLECTION_LOAD_ERROR`: Failed to load collection.
 - `ENTRY_LOAD_ERROR`: Failed to load individual entry.
-- `MISSING_TOKEN`: No GitHub token provided (expect for `userCommit` mode).
+- `MISSING_TOKEN`: No GitHub token provided.
 
 ## Changelog
 
@@ -336,4 +265,3 @@ If you see any errors or room for improvement, feel free to open an [issues](htt
 [npm-downloads-href]: https://npmjs.com/package/astro-loader-github-releases
 [demo-logo]: https://img.shields.io/badge/see-demo-080f12?style=flat&colorA=080f12&colorB=f87171
 [demo-link]: https://astro-antfustyle-theme.vercel.app/releases/
-

@@ -10,7 +10,9 @@ import type { InsMediasLoaderUserConfig } from './config.js'
  *
  * @see https://github.com/lin-stephanie/astro-loaders/tree/main/packages/astro-loader-ins-medias
  */
-export function insMediasLoader(userConfig: InsMediasLoaderUserConfig): Loader {
+export function insMediasLoader(
+  userConfig: InsMediasLoaderUserConfig
+): Loader & { schema: typeof InsMediaSchema } {
   return {
     name: 'ins-medias',
     schema: InsMediaSchema,
@@ -84,5 +86,5 @@ export function insMediasLoader(userConfig: InsMediasLoaderUserConfig): Loader {
         logger.error(`Failed to load Instagram medias. ${message}`)
       }
     },
-  }
+  } satisfies Loader
 }

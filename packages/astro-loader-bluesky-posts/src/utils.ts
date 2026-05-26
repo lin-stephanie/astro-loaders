@@ -1,12 +1,7 @@
-import { RichText } from '@atproto/api'
-import { isThreadViewPost } from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
+import { AppBskyFeedDefs, RichText } from '@atproto/api'
 
-import type { AtpAgent, RichTextProps, $Typed } from '@atproto/api'
+import type { AtpAgent, RichTextProps } from '@atproto/api'
 import type { z } from 'astro/zod'
-import type {
-  PostView,
-  ThreadViewPost,
-} from '@atproto/api/dist/client/types/app/bsky/feed/defs.js'
 import type { BlueskyPostsLoaderConfigSchema } from './config.js'
 
 export async function getAtUri(uri: string, agent: AtpAgent) {
@@ -120,18 +115,17 @@ export function atUriToPostUri(atUri: string) {
  * Optionally flattens the nested structure into a single-level array of posts.
  */
 export function getOnlyAuthorReplies(
-  replies: ThreadViewPost['replies'],
+  replies: AppBskyFeedDefs.ThreadViewPost['replies'],
   depth: number,
   authorDid: string
 ) {
   if (!replies || replies.length === 0 || depth <= 0) return []
 
-  const filtered = replies.filter(
-    (item): item is $Typed<ThreadViewPost> =>
-      isThreadViewPost(item) && item.post.author.did === authorDid
-  )
+  const filtered = replies
+    .filter(AppBskyFeedDefs.isThreadViewPost)
+    .filter((item) => item.post.author.did === authorDid)
 
-  return filtered.reduce<PostView[]>((acc, item) => {
+  return filtered.reduce<AppBskyFeedDefs.PostView[]>((acc, item) => {
     acc.push(item.post)
 
     const childPosts = getOnlyAuthorReplies(item.replies, depth - 1, authorDid)

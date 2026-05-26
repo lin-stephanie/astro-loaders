@@ -26,7 +26,7 @@ npm install astro-loader-ins-medias
 
 ## Usage
 
-To use the Astro loader, ensure Astro version `^4.14.0 || ^5.0.0`. For `^4.14.0`, enable the experimental content layer in `astro.config.ts`:
+To use the Astro loader, ensure Astro version `>=4.14.0`. For `^4.14.0`, enable the experimental content layer in `astro.config.ts`:
 
 ```ts
 export default defineConfig({
@@ -38,7 +38,7 @@ export default defineConfig({
 
 ### `insMediasLoader` (Build-time Collection)
 
-In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `^5.0.0`), import and configure the build-time loader to define a new content collection:
+In `src/content/config.ts` (for `^4.14.0`) or `src/content.config.ts` (for `>=5.0.0`), import and configure the build-time loader to define a new content collection:
 
 ```ts
 import { defineCollection } from "astro:content"
@@ -51,7 +51,7 @@ const insMedias = defineCollection({
     since: new Date('2024-01-01'),
     until: '2024-12-31',
     limit: 10,
-    apiVersion: 'v23.0',
+    apiVersion: 'v25.0',
   }),
 })
 
@@ -80,25 +80,22 @@ const medias = await getCollection("insMedias");
 
 To update the data, trigger a site rebuild (e.g., using a third-party cron job service), as [the loader fetches data only at build time](https://docs.astro.build/en/reference/content-loader-reference/#object-loaders).
 
-### `liveInsMediasLoader` (Live Collection, Experimental)
+### `liveInsMediasLoader` (Live Collection)
 
-Astro 5.10+ introduces [experimental live content collections](https://docs.astro.build/en/reference/experimental-flags/live-content-collections), which allow data fetching at runtime. To use this feature, enable the experimental `liveContentCollections` flag as shown below, and use an adapter that supports [on-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/).
+To use live content collections, ensure Astro version `>=5.10.0` and use an adapter that supports [on-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/) with [`astro:env/server` runtime support](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables). For `^5.10.0`, [enable the experimental `liveContentCollections` flag](https://v5.docs.astro.build/en/reference/experimental-flags/live-content-collections/) in `astro.config.ts`:
 
-```js title="astro.config.mjs"
-// astro.config.mjs
+```ts
 export default {
   experimental: {
     liveContentCollections: true,
   },
 };
 ```
+Starting in `6.0.0`, this feature is no longer experimental. In `src/live.config.ts`, import and configure the live loader to define a new live content collection:
 
-In `src/live.config.ts`, import and configure the live loader to define a new live content collection:
-
-```ts title="src/live.config.ts"
-// src/live.config.ts
+```ts
 import { defineLiveCollection } from 'astro:content';
-import { liveInsMediasLoader } from 'astro-loader-ins-medias';
+import { liveInsMediasLoader } from 'astro-loader-ins-medias/live';
 
 const liveInsMedias = defineLiveCollection({
   loader: liveInsMediasLoader(),
@@ -121,7 +118,7 @@ const { entries: medias, error } = await getLiveCollection('liveInsMedias',{
   since: new Date('2024-01-01'),
   until: '2024-12-31',
   limit: 10,
-  apiVersion: 'v23.0',
+  apiVersion: 'v25.0',
 });
 
 // Get individual media
@@ -160,16 +157,16 @@ const { entries: medias, error } = await getLiveCollection('liveInsMedias',{
 | `since`             | `Date \| string \| number`                                                           | Only load medias after this date. It must be a valid Date or a value convertible by [`new Date()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date#parameters).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `until`             | `Date \| string \| number`                                                           | Only load medias before this date. It must be a valid Date or a value convertible by [`new Date()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date#parameters).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `limit`             | `number`                                                                             | Maximum number of media items to load.<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `apiVersion`        | `string` (`"v23.0"`)                                                                 | The API version to use for the Instagram API.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `instagramToken`    | `string`                                                                             | You need to [get an access token](https://developers.facebook.com/apps) that ensures the loader can access the Instagram API with Instagram Login. Defaults to the `INSTAGRAM_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). Note: Access tokens from the App Dashboard are are **valid for 60 days**.                                                                                                                   |
+| `apiVersion`        | `string` (`"v25.0"`)                                                                 | The API version to use for the Instagram API.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `instagramToken`    | `string`                                                                             | You need to [get an access token](https://developers.facebook.com/apps) that ensures the loader can access the Instagram API with Instagram Login. Defaults to `INSTAGRAM_TOKEN` via `import.meta.env`. **If configured here, keep confidential and avoid public exposure.** See [how to get one](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/get-started#get-an-access-token) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables).                                                                                                                   |
 
 ### `liveInsMediasLoader` Options
 
 | Option (* required) | Type (default)                                                                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `fields`            | `string` ([default](https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-ins-medias/src/config.ts#L49)) | A string that specifies which Instagram media fields to fetch, and optionally additional fields from supported edges. Note:<br>- Default fields have exact types defined in the schema, any extra fields you add will be typed as `unknown`.<br>- You can [provide your own schema](https://docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), or import and extend `InsMediaSchema`, to validate the data and generate TypeScript types for your collection.<br>- To fetch edge fields, include them in the format `edge{field1,field2}`.<br>Ref: [Fields reference](https://developers.facebook.com/docs/instagram-platform/reference/instagram-media#fields)、[edges Edges reference](https://developers.facebook.com/docs/instagram-platform/reference/instagram-media#edges) |
-| `apiVersion`        | `string` (`"v23.0"`)                                                                                                         | The API version to use for the Instagram API.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `instagramToken`    | `string`                                                                                                                     | You need to [get an access token](https://developers.facebook.com/apps) that ensures the loader can access the Instagram API with Instagram Login. Defaults to the `INSTAGRAM_TOKEN` environment variable. **If configured here, keep confidential and avoid public exposure.** See [how to create one](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). Note: Access tokens from the App Dashboard are are **valid for 60 days**.                                                                                                                   |
+| `apiVersion`        | `string` (`"v25.0"`)                                                                                                         | The API version to use for the Instagram API.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `instagramToken`    | `string`                                                                                                                     | You need to [get an access token](https://developers.facebook.com/apps) that ensures the loader can access the Instagram API with Instagram Login. Defaults to `INSTAGRAM_TOKEN` via `getSecret()`. **If configured here, keep confidential and avoid public exposure.** See [how to get one](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/get-started#get-an-access-token) and [configure env vars in an Astro project](https://docs.astro.build/en/guides/environment-variables/#setting-environment-variables). Note: Access tokens from the App Dashboard are are **valid for 60 days**.                                                                                                                  |
 
 ### `liveInsMediasLoader` Collection Filters
 
@@ -214,7 +211,7 @@ const InsMediaSchema = z
           })
           .partial()
           .required({ id: true })
-          .passthrough()
+          .catchall(z.unknown())
       ),
     }),
     comments: z.object({
@@ -228,16 +225,36 @@ const InsMediaSchema = z
           })
           .partial()
           .required({ id: true })
-          .passthrough()
+          .catchall(z.unknown())
       ),
     }),
   })
   .partial()
   .required({ id: true })
-  .passthrough()
+  .catchall(z.unknown())
 ```
 
 Astro uses these schemas to generate TypeScript interfaces for autocompletion and type safety. When [customizing the collection schema](https://docs.astro.build/en/guides/content-collections/#defining-the-collection-schema), keep it compatible with the loader’s built-in Zod schema to avoid errors.
+
+> [!TIP]
+> `InsMediaSchema` is exported from both `astro-loader-ins-medias` and `astro-loader-ins-medias/live`. The default `fields` value is a feed-focused subset, not the full Instagram Media field list. If you request extra fields, extend the schema so Astro can infer their types.
+>
+> ```ts
+> import { defineCollection, z } from 'astro:content'
+> import { insMediasLoader, InsMediaSchema } from 'astro-loader-ins-medias'
+>
+> const insMedias = defineCollection({
+>   loader: insMediasLoader({
+>     fields: 'id,permalink,caption,media_url,thumbnail_url,username,timestamp',
+>   }),
+>   schema: InsMediaSchema.extend({
+>     thumbnail_url: z.string().url().optional(),
+>     username: z.string().optional(),
+>   }),
+> })
+>
+> export const collections = { insMedias }
+> ```
 
 ## Live Collections Error Handling
 

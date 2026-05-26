@@ -1,42 +1,6 @@
 import { z } from 'astro/zod'
 import type { GithubReleasesLoaderUserConfig } from './config.js'
 
-/* userCommit */
-const CommitAuthorSchema = z.object({
-  name: z.string(),
-  email: z.string(),
-})
-const CommitSchema = z.object({
-  sha: z.string(),
-  message: z.string(),
-  author: CommitAuthorSchema,
-  url: z.string().url(),
-  distinct: z.boolean(),
-})
-export type Commit = z.infer<typeof CommitSchema>
-
-const ReleaseByIdFromUserSchema = z.object({
-  id: z.string(),
-  url: z.string(),
-  tagName: z.string(),
-  versionNum: z.string(),
-  repoOwner: z.string(),
-  repoName: z.string(),
-  repoNameWithOwner: z.string(),
-  repoUrl: z.string(),
-  commitMessage: z.string(),
-  commitSha: z.string(),
-  commitUrl: z.string(),
-  actorLogin: z.string(),
-  actorAvatarUrl: z.string(),
-  isOrg: z.boolean(),
-  orgLogin: z.string().optional(),
-  orgAvatarUrl: z.string().optional(),
-  createdAt: z.string(),
-})
-export type ReleaseByIdFromUser = z.infer<typeof ReleaseByIdFromUserSchema>
-
-/* repoList */
 // entryReturnType: 'byRelease'
 const ReleaseByIdFromReposSchema = z.object({
   id: z.string(),
@@ -72,13 +36,19 @@ export type ReleaseByRepoFromRepos = z.infer<
 /**
  * Retrieves the schema based on the provided user configuration.
  */
-export function getEntrySchema(userConfig: GithubReleasesLoaderUserConfig) {
-  const schema =
-    userConfig.mode === 'userCommit'
-      ? ReleaseByIdFromUserSchema
-      : userConfig.entryReturnType === 'byRelease'
-        ? ReleaseByIdFromReposSchema
-        : ReleaseByRepoFromReposSchema
+export type GithubReleasesEntrySchema<
+  TConfig extends GithubReleasesLoaderUserConfig,
+> = TConfig extends { entryReturnType: 'byRelease' }
+  ? typeof ReleaseByIdFromReposSchema
+  : typeof ReleaseByRepoFromReposSchema
 
-  return schema
+export function getEntrySchema<TConfig extends GithubReleasesLoaderUserConfig>(
+  userConfig: TConfig
+): GithubReleasesEntrySchema<TConfig> {
+  const schema =
+    userConfig.entryReturnType === 'byRelease'
+      ? ReleaseByIdFromReposSchema
+      : ReleaseByRepoFromReposSchema
+
+  return schema as GithubReleasesEntrySchema<TConfig>
 }
