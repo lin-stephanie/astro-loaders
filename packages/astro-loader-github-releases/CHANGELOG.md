@@ -1,5 +1,25 @@
 # astro-loader-github-releases
 
+## 3.0.1
+
+### Patch Changes
+
+- Expand the Astro peer range from `>=4.14.0 <7.0.0` to `>=4.14.0 <8.0.0` so Astro 7 projects can install the loader without peer dependency conflicts. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
+- Relax Release identifier validation from fixed 16-character Base64 node IDs to GitHub global node IDs such as `RE_...`, reuse shared URL regexes, and document live entry identifiers as `string | object`. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
+- Update GraphQL Code Generator (`codegen.config.ts`) to emit typed string documents with pure annotations, operation-only types, pre-resolved result shapes, type-only imports, string-union enums, and a scoped post-generation formatter for `src/graphql/gen/operations.ts`. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
+- Replace `graphql#print` calls with `String(...)` because generated documents are now typed string documents instead of GraphQL AST documents. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
+- Migrate the package build from inline `tsup` scripts and `postbuild` `.graphql` copying to `tsdown --watch` / `tsdown` with `tsdown.config.ts`, keep `astro:env/server` external through `deps.neverBundle`, disable declaration/source maps, and mark the package as side-effect free for better tree-shaking. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
+- Add `__typename` to the release GraphQL fragment and use it in `getValidReleaseNode()` so lookups only map real `Release` nodes before stripping the typename from returned data. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
+- Return an `INVALID_IDENTIFIER` loader error when live release entry lookups by node ID, URL or `{ owner, repo, tagName }` do not resolve to a GitHub Release, instead of returning an empty result. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
+- Align README with the updated runtime behavior. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
 ## 3.0.0
 
 ### Major Changes
@@ -19,7 +39,7 @@
 - Implement the Astro 6 migration change where [schema types are inferred instead of generated](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-schema-types-are-inferred-instead-of-generated-content-loader-api), while preserving accurate `entryReturnType` inference and avoiding Zod 4 internal type leakage in published declarations ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
 
 - Astro v6.0 upgrades to Zod 4. Based on the [Zod 4 changelog](https://zod.dev/v4/changelog) and the need to keep compatibility with older Astro versions, update schemas by: ([`c0089f2`](https://github.com/lin-stephanie/astro-loaders/commit/c0089f260d295aa303b223c9432d9f002956858e))
-  
+
   - Replace object intersection with `extend()` for the extended post schema
 
 ## 2.1.1
@@ -30,7 +50,7 @@
 
 ## 2.1.0
 
-### Minor Changes 
+### Minor Changes
 
 - Add `liveGithubReleasesLoader` live loader that fetches releases at runtime on each request ([`348d6cf`](https://github.com/lin-stephanie/astro-loaders/commit/348d6cf435e30c80e5a3fc9663f9cdc0d0a1b3d2))
 - Add exports including `LiveGithubReleasesLoaderError` (extends `Error`) and the types `LiveGithubReleasesLoaderUserConfig`, `LiveCollectionFilter`, and `LiveEntryFilter` ([`348d6cf`](https://github.com/lin-stephanie/astro-loaders/commit/348d6cf435e30c80e5a3fc9663f9cdc0d0a1b3d2))
@@ -56,10 +76,10 @@
 
   - Renamed `loadMode` to `mode`
   - Removed `modeConfig`; options are now configured per mode directly
+
 - In `repoList` mode, when `entryReturnType: 'byRepository'`, renamed `repoReleases` in the entry Zod schema to `releases` ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
 
 - Add `clearStore` option to control whether to clear store before saving new data ([`153a8da`](https://github.com/lin-stephanie/astro-loaders/commit/153a8daf3aa514758f0e3edaf4c145d710372896))
-
 
 ## 1.4.1
 
@@ -69,7 +89,7 @@
 
 ## 1.4.0
 
-### Minor Changes 
+### Minor Changes
 
 - In `userCommit` mode, add `repoOwner` field and renamed `repoName` to `repoNameWithOwner` (the original `repoName` only represented the repository name) ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
 - In `repoList` mode, add `versionNum` and `repoOwner` fields ([`38cf8fc`](https://github.com/lin-stephanie/astro-loaders/commit/38cf8fced10c91476e9475fd40f6df51f86cf121))
