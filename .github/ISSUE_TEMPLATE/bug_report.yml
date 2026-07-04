@@ -12,9 +12,11 @@ body:
       label: "Target Package"
       description: "Which package is this bug related to?"
       options:
-        - "astro-loader-tweets"
-        - "astro-loader-github-prs"
         - "astro-loader-github-releases"
+        - "astro-loader-github-prs"
+        - "astro-loader-tweets"
+        - "astro-loader-bluesky-posts"
+        - "astro-loader-ins-medias"
     validations:
       required: true
   - type: textarea
@@ -37,7 +39,7 @@ body:
       label: Expected Behavior
       description: What should happen?
     validations:
-      required: false
+      required: true
   - type: textarea
     id: logs
     attributes:

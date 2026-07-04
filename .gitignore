@@ -34,5 +34,5 @@ dist/
 # compressed output
 *.tgz
 
-# archived files
-archive/
+# local files
+.local/

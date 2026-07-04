@@ -12,9 +12,11 @@ body:
       label: "Target Package"
       description: "Which package is this feature request related to?"
       options:
-        - "astro-loader-tweets"
-        - "astro-loader-github-prs"
         - "astro-loader-github-releases"
+        - "astro-loader-github-prs"
+        - "astro-loader-tweets"
+        - "astro-loader-bluesky-posts"
+        - "astro-loader-ins-medias"
     validations:
       required: true
   - type: textarea
@@ -42,7 +44,7 @@ body:
     id: context
     attributes:
       label: Additional context
-      description: Any other context about the feature request here.
+      description: If applicable, add any other context or screenshots to help explain the request.
     validations:
       required: false
   - type: checkboxes
@@ -52,4 +54,3 @@ body:
       options:
         - label: Check that there isn't [already an issue](https://github.com/lin-stephanie/astro-loaders/issues) that request the same feature.
           required: true
-
