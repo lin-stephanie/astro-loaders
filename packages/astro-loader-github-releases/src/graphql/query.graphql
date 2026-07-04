@@ -1,5 +1,6 @@
 # https://docs.github.com/en/graphql/reference/objects#release
 fragment ReleaseCore on Release {
+  __typename
   id
   url
   name

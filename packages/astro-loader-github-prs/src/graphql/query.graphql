@@ -1,5 +1,6 @@
 # https://docs.github.com/en/graphql/reference/objects#pullrequest
 fragment PullRequestCore on PullRequest {
+  __typename
   id
   url
   title

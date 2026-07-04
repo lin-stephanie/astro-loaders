@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -43,9 +43,9 @@ jobs:
           node-version: lts/*
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
-          version: 10
+          version: 11
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -74,4 +74,3 @@ jobs:
     steps:
       - name: No release trigger
         run: echo "No 'release' found in latest commit message, skipping release workflow."
-

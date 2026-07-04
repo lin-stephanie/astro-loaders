@@ -4,6 +4,10 @@ const githubReleasesDefaultConfig = {
   entryReturnType: 'byRepository' as const,
 }
 
+const RELEASE_NODE_ID_REGEX = /^RE_[A-Za-z0-9_-]+$/
+const RELEASE_URL_REGEX =
+  /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/releases\/tag\/([^/]+)\/?$/
+
 const OptionalConfigSchema = z.object({
   /**
    * Whether to clear the {@link https://docs.astro.build/en/reference/content-loader-reference/#store store}
@@ -126,9 +130,9 @@ export type LiveCollectionFilter = z.input<typeof LiveCollectionFilterSchema>
 
 export const LiveEntryFilterSchema = z.object({
   /**
-   * The identifier for a pull request, which can be one of the following:
+   * The identifier for a release, which can be one of the following:
    *
-   * - A Release node ID string: "RE_" + 16 Base64 chars.
+   * - A GitHub Release global node ID string, such as "RE_kwDOFL76Q84O4ieR".
    * - A GitHub Release URL: "https://github.com/{owner}/{repo}/releases/tag/{tagName}".
    * - An object with the following fields:
    *   - `owner`: The repository owner.
@@ -157,28 +161,24 @@ export const LiveEntryFilterSchema = z.object({
     ])
     .superRefine((val, ctx) => {
       if (typeof val === 'string') {
-        if (/^RE_[A-Za-z0-9+/=]{16}$/.test(val)) return
-        const match = val.match(
-          /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/releases\/tag\/([^/]+)\/?$/
-        )
+        if (RELEASE_NODE_ID_REGEX.test(val)) return
+        const match = val.match(RELEASE_URL_REGEX)
         if (match) return
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message:
-            'Invalid identifier string: expected Release node ID (start with "RE_" followed by 16 Base64 characters) or GitHub Release URL',
+            'Invalid identifier string: expected GitHub Release global node ID or GitHub Release URL',
         })
       }
     })
     .transform((val) => {
       if (typeof val === 'string') {
-        const urlMatch = val.match(
-          /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/releases\/tag\/([^/]+)\/?$/
-        )
+        const urlMatch = val.match(RELEASE_URL_REGEX)
         if (urlMatch) {
           const [, owner, repo, tagName] = urlMatch
           return { owner, repo, tagName }
         }
-        if (/^RE_[A-Za-z0-9+/=]{16}$/.test(val)) return val
+        if (RELEASE_NODE_ID_REGEX.test(val)) return val
       }
       return val
     }),

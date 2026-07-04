@@ -2,7 +2,7 @@
   "name": "astro-loader-bluesky-posts",
   "version": "1.2.4",
   "description": "Astro loader for loading Bluesky posts and threads using post URLs or AT-URIs.",
-  "author": "Stephanie Lin <norwaywoods047@gmail.com>",
+  "author": "Stephanie Lin",
   "license": "MIT",
   "keywords": [
     "withastro",
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/lin-stephanie/astro-loaders/blob/main/packages/astro-loader-bluesky-posts/",
   "bugs": "https://github.com/lin-stephanie/astro-loaders/issues",
   "type": "module",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
@@ -33,13 +34,13 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "dev": "tsup src/index.ts --format esm --dts --watch",
-    "build": "tsup src/index.ts --format esm --dts --clean --treeshake",
+    "dev": "tsdown --watch",
+    "build": "tsdown",
     "check": "publint && pnpm pack | grep '.tgz$' | xargs attw --ignore-rules=cjs-resolves-to-esm",
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
-    "astro": ">=4.14.0 <7.0.0"
+    "astro": ">=4.14.0 <8.0.0"
   },
   "dependencies": {
     "@atproto/api": "^0.20.5"

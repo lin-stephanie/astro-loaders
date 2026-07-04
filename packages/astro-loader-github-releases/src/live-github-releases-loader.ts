@@ -1,7 +1,5 @@
 import { getSecret } from 'astro:env/server'
-
 import { Octokit } from 'octokit'
-import { print } from 'graphql'
 
 import {
   LiveGithubReleasesLoaderUserConfigSchema,
@@ -62,7 +60,7 @@ export function liveGithubReleasesLoader(
       LiveGithubReleasesLoaderUserConfigSchema.safeParse(userConfig)
     if (!parsedConfig.success)
       throw new LiveGithubReleasesLoaderError(
-        `1The configuration provided is invalid. ${parsedConfig.error.issues
+        `The configuration provided is invalid. ${parsedConfig.error.issues
           .map((issue) => issue.message)
           .join(
             '\n'
@@ -159,7 +157,7 @@ export function liveGithubReleasesLoader(
             id: identifier,
           }
           const res = await octokit.graphql<GetReleaseByIdQuery>(
-            print(GetReleaseByIdDocument),
+            String(GetReleaseByIdDocument),
             {
               headers: {
                 'X-Github-Next-Global-ID': '1',
@@ -169,7 +167,16 @@ export function liveGithubReleasesLoader(
           )
 
           const release = getValidReleaseNode(res.node)
-          if (!release) return
+          if (!release) {
+            return {
+              error: new LiveGithubReleasesLoaderError(
+                `The identifier '${identifier}' did not resolve to a GitHub Release.`,
+                'INVALID_IDENTIFIER',
+                identifier
+              ),
+            }
+          }
+
           return {
             id: release.id,
             data: release,
@@ -184,7 +191,7 @@ export function liveGithubReleasesLoader(
             tagName: identifier.tagName,
           }
           const res = await octokit.graphql<GetReleaseByTagNameQuery>(
-            print(GetReleaseByTagNameDocument),
+            String(GetReleaseByTagNameDocument),
             {
               headers: {
                 'X-Github-Next-Global-ID': '1',
@@ -194,7 +201,16 @@ export function liveGithubReleasesLoader(
           )
 
           const release = getValidReleaseNode(res.repository?.release)
-          if (!release) return
+          if (!res.repository || !release) {
+            return {
+              error: new LiveGithubReleasesLoaderError(
+                `The identifier '${identifier}' did not resolve to a GitHub Release.`,
+                'INVALID_IDENTIFIER',
+                String(identifier)
+              ),
+            }
+          }
+
           return {
             id: release.id,
             data: release,
@@ -204,7 +220,7 @@ export function liveGithubReleasesLoader(
       } catch (error) {
         return {
           error: new LiveGithubReleasesLoaderError(
-            'Failed to load pull request.',
+            'Failed to load GitHub release.',
             'ENTRY_LOAD_ERROR',
             String(identifier)
           ),

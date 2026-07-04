@@ -1,5 +1,4 @@
 import { Octokit } from 'octokit'
-import { print } from 'graphql'
 import { GetReleasesDocument } from './graphql/gen/operations.js'
 import { getSinceDate, getValidReleaseNode } from './utils.js'
 
@@ -48,7 +47,7 @@ export async function fetchReleasesByRepoList(
         }
 
         const res = await octokit.graphql<GetReleasesQuery>(
-          print(GetReleasesDocument),
+          String(GetReleasesDocument),
           {
             headers: {
               'X-Github-Next-Global-ID': '1',

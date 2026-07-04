@@ -148,7 +148,7 @@ const { entries: releases, error } = await getLiveCollection('liveGithubReleases
   identifier: 'https://github.com/withastro/astro/releases/tag/astro@5.13.11',
 
   // by object
-  identifier: { owner: 'withastro', repo: 'astro', tag: 'astro@5.13.11' },
+  identifier: { owner: 'withastro', repo: 'astro', tagName: 'astro@5.13.11' },
 }); */
 ---
 
@@ -200,7 +200,7 @@ const { entries: releases, error } = await getLiveCollection('liveGithubReleases
 
 | Option (* required) | Type (default) | Description                                                                                                                                                                                           |
 | ------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `identifier`*       | `string`       | The identifier for a release, which can be one of the following:<br>- A release node ID string: "RE_" + 16 Base64 chars.<br>- A GitHub release URL.<br>- An object with fields: `owner`, `repo`, `tagName`. |
+| `identifier`*       | `string \| object` | The identifier for a release, which can be one of the following:<br>- A GitHub Release global node ID string, such as `RE_kwDOFL76Q84O4ieR`.<br>- A GitHub release URL.<br>- An object with fields: `owner`, `repo`, `tagName`. |
 
 ## Schema
 
@@ -242,10 +242,11 @@ Astro uses these schemas to generate TypeScript interfaces for autocompletion an
 
 Live loaders may fail due to network, API, or validation errors. [Handle these errors](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/#error-handling) in your components. The live loader also returns specific error codes:
 
+- `MISSING_TOKEN`: No GitHub token provided.
 - `INVALID_FILTER`: Missing required filter options.
+- `INVALID_IDENTIFIER`: Invalid release identifier.
 - `COLLECTION_LOAD_ERROR`: Failed to load collection.
 - `ENTRY_LOAD_ERROR`: Failed to load individual entry.
-- `MISSING_TOKEN`: No GitHub token provided.
 
 ## Changelog
 

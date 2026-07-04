@@ -1,5 +1,4 @@
 import { Octokit } from 'octokit'
-import { print } from 'graphql'
 
 import { GetPrsDocument } from './graphql/gen/operations.js'
 import { GithubPrsLoaderUserConfigSchema } from './config.js'
@@ -76,7 +75,7 @@ export function githubPrsLoader(
             cursor,
           }
           const res = await octokit.graphql<GetPrsQuery>(
-            print(GetPrsDocument),
+            String(GetPrsDocument),
             {
               headers: {
                 'X-Github-Next-Global-ID': '1',

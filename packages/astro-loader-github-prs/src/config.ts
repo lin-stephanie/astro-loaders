@@ -1,10 +1,13 @@
 import { z } from 'astro/zod'
 
+const PR_NODE_ID_REGEX = /^PR_[A-Za-z0-9_-]+$/
+const PR_URL_REGEX = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/pull\/(\d+)\/?$/
+
 export const AllConfigSchema = z.object({
   /**
    * The identifier for a pull request, which can be one of the following:
    *
-   * - A PR node ID string: "PR_" + 16 Base64 chars.
+   * - A GitHub PR global node ID string, such as "PR_kwDOFL76Q86uDYLC".
    * - A GitHub PR URL: "https://github.com/{owner}/{repo}/pull/{number}".
    * - An object with the following fields:
    *   - `owner`: The repository owner.
@@ -33,35 +36,31 @@ export const AllConfigSchema = z.object({
     ])
     .superRefine((val, ctx) => {
       if (typeof val === 'string') {
-        if (/^PR_[A-Za-z0-9+/=]{16}$/.test(val)) return
-        const match = val.match(
-          /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/pull\/(\d+)\/?$/
-        )
+        if (PR_NODE_ID_REGEX.test(val)) return
+        const match = val.match(PR_URL_REGEX)
         if (match) return
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message:
-            'Invalid identifier string: expected PR node ID (start with "PR_" followed by 16 Base64 characters) or GitHub PR URL',
+            'Invalid identifier string: expected GitHub PR global node ID (for example "PR_...") or GitHub PR URL',
         })
       }
     })
     .transform((val) => {
       if (typeof val === 'string') {
-        const urlMatch = val.match(
-          /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/pull\/(\d+)\/?$/
-        )
+        const urlMatch = val.match(PR_URL_REGEX)
         if (urlMatch) {
           const [, owner, repo, number] = urlMatch
           return { owner, repo, number: Number(number) }
         }
-        if (/^PR_[A-Za-z0-9+/=]{16}$/.test(val)) return val
+        if (PR_NODE_ID_REGEX.test(val)) return val
       }
       return val
     }),
 
   /**
    * The user-defined search string for querying pull requests on GitHub.
-   * This string will be concatenated with "type:pr" to form the complete search query.
+   * The loader prefixes `type:pr` when neither `type:pr` nor `is:pr` is present.
    *
    * For more information:
    * - {@link https://docs.github.com/en/graphql/reference/queries#search GitHub GraphQL API - Perform a search across resources}
@@ -115,11 +114,11 @@ export const AllConfigSchema = z.object({
    * with at least `repo` scope permissions to authenticate requests to the GraphQL API.
    *
    * Build-time loader:
-   * - Optional. If omitted, `githubReleasesLoader` reads `GITHUB_TOKEN`
+   * - Optional. If omitted, `githubPrsLoader` reads `GITHUB_TOKEN`
    *   from `import.meta.env` during Astro dev/build.
    *
    * Live loader:
-   * - Optional. If omitted, `liveGithubReleasesLoader` reads `GITHUB_TOKEN`
+   * - Optional. If omitted, `liveGithubPrsLoader` reads `GITHUB_TOKEN`
    *   at request time with Astro's `getSecret('GITHUB_TOKEN')`.
    * - Requires an Astro adapter with `astro:env/server` runtime support.
    *

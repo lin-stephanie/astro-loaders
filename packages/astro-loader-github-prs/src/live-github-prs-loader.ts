@@ -1,7 +1,6 @@
 import { getSecret } from 'astro:env/server'
 
 import { Octokit } from 'octokit'
-import { print } from 'graphql'
 
 import {
   GetPrsDocument,
@@ -118,7 +117,7 @@ export function liveGithubPrsLoader(
             cursor,
           }
           const res = await octokit.graphql<GetPrsQuery>(
-            print(GetPrsDocument),
+            String(GetPrsDocument),
             {
               headers: {
                 'X-Github-Next-Global-ID': '1',
@@ -128,13 +127,9 @@ export function liveGithubPrsLoader(
           )
 
           const prsPerPage =
-            res.search.nodes?.filter(
-              (node) =>
-                node !== null &&
-                node !== undefined &&
-                typeof node === 'object' &&
-                'id' in node
-            ) || []
+            res.search.nodes
+              ?.map((node) => getValidPrNode(node))
+              .filter((node): node is GithubPr => node !== null) || []
 
           if (maxEntries && count + prsPerPage.length > maxEntries) {
             prsPerPage.splice(maxEntries - count)
@@ -197,7 +192,7 @@ export function liveGithubPrsLoader(
             id: identifier,
           }
           const res = await octokit.graphql<GetPrByIdQuery>(
-            print(GetPrByIdDocument),
+            String(GetPrByIdDocument),
             {
               headers: {
                 'X-Github-Next-Global-ID': '1',
@@ -207,7 +202,16 @@ export function liveGithubPrsLoader(
           )
 
           const pr = getValidPrNode(res.node)
-          if (!pr) return undefined
+          if (!pr) {
+            return {
+              error: new LiveGithubPrsLoaderError(
+                `The identifier '${identifier}' did not resolve to a GitHub PR.`,
+                'INVALID_IDENTIFIER',
+                identifier
+              ),
+            }
+          }
+
           return {
             id: pr.id,
             data: pr,
@@ -222,7 +226,7 @@ export function liveGithubPrsLoader(
             number: identifier.number,
           }
           const res = await octokit.graphql<GetPrByNumberQuery>(
-            print(GetPrByNumberDocument),
+            String(GetPrByNumberDocument),
             {
               headers: {
                 'X-Github-Next-Global-ID': '1',
@@ -232,7 +236,16 @@ export function liveGithubPrsLoader(
           )
 
           const pr = getValidPrNode(res.repository?.pullRequest)
-          if (!pr) return undefined
+          if (!res.repository || !pr) {
+            return {
+              error: new LiveGithubPrsLoaderError(
+                `The identifier '${identifier}' did not resolve to a GitHub PR.`,
+                'INVALID_IDENTIFIER',
+                String(identifier)
+              ),
+            }
+          }
+
           return {
             id: pr.id,
             data: pr,
