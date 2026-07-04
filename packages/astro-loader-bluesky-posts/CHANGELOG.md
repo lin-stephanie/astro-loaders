@@ -1,5 +1,13 @@
 # astro-loader-bluesky-posts
 
+## 1.2.5
+
+### Patch Changes
+
+- Expand the Astro peer range from `>=4.14.0 <7.0.0` to `>=4.14.0 <8.0.0` so Astro 7 projects can install the loader without peer dependency conflicts. ([`70b8058`](https://github.com/lin-stephanie/astro-loaders/commit/70b80585ffbbe5583ece7f815d9e9f012d8aea17))
+
+  Migrate the package build from inline `tsup` scripts and `postbuild` `.graphql` copying to `tsdown --watch` / `tsdown` with `tsdown.config.ts`, keep `astro:env/server` external through `deps.neverBundle`, disable declaration/source maps, and mark the package as side-effect free for better tree-shaking.
+
 ## 1.2.4
 
 ### Patch Changes
